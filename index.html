@@ -1,227 +1,184 @@
 <!DOCTYPE html>
-<!--
-	NOTES:
-	1. All tokens are represented by '$' sign in the template.
-	2. You can write your code only wherever mentioned.
-	3. All occurrences of existing tokens will be replaced by their appropriate values.
-	4. Blank lines will be removed automatically.
-	5. Remove unnecessary comments before creating your template.
--->
-<html>
-
+<html lang="id">
 <head>
-	<meta charset="UTF-8">
-	<meta name="authoring-tool" content="Adobe_Animate_CC">
-	<title>publish media pembelajaran</title>
-	<!-- write your code here -->
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="*">
-	<style>
-		#animation_container,
-		#_preload_div_ {
-			position: absolute;
-			margin: auto;
-			left: 0;
-			right: 0;
-			top: 0;
-			bottom: 0;
-		}
-	</style>
-	<script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
-	<script src="mediapembelajaran.js"></script>
-	<script>
-		var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
-		function init() {
-			canvas = document.getElementById("canvas");
-			anim_container = document.getElementById("animation_container");
-			dom_overlay_container = document.getElementById("dom_overlay_container");
-			var comp = AdobeAn.getComposition("6F5BC6B9131075439F57579F95CB72B4");
-			var lib = comp.getLibrary();
-			var loader = new createjs.LoadQueue(false);
-			loader.addEventListener("fileload", function (evt) { handleFileLoad(evt, comp) });
-			loader.addEventListener("complete", function (evt) { handleComplete(evt, comp) });
-			var lib = comp.getLibrary();
-			loader.loadManifest(lib.properties.manifest);
-		}
-		function handleFileLoad(evt, comp) {
-			var images = comp.getImages();
-			if (evt && (evt.item.type == "image")) { images[evt.item.id] = evt.result; }
-		}
-		function handleComplete(evt, comp) {
-			//This function is always called, irrespective of the content. You can use the variable "stage" after it is created in token create_stage.
-			var lib = comp.getLibrary();
-			var ss = comp.getSpriteSheet();
-			var queue = evt.target;
-			var ssMetadata = lib.ssMetadata;
-			for (i = 0; i < ssMetadata.length; i++) {
-				ss[ssMetadata[i].name] = new createjs.SpriteSheet({ "images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames })
-			}
-			var preloaderDiv = document.getElementById("_preload_div_");
-			preloaderDiv.style.display = 'none';
-			dom_overlay_container.style.display = canvas.style.display = 'block';
-			exportRoot = new lib.mediapembelajaranpai();
-			stage = new lib.Stage(canvas);
-			stage.enableMouseOver();
-			//Registers the "tick" event listener.
-			fnStartAnimation = function () {
-				stage.addChild(exportRoot);
-				createjs.Ticker.framerate = lib.properties.fps;
-				createjs.Ticker.addEventListener("tick", stage);
-			}
-			//Code to support hidpi screens and responsive scaling.
-			AdobeAn.makeResponsive(true, 'both', true, 1, [canvas, preloaderDiv, anim_container, dom_overlay_container]);
-			AdobeAn.compositionLoaded(lib.properties.id);
-			fnStartAnimation();
-		}
-	</script>
-	<!-- write your code here -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teguh Permadi - Homepage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color-1: #0f172a;
+            --bg-color-2: #1e1b4b;
+            --bg-color-3: #312e81;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, var(--bg-color-1), var(--bg-color-2), var(--bg-color-3));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main);
+            overflow: hidden;
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Decorative animated blobs */
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out alternate;
+        }
+
+        .blob-1 {
+            width: 300px;
+            height: 300px;
+            background: #8b5cf6;
+            top: -100px;
+            left: -100px;
+            border-radius: 50%;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #06b6d4;
+            bottom: -150px;
+            right: -100px;
+            border-radius: 50%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(30px) scale(1.1); }
+        }
+
+        /* Glassmorphism Card */
+        .container {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem 4rem;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-width: 90%;
+            width: 450px;
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 300;
+            margin-bottom: 2.5rem;
+            line-height: 1.5;
+        }
+
+        .link-btn {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+            z-index: -1;
+            border-radius: 50px;
+        }
+
+        .link-btn:hover {
+            color: var(--bg-color-1);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .link-btn:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 2.5rem 2rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
-
-<body onload="init();" style="margin:0px;">
-	<!-- tag audio -->
-	<audio loop src="backsound.mp3" autoplay="autoplay"></audio>
-
-	<header>
-		<!-- Fixed navbar -->
-		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
-			<a class="navbar-brand" href="#">Media Pembelajaran PAI Kelas 7</a>
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-				aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbarCollapse">
-				<ul class="navbar-nav mr-auto">
-					<li class="nav-item active">
-						<a class="nav-link" href="#" data-toggle="modal" data-target="#identitasModal">Identitas
-							Pelajaran</a>
-					</li>
-					<li class="nav-item active">
-						<a class="nav-link" href="#" data-toggle="modal" data-target="#pengembangModal">Pengembang</a>
-					</li>
-				</ul>
-			</div>
-		</nav>
-	</header>
-
-	<!-- identitas Modal -->
-	<div class="modal fade" id="identitasModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-		aria-hidden="true">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Identitas Pelajaran</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<table class="table table-striped">
-						<tbody>
-							<tr>
-								<td>Mata Pelajaran</td>
-								<td>Pendidikan Agama Islam dan Budi Pekerti</td>
-							</tr>
-							<tr>
-								<td>Kelas</td>
-								<td>7</td>
-							</tr>
-							<tr>
-								<td>Semester</td>
-								<td>Genap</td>
-							</tr>
-							<tr>
-								<td>Bab</td>
-								<td>Menggunakan Ilmu Pengetahuan Semua Menjadi Lebih Mudah</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- pengembang Modal -->
-	<div class="modal fade" id="pengembangModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-		aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Pengembang</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<div class="text-center">
-						<img src="images/profil.jpeg" height="200px" class="rounded" alt="...">
-					</div>
-					<br>
-					<table class="table table-striped">
-						<tbody>
-							<tr>
-								<td>Nama Lengkap</td>
-								<td>Puput Tri Anggara</td>
-							</tr>
-							<tr>
-								<td>NIM</td>
-								<td>20.12.0009</td>
-							</tr>
-							<tr>
-								<td>Jurusan</td>
-								<td>Manajemen Pendidikan</td>
-							</tr>
-							<tr>
-								<td>Fakultas</td>
-								<td>FKIP</td>
-							</tr>
-							<tr>
-								<td>Universitas</td>
-								<td>Sarjanawiyata Taman Siswa</td>
-							</tr>
-							<tr>
-								<td>Email</td>
-								<td>puputtri70@gmail.com</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Begin page content -->
-	<main role="main" class="container">
-		<div id="animation_container" style="background-color:rgba(255, 255, 255, 1.00); width:1024px; height:768px">
-			<canvas id="canvas" width="1024" height="768"
-				style="position: absolute; display: none; background-color:rgba(255, 255, 255, 1.00);"></canvas>
-			<div id="dom_overlay_container"
-				style="pointer-events:none; overflow:hidden; width:1024px; height:768px; position: absolute; left: 0px; top: 0px; display: none;">
-			</div>
-		</div>
-		<div id='_preload_div_'
-			style='position:absolute; top:0; left:0; display: inline-block; height:768px; width: 1024px; text-align: center;'>
-			<span style='display: inline-block; height: 100%; vertical-align: middle;'></span> <img
-				src=images/_preloader.gif style='vertical-align: middle; max-height: 100%' /></div>
-
-	</main>
-
-	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-		integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-		crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-		integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-		crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-		integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-		crossorigin="anonymous"></script>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    
+    <div class="container">
+        <h1>Teguh Permadi</h1>
+        <p>Selamat datang di halaman utama saya. Silakan jelajahi proyek-proyek saya di bawah ini.</p>
+        <a href="https://teguhpermadi.github.io/math/" class="link-btn">
+            Buka Proyek Matematika
+        </a>
+    </div>
 </body>
-
 </html>
