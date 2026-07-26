@@ -8,191 +8,81 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        'bg-1': '#0f172a',
+                        'bg-2': '#1e1b4b',
+                        'bg-3': '#312e81',
+                        accent: '#38bdf8',
+                    },
+                    animation: {
+                        'gradient-xy': 'gradientBG 15s ease infinite',
+                        'blob': 'float 10s infinite ease-in-out alternate',
+                    },
+                    keyframes: {
+                        gradientBG: {
+                            '0%, 100%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                        },
+                        float: {
+                            '0%': { transform: 'translateY(0) scale(1)' },
+                            '100%': { transform: 'translateY(30px) scale(1.1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --bg-color-1: #0f172a;
-            --bg-color-2: #1e1b4b;
-            --bg-color-3: #312e81;
-            --text-main: #f8fafc;
-            --text-muted: #cbd5e1;
-            --accent: #38bdf8;
-            --accent-hover: #0ea5e9;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(45deg, var(--bg-color-1), var(--bg-color-2), var(--bg-color-3));
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: var(--text-main);
-            overflow: hidden;
-            position: relative;
-        }
-
-        @keyframes gradientBG {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        /* Decorative animated blobs */
-        .blob {
-            position: absolute;
-            filter: blur(80px);
-            z-index: 0;
-            opacity: 0.6;
-            animation: float 10s infinite ease-in-out alternate;
-        }
-
-        .blob-1 {
-            width: 300px;
-            height: 300px;
-            background: #8b5cf6;
-            top: -100px;
-            left: -100px;
-            border-radius: 50%;
-        }
-
-        .blob-2 {
-            width: 400px;
-            height: 400px;
-            background: #06b6d4;
-            bottom: -150px;
-            right: -100px;
-            border-radius: 50%;
-            animation-delay: -5s;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(0) scale(1);
-            }
-
-            100% {
-                transform: translateY(30px) scale(1.1);
-            }
-        }
-
-        /* Glassmorphism Card */
-        .container {
-            position: relative;
-            z-index: 1;
+        .glass-panel {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 3rem 4rem;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            max-width: 90%;
-            width: 450px;
-            transform: translateY(0);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-
-        .container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+        .text-gradient {
             background: linear-gradient(to right, #fff, #cbd5e1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
-        p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            font-weight: 300;
-            margin-bottom: 2.5rem;
-            line-height: 1.5;
+        .bg-size-400 {
+            background-size: 400% 400%;
         }
-
-        .link-btn {
-            display: inline-block;
-            background: rgba(56, 189, 248, 0.1);
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1.1rem;
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .link-btn::before {
+        .btn-hover-fx::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--accent);
+            background: #38bdf8;
             transform: scaleX(0);
             transform-origin: right;
             transition: transform 0.3s ease;
             z-index: -1;
-            border-radius: 50px;
+            border-radius: 9999px;
         }
-
-        .link-btn:hover {
-            color: var(--bg-color-1);
-            border-color: var(--accent);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-        }
-
-        .link-btn:hover::before {
+        .btn-hover-fx:hover::before {
             transform: scaleX(1);
             transform-origin: left;
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .container {
-                padding: 2.5rem 2rem;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
         }
     </style>
 </head>
 
-<body>
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-
-    <div class="container">
-        <h1>Teguh Permadi</h1>
-        <p>Selamat datang di halaman utama saya. Silakan jelajahi proyek-proyek saya di bawah ini.</p>
-        <a href="addition/index.html" class="link-btn">
+<body class="font-outfit min-h-screen flex justify-center items-center bg-gradient-to-tr from-bg-1 via-bg-2 to-bg-3 bg-size-400 animate-gradient-xy text-slate-50 overflow-hidden relative">
+    <div class="absolute blur-[80px] opacity-60 animate-blob w-[300px] h-[300px] bg-purple-500 top-[-100px] left-[-100px] rounded-full z-0"></div>
+    <div class="absolute blur-[80px] opacity-60 animate-blob w-[400px] h-[400px] bg-cyan-500 bottom-[-150px] right-[-100px] rounded-full z-0 [animation-delay:-5s]"></div>
+    
+    <div class="glass-panel relative z-10 border border-white/10 rounded-3xl py-12 px-8 sm:px-16 text-center shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] hover:-translate-y-1 transition-all duration-300 w-[90%] max-w-[450px]">
+        <h1 class="text-4xl sm:text-5xl font-bold mb-2 text-gradient">Teguh Permadi</h1>
+        <p class="text-slate-300 text-lg font-light mb-10 leading-relaxed">Selamat datang di halaman utama saya. Silakan jelajahi proyek-proyek saya di bawah ini.</p>
+        <a href="addition/index.html" class="inline-block bg-sky-400/10 text-accent hover:text-bg-1 font-medium text-lg py-3 px-8 rounded-full border border-sky-400/30 transition-all duration-300 relative overflow-hidden btn-hover-fx hover:border-accent hover:shadow-[0_0_20px_rgba(56,189,248,0.4)] z-0">
             Penjumlahan
         </a>
     </div>
