@@ -108,19 +108,19 @@
                 <i class="fa-solid fa-arrow-down-short-wide"></i>
             </div>
             <div>
-                <h1 class="font-math text-2xl md:text-3xl font-bold tracking-wide bg-gradient-to-r from-emerald-400 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
+                <h1 class="font-math text-xl sm:text-2xl md:text-3xl font-bold tracking-wide bg-gradient-to-r from-emerald-400 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
                     Master Urutan Angka
                 </h1>
-                <p class="text-xs text-slate-400">Susun & Temukan Kesalahan Urutan Bilangan</p>
+                <p class="text-[10px] sm:text-xs text-slate-400">Susun & Temukan Kesalahan Urutan Bilangan</p>
             </div>
         </div>
 
         <!-- Header Actions -->
         <div class="flex items-center gap-2">
-            <button id="soundToggle" onclick="game.toggleSound()" class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center hover:bg-white/20 transition text-emerald-300" title="Suara On/Off">
+            <button id="soundToggle" onclick="game.toggleSound()" class="w-11 h-11 rounded-xl glass-panel flex items-center justify-center hover:bg-white/20 transition text-emerald-300" title="Suara On/Off">
                 <i id="soundIcon" class="fa-solid fa-volume-high"></i>
             </button>
-            <button onclick="game.showHelpModal()" class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center hover:bg-white/20 transition text-yellow-300" title="Panduan Mengurutkan">
+            <button onclick="game.showHelpModal()" class="w-11 h-11 rounded-xl glass-panel flex items-center justify-center hover:bg-white/20 transition text-yellow-300" title="Panduan Mengurutkan">
                 <i class="fa-solid fa-lightbulb"></i>
             </button>
         </div>
@@ -129,7 +129,7 @@
     <main class="max-w-4xl mx-auto w-full flex-grow flex flex-col justify-center items-center relative">
 
         <!-- VIEW 1: START / MENU SCREEN -->
-        <div id="startScreen" class="w-full max-w-xl glass-panel rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+        <div id="startScreen" class="w-full max-w-xl glass-panel rounded-3xl p-5 sm:p-6 md:p-8 shadow-2xl relative overflow-hidden">
             <div class="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
             <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -137,8 +137,8 @@
                 <span class="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-semibold uppercase tracking-wider mb-2 border border-emerald-500/30">
                     Game Matematika Interaktif
                 </span>
-                <h2 class="text-2xl md:text-3xl font-bold font-math text-white">Uji Logika Urutanmu!</h2>
-                <p class="text-sm text-slate-300 mt-2">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold font-math text-white">Uji Logika Urutanmu!</h2>
+                <p class="text-xs sm:text-sm text-slate-300 mt-2">
                     Urutkan deretan angka atau temukan angka yang salah posisi secara tepat dan cepat!
                 </p>
             </div>
@@ -152,18 +152,18 @@
                         <i class="fa-solid fa-gamepad text-emerald-400 mr-1"></i> Mode Permainan
                     </label>
                     <div class="grid grid-cols-2 gap-3">
-                        <button type="button" onclick="game.setGameMode('sort')" id="btnModeSort" class="mode-btn p-3.5 rounded-2xl glass-card border-2 border-emerald-400 bg-emerald-500/10 text-left transition">
-                            <div class="flex items-center gap-2 text-emerald-300 font-bold font-math text-sm">
-                                <i class="fa-solid fa-arrow-up-wide-short text-base"></i> Urutkan Angka
+                        <button type="button" onclick="game.setGameMode('sort')" id="btnModeSort" class="mode-btn p-3 sm:p-3.5 rounded-2xl glass-card border-2 border-emerald-400 bg-emerald-500/10 text-left transition">
+                            <div class="flex items-center gap-2 text-emerald-300 font-bold font-math text-xs sm:text-sm">
+                                <i class="fa-solid fa-arrow-up-wide-short text-sm sm:text-base"></i> Urutkan Angka
                             </div>
-                            <div class="text-[11px] text-slate-400 mt-1">Susun kartu angka dari Terkecil/Terbesar</div>
+                            <div class="text-[10px] sm:text-[11px] text-slate-400 mt-1">Susun kartu angka dari Terkecil/Terbesar</div>
                         </button>
 
-                        <button type="button" onclick="game.setGameMode('spot')" id="btnModeSpot" class="mode-btn p-3.5 rounded-2xl glass-card border-2 border-transparent text-left transition hover:border-emerald-400">
-                            <div class="flex items-center gap-2 text-cyan-300 font-bold font-math text-sm">
-                                <i class="fa-solid fa-magnifying-glass text-base"></i> Cari Kesalahan
+                        <button type="button" onclick="game.setGameMode('spot')" id="btnModeSpot" class="mode-btn p-3 sm:p-3.5 rounded-2xl glass-card border-2 border-transparent text-left transition hover:border-emerald-400">
+                            <div class="flex items-center gap-2 text-cyan-300 font-bold font-math text-xs sm:text-sm">
+                                <i class="fa-solid fa-magnifying-glass text-sm sm:text-base"></i> Cari Kesalahan
                             </div>
-                            <div class="text-[11px] text-slate-400 mt-1">Temukan angka yang salah posisi dalam deret</div>
+                            <div class="text-[10px] sm:text-[11px] text-slate-400 mt-1">Temukan angka yang salah posisi dalam deret</div>
                         </button>
                     </div>
                 </div>
@@ -174,20 +174,20 @@
                         <i class="fa-solid fa-layer-group text-emerald-400 mr-1"></i> Tingkat Kesulitan
                     </label>
                     <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="game.setDifficulty('easy')" id="btnDiffEasy" class="diff-btn p-3 rounded-2xl glass-card text-center border-2 border-transparent hover:border-emerald-400 transition">
-                            <div class="text-xs text-emerald-300 font-bold uppercase">Mudah</div>
-                            <div class="text-base font-bold font-math mt-0.5">10 - 999</div>
-                            <div class="text-[10px] text-slate-400">4-5 Angka</div>
+                        <button type="button" onclick="game.setDifficulty('easy')" id="btnDiffEasy" class="diff-btn p-2.5 sm:p-3 rounded-2xl glass-card text-center border-2 border-transparent hover:border-emerald-400 transition">
+                            <div class="text-[10px] sm:text-xs text-emerald-300 font-bold uppercase">Mudah</div>
+                            <div class="text-sm sm:text-base font-bold font-math mt-0.5">10 - 999</div>
+                            <div class="text-[9px] sm:text-[10px] text-slate-400">4-5 Angka</div>
                         </button>
-                        <button type="button" onclick="game.setDifficulty('medium')" id="btnDiffMedium" class="diff-btn p-3 rounded-2xl glass-card text-center border-2 border-emerald-400 bg-emerald-500/10 transition">
-                            <div class="text-xs text-yellow-300 font-bold uppercase">Sedang</div>
-                            <div class="text-base font-bold font-math mt-0.5">1rb - 99rb</div>
-                            <div class="text-[10px] text-slate-400">5-6 Angka</div>
+                        <button type="button" onclick="game.setDifficulty('medium')" id="btnDiffMedium" class="diff-btn p-2.5 sm:p-3 rounded-2xl glass-card text-center border-2 border-emerald-400 bg-emerald-500/10 transition">
+                            <div class="text-[10px] sm:text-xs text-yellow-300 font-bold uppercase">Sedang</div>
+                            <div class="text-sm sm:text-base font-bold font-math mt-0.5">1rb - 99rb</div>
+                            <div class="text-[9px] sm:text-[10px] text-slate-400">5-6 Angka</div>
                         </button>
-                        <button type="button" onclick="game.setDifficulty('hard')" id="btnDiffHard" class="diff-btn p-3 rounded-2xl glass-card text-center border-2 border-transparent hover:border-emerald-400 transition">
-                            <div class="text-xs text-rose-300 font-bold uppercase">Sulit</div>
-                            <div class="text-base font-bold font-math mt-0.5">100rb - 9Jt</div>
-                            <div class="text-[10px] text-slate-400">6-7 Angka (+/-)</div>
+                        <button type="button" onclick="game.setDifficulty('hard')" id="btnDiffHard" class="diff-btn p-2.5 sm:p-3 rounded-2xl glass-card text-center border-2 border-transparent hover:border-emerald-400 transition">
+                            <div class="text-[10px] sm:text-xs text-rose-300 font-bold uppercase">Sulit</div>
+                            <div class="text-sm sm:text-base font-bold font-math mt-0.5">100rb - 9Jt</div>
+                            <div class="text-[9px] sm:text-[10px] text-slate-400">6-7 Angka (+/-)</div>
                         </button>
                     </div>
                 </div>
@@ -198,7 +198,7 @@
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
                             <i class="fa-solid fa-stopwatch text-emerald-400 mr-1"></i> Pengaturan Waktu
                         </label>
-                        <select id="timeSelect" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-400 font-semibold text-sm">
+                        <select id="timeSelect" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-white focus:outline-none focus:border-emerald-400 font-semibold text-xs sm:text-sm">
                             <option value="30">30 Detik (Cepat & Menantang)</option>
                             <option value="60" selected>60 Detik (Standar)</option>
                             <option value="120">120 Detik (Santai)</option>
@@ -210,7 +210,7 @@
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
                             <i class="fa-solid fa-arrows-up-down text-emerald-400 mr-1"></i> Arah Urutan
                         </label>
-                        <select id="directionSelect" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-400 font-semibold text-sm">
+                        <select id="directionSelect" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-white focus:outline-none focus:border-emerald-400 font-semibold text-xs sm:text-sm">
                             <option value="random" selected>Acak (Terkecil/Terbesar)</option>
                             <option value="asc">Terkecil → Terbesar saja</option>
                             <option value="desc">Terbesar → Terkecil saja</option>
@@ -220,18 +220,18 @@
 
                 <!-- High Score Banner -->
                 <div class="p-3 bg-teal-950/50 rounded-2xl border border-teal-500/30 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-trophy text-yellow-400 text-xl"></i>
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <i class="fa-solid fa-trophy text-yellow-400 text-lg sm:text-xl"></i>
                         <div>
-                            <div class="text-[11px] text-teal-300 uppercase font-bold tracking-wider">Skor Terbaik Anda</div>
-                            <div id="highScoreDisplay" class="text-lg font-bold font-math text-white">0 Poin</div>
+                            <div class="text-[10px] sm:text-[11px] text-teal-300 uppercase font-bold tracking-wider">Skor Terbaik</div>
+                            <div id="highScoreDisplay" class="text-base sm:text-lg font-bold font-math text-white">0 Poin</div>
                         </div>
                     </div>
                     <span class="text-xs text-teal-300 bg-teal-500/20 px-3 py-1 rounded-full border border-teal-400/30">Terbaik</span>
                 </div>
 
                 <!-- Start Button -->
-                <button onclick="game.start()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-math font-bold text-xl tracking-wide shadow-lg shadow-emerald-500/30 btn-press flex items-center justify-center gap-2">
+                <button onclick="game.start()" class="w-full py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-math font-bold text-lg sm:text-xl tracking-wide shadow-lg shadow-emerald-500/30 btn-press flex items-center justify-center gap-2">
                     <i class="fa-solid fa-play"></i> Mulai Bermain
                 </button>
             </div>
@@ -241,37 +241,37 @@
         <div id="gameScreen" class="w-full max-w-3xl hidden flex-col gap-4">
 
             <!-- Top Game HUD Bar -->
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-3 gap-2 sm:gap-3">
                 <!-- Score Card -->
-                <div class="glass-panel p-3 rounded-2xl flex flex-col items-center justify-center border-l-4 border-l-emerald-400">
-                    <span class="text-[10px] uppercase font-bold text-slate-400">Skor</span>
-                    <span id="scoreText" class="font-math text-2xl font-bold text-emerald-300">0</span>
+                <div class="glass-panel p-2.5 sm:p-3 rounded-2xl flex flex-col items-center justify-center border-l-4 border-l-emerald-400">
+                    <span class="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400">Skor</span>
+                    <span id="scoreText" class="font-math text-xl sm:text-2xl font-bold text-emerald-300">0</span>
                 </div>
 
                 <!-- Timer Card -->
-                <div id="timerCard" class="glass-panel p-3 rounded-2xl flex flex-col items-center justify-center border-l-4 border-l-teal-400 relative overflow-hidden">
-                    <span class="text-[10px] uppercase font-bold text-slate-400">Sisa Waktu</span>
-                    <span id="timerText" class="font-math text-2xl font-bold text-teal-300">60s</span>
+                <div id="timerCard" class="glass-panel p-2.5 sm:p-3 rounded-2xl flex flex-col items-center justify-center border-l-4 border-l-teal-400 relative overflow-hidden">
+                    <span class="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400">Sisa Waktu</span>
+                    <span id="timerText" class="font-math text-xl sm:text-2xl font-bold text-teal-300">60s</span>
                     <div id="timerProgress" class="absolute bottom-0 left-0 h-1 bg-teal-400 transition-all duration-1000 w-full"></div>
                 </div>
 
                 <!-- Streak Combo Card -->
-                <div class="glass-panel p-3 rounded-2xl flex flex-col items-center justify-center border-l-4 border-l-yellow-400">
-                    <span class="text-[10px] uppercase font-bold text-slate-400">Streak Combo</span>
+                <div class="glass-panel p-2.5 sm:p-3 rounded-2xl flex flex-col items-center justify-center border-l-4 border-l-yellow-400">
+                    <span class="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 hidden sm:block">Streak</span>
                     <div class="flex items-center gap-1">
-                        <i class="fa-solid fa-fire text-yellow-400 animate-pulse"></i>
-                        <span id="streakText" class="font-math text-2xl font-bold text-yellow-300">0x</span>
+                        <i class="fa-solid fa-fire text-yellow-400 animate-pulse text-sm"></i>
+                        <span id="streakText" class="font-math text-xl sm:text-2xl font-bold text-yellow-300">0x</span>
                     </div>
                 </div>
             </div>
 
             <!-- Question Card Header & Instruction Banner -->
-            <div class="glass-panel rounded-3xl p-5 md:p-7 flex flex-col items-center justify-center relative shadow-2xl border border-white/20">
-                <div class="w-full flex items-center justify-between text-xs text-slate-400 mb-3 pb-2 border-b border-white/10">
+            <div class="glass-panel rounded-3xl p-4 sm:p-5 md:p-7 flex flex-col items-center justify-center relative shadow-2xl border border-white/20">
+                <div class="w-full flex items-center justify-between text-[10px] sm:text-xs text-slate-400 mb-2 sm:mb-3 pb-2 border-b border-white/10">
                     <span id="questionCount">Soal #1</span>
                     <div class="flex items-center gap-2">
                         <span id="modeBadge" class="bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30 text-xs font-semibold">Mode Urutkan</span>
-                        <button onclick="game.endGame()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 px-3 py-1 rounded-full transition text-[11px] font-semibold flex items-center gap-1">
+                        <button onclick="game.endGame()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 px-3 py-1.5 sm:py-1 rounded-full transition text-[11px] font-semibold flex items-center gap-1">
                             <i class="fa-solid fa-flag"></i> Selesai
                         </button>
                     </div>
@@ -279,10 +279,10 @@
 
                 <!-- Prompt Instruction Text -->
                 <div class="text-center my-2">
-                    <div id="promptInstruction" class="inline-flex items-center gap-2 bg-slate-900/90 border border-emerald-500/40 text-emerald-300 px-5 py-2.5 rounded-2xl font-math text-lg md:text-xl font-bold shadow-inner">
+                    <div id="promptInstruction" class="inline-flex items-center gap-2 bg-slate-900/90 border border-emerald-500/40 text-emerald-300 px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl font-math text-sm sm:text-lg md:text-xl font-bold shadow-inner max-w-full">
                         <!-- Dynamic prompt title loaded here -->
                     </div>
-                    <p id="promptSubtitle" class="text-xs text-slate-300 mt-2">
+                    <p id="promptSubtitle" class="text-[10px] sm:text-xs text-slate-300 mt-2">
                         Klik angka dari bawah sesuai urutan agar naik ke kotak jawaban!
                     </p>
                 </div>
@@ -293,52 +293,52 @@
                 </div>
 
                 <!-- Action Controls for Sorting Mode -->
-                <div id="sortControls" class="w-full max-w-md grid grid-cols-12 gap-2 mt-2">
-                    <button onclick="game.endGame()" class="col-span-3 py-3 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-semibold rounded-xl text-xs md:text-sm transition btn-press flex items-center justify-center gap-1" title="Akhiri Permainan Sekarang">
-                        <i class="fa-solid fa-flag"></i> Selesai
+                <div id="sortControls" class="w-full max-w-md grid grid-cols-12 gap-1.5 sm:gap-2 mt-2">
+                    <button onclick="game.endGame()" class="col-span-3 py-2.5 sm:py-3 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-semibold rounded-xl text-[10px] sm:text-xs md:text-sm transition btn-press flex items-center justify-center gap-1" title="Akhiri Permainan Sekarang">
+                        <i class="fa-solid fa-flag"></i> <span class="hidden sm:inline">Selesai</span><span class="sm:hidden"><i class="fa-solid fa-flag"></i></span>
                     </button>
-                    <button onclick="game.skipQuestion()" class="col-span-3 py-3 bg-slate-700/60 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs md:text-sm transition btn-press flex items-center justify-center gap-1">
-                        <i class="fa-solid fa-forward"></i> Lewati
+                    <button onclick="game.skipQuestion()" class="col-span-3 py-2.5 sm:py-3 bg-slate-700/60 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-[10px] sm:text-xs md:text-sm transition btn-press flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-forward"></i> <span class="hidden xs:inline">Lewati</span>
                     </button>
-                    <button onclick="game.verifySortAnswer()" class="col-span-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-math font-bold text-lg rounded-xl transition shadow-lg shadow-emerald-500/20 btn-press flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-check"></i> Periksa Urutan
+                    <button onclick="game.verifySortAnswer()" class="col-span-6 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-math font-bold text-sm sm:text-lg rounded-xl transition shadow-lg shadow-emerald-500/20 btn-press flex items-center justify-center gap-1.5 sm:gap-2">
+                        <i class="fa-solid fa-check"></i> <span class="hidden sm:inline">Periksa Urutan</span><span class="sm:hidden">Cek</span>
                     </button>
                 </div>
             </div>
 
             <!-- Hint & Helper Box -->
-            <div class="glass-card p-3 rounded-2xl text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+            <div class="glass-card p-2.5 sm:p-3 rounded-2xl text-center text-[10px] sm:text-xs text-slate-400 flex items-center justify-center gap-2">
                 <i class="fa-solid fa-hand-pointer text-emerald-400"></i>
                 <span id="helperTipText">Tip: Ketuk dua angka berturut-turut untuk menukar posisi keduanya.</span>
             </div>
         </div>
 
         <!-- VIEW 3: GAME OVER / RESULT SCREEN -->
-        <div id="resultScreen" class="w-full max-w-md hidden glass-panel rounded-3xl p-6 md:p-8 text-center relative shadow-2xl animate-pop">
+        <div id="resultScreen" class="w-full max-w-md hidden glass-panel rounded-3xl p-5 sm:p-6 md:p-8 text-center relative shadow-2xl animate-pop">
             <div class="w-20 h-20 mx-auto -mt-12 rounded-3xl bg-gradient-to-tr from-yellow-400 to-amber-500 flex items-center justify-center text-slate-900 font-math text-4xl shadow-xl shadow-yellow-500/30 border-4 border-slate-900">
                 <i class="fa-solid fa-trophy"></i>
             </div>
 
-            <h2 class="text-2xl font-bold font-math text-white mt-4">Sesi Selesai!</h2>
+            <h2 class="text-xl sm:text-2xl font-bold font-math text-white mt-4">Sesi Selesai!</h2>
             <p id="resultSubtitle" class="text-xs text-slate-300 mt-1">Latihan teratur mengasah pemahaman matematika!</p>
 
             <!-- Result Stats Grid -->
-            <div class="grid grid-cols-2 gap-3 my-6">
-                <div class="glass-card p-3 rounded-2xl">
-                    <div class="text-[10px] text-slate-400 uppercase font-bold">Total Skor</div>
-                    <div id="resScore" class="font-math text-2xl font-bold text-emerald-300">0</div>
+            <div class="grid grid-cols-2 gap-2 sm:gap-3 my-4 sm:my-6">
+                <div class="glass-card p-2.5 sm:p-3 rounded-2xl">
+                    <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-bold">Total Skor</div>
+                    <div id="resScore" class="font-math text-xl sm:text-2xl font-bold text-emerald-300">0</div>
                 </div>
-                <div class="glass-card p-3 rounded-2xl">
-                    <div class="text-[10px] text-slate-400 uppercase font-bold">Akurasi</div>
-                    <div id="resAccuracy" class="font-math text-2xl font-bold text-teal-300">0%</div>
+                <div class="glass-card p-2.5 sm:p-3 rounded-2xl">
+                    <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-bold">Akurasi</div>
+                    <div id="resAccuracy" class="font-math text-xl sm:text-2xl font-bold text-teal-300">0%</div>
                 </div>
-                <div class="glass-card p-3 rounded-2xl">
-                    <div class="text-[10px] text-slate-400 uppercase font-bold">Soal Benar</div>
-                    <div id="resCorrect" class="font-math text-2xl font-bold text-cyan-300">0 / 0</div>
+                <div class="glass-card p-2.5 sm:p-3 rounded-2xl">
+                    <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-bold">Soal Benar</div>
+                    <div id="resCorrect" class="font-math text-xl sm:text-2xl font-bold text-cyan-300">0 / 0</div>
                 </div>
-                <div class="glass-card p-3 rounded-2xl">
-                    <div class="text-[10px] text-slate-400 uppercase font-bold">Max Streak</div>
-                    <div id="resStreak" class="font-math text-2xl font-bold text-yellow-300">0x</div>
+                <div class="glass-card p-2.5 sm:p-3 rounded-2xl">
+                    <div class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-bold">Max Streak</div>
+                    <div id="resStreak" class="font-math text-xl sm:text-2xl font-bold text-yellow-300">0x</div>
                 </div>
             </div>
 
@@ -352,7 +352,7 @@
                 <button onclick="game.start()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-math font-bold text-lg shadow-lg shadow-emerald-500/30 btn-press">
                     <i class="fa-solid fa-rotate-right mr-1"></i> Main Lagi
                 </button>
-                <button onclick="game.showStartScreen()" class="w-full py-3 rounded-2xl glass-card text-slate-300 hover:text-white font-semibold text-sm btn-press">
+                <button onclick="game.showStartScreen()" class="w-full py-3.5 rounded-2xl glass-card text-slate-300 hover:text-white font-semibold text-sm btn-press">
                     <i class="fa-solid fa-sliders mr-1"></i> Ubah Mode / Pengaturan
                 </button>
             </div>
@@ -360,9 +360,9 @@
     </main>
 
     <!-- MODAL: Panduan Mengurutkan Bilangan -->
-    <div id="helpModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-panel max-w-lg w-full rounded-3xl p-6 border border-white/20 shadow-2xl relative">
-            <button onclick="game.hideHelpModal()" class="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+    <div id="helpModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl relative">
+            <button onclick="game.hideHelpModal()" class="absolute right-4 top-4 w-10 h-10 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
                 <i class="fa-solid fa-xmark"></i>
             </button>
 
@@ -763,17 +763,17 @@
                 // Update Badges & Titles
                 this.dom.modeBadge.textContent = isSortMode ? 'Mode Urutkan' : 'Mode Cari Kesalahan';
                 this.dom.modeBadge.className = isSortMode 
-                    ? 'bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30 text-xs font-semibold'
-                    : 'bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/30 text-xs font-semibold';
+                    ? 'bg-emerald-500/20 text-emerald-300 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-emerald-500/30 text-[10px] sm:text-xs font-semibold'
+                    : 'bg-cyan-500/20 text-cyan-300 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-cyan-500/30 text-[10px] sm:text-xs font-semibold';
 
                 const area = this.dom.cardsArea;
                 area.innerHTML = '';
 
                 if (isSortMode) {
                     if (dir === 'asc') {
-                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-arrow-up-short-wide text-emerald-400"></i> Terkecil &rarr; Terbesar`;
+                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-arrow-up-wide-short text-emerald-400"></i> <span>Terkecil → Terbesar</span>`;
                     } else {
-                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-arrow-down-wide-short text-yellow-400"></i> Terbesar &rarr; Terkecil`;
+                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-arrow-down-wide-short text-yellow-400"></i> <span>Terbesar → Terkecil</span>`;
                     }
                     this.dom.promptSubtitle.textContent = 'Klik angka dari bawah sesuai urutan agar naik ke kotak jawaban!';
                     this.dom.helperTipText.textContent = 'Pilih semua kartu ke kotak atas sesuai aturan, lalu tekan Periksa Urutan.';
@@ -782,7 +782,7 @@
 
                     // 1. Render Answer Box (Top)
                     const answerBox = document.createElement('div');
-                    answerBox.className = 'w-full min-h-[110px] bg-slate-900/50 rounded-2xl border-2 border-dashed border-slate-600/50 p-4 flex flex-wrap items-center justify-center gap-3 transition-colors';
+                    answerBox.className = 'w-full min-h-[90px] sm:min-h-[110px] bg-slate-900/50 rounded-2xl border-2 border-dashed border-slate-600/50 p-3 sm:p-4 flex flex-wrap items-center justify-center gap-2 sm:gap-3 transition-colors';
                     
                     if (this.answerNumbers.length === 0) {
                         const placeholder = document.createElement('span');
@@ -798,7 +798,7 @@
 
                     // 2. Render Pool Box (Bottom)
                     const poolBox = document.createElement('div');
-                    poolBox.className = 'w-full p-2 flex flex-wrap items-center justify-center gap-3';
+                    poolBox.className = 'w-full p-1.5 sm:p-2 flex flex-wrap items-center justify-center gap-2 sm:gap-3';
                     
                     this.poolNumbers.forEach((num, index) => {
                         const card = this.createSortCard(num, index, false);
@@ -810,9 +810,9 @@
 
                 } else {
                     if (dir === 'asc') {
-                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-magnifying-glass text-cyan-400"></i> Temukan Kesalahan (Seharusnya: Terkecil &rarr; Terbesar)`;
+                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-magnifying-glass text-cyan-400"></i> <span class="truncate">Temukan Kesalahan (Seharusnya: Terkecil → Terbesar)</span>`;
                     } else {
-                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-magnifying-glass text-cyan-400"></i> Temukan Kesalahan (Seharusnya: Terbesar &rarr; Terkecil)`;
+                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-magnifying-glass text-cyan-400"></i> <span class="truncate">Temukan Kesalahan (Seharusnya: Terbesar → Terkecil)</span>`;
                     }
                     this.dom.promptSubtitle.textContent = 'Satu angka merusak urutan. Klik angka yang posisinya salah!';
                     this.dom.helperTipText.textContent = 'Langsung klik angka yang menempati posisi salah dalam deretan!';
@@ -820,18 +820,18 @@
                     this.dom.sortControls.classList.remove('grid');
 
                     const spotBox = document.createElement('div');
-                    spotBox.className = 'w-full flex flex-wrap items-center justify-center gap-3 md:gap-4';
+                    spotBox.className = 'w-full flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4';
 
                     this.currentQuestion.displayNumbers.forEach((num, index) => {
                         const card = document.createElement('div');
-                        card.className = `glass-card p-3 md:p-4 rounded-2xl flex flex-col items-center justify-center cursor-pointer min-w-[80px] md:min-w-[110px] border-2 border-white/10 hover:border-emerald-400/60 transition duration-150 btn-press group`;
+                        card.className = `glass-card p-2.5 sm:p-3 md:p-4 rounded-2xl flex flex-col items-center justify-center cursor-pointer min-w-[65px] sm:min-w-[80px] md:min-w-[110px] border-2 border-white/10 hover:border-emerald-400/60 transition duration-150 btn-press group`;
                         
                         const posBadge = document.createElement('span');
                         posBadge.className = 'text-[10px] text-slate-400 font-bold mb-1 bg-slate-800/80 px-2 py-0.5 rounded-full';
                         posBadge.textContent = `#${index + 1}`;
                         
                         const numDisplay = document.createElement('span');
-                        numDisplay.className = 'font-math text-xl md:text-2xl font-bold text-white tracking-wide';
+                        numDisplay.className = 'font-math text-lg sm:text-xl md:text-2xl font-bold text-white tracking-wide';
                         numDisplay.textContent = num.toLocaleString('id-ID');
 
                         card.appendChild(posBadge);
@@ -845,7 +845,7 @@
 
             createSortCard(num, index, isAnswer) {
                 const card = document.createElement('div');
-                card.className = `p-3 md:p-4 rounded-2xl flex flex-col items-center justify-center cursor-pointer min-w-[80px] md:min-w-[110px] border-2 transition duration-200 btn-press relative group shadow-lg `;
+                card.className = `p-2.5 sm:p-3 md:p-4 rounded-2xl flex flex-col items-center justify-center cursor-pointer min-w-[65px] sm:min-w-[80px] md:min-w-[110px] border-2 transition duration-200 btn-press relative group shadow-lg `;
                 
                 if (isAnswer) {
                     card.classList.add('bg-emerald-900/60', 'border-emerald-500/40', 'hover:border-rose-400');
@@ -861,7 +861,7 @@
                 }
 
                 const numDisplay = document.createElement('span');
-                numDisplay.className = 'font-math text-xl md:text-2xl font-bold text-white tracking-wide';
+                numDisplay.className = 'font-math text-lg sm:text-xl md:text-2xl font-bold text-white tracking-wide';
                 numDisplay.textContent = num.toLocaleString('id-ID');
                 card.appendChild(numDisplay);
 

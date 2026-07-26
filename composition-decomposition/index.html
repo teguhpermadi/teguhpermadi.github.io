@@ -125,24 +125,24 @@
     <canvas id="confettiCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-50"></canvas>
 
     <!-- Header Navigation -->
-    <header class="w-full max-w-4xl flex justify-between items-center z-10 mb-4 glass-panel p-4 rounded-2xl">
-        <div class="flex items-center space-x-3 cursor-pointer" onclick="gameApp.showScreen('welcome')">
-            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
-                <i class="fa-solid font-outfit text-xl font-black">#</i>
+    <header class="w-full max-w-4xl flex justify-between items-center z-10 mb-3 sm:mb-4 glass-panel p-3 sm:p-4 rounded-2xl">
+        <div class="flex items-center space-x-2.5 sm:space-x-3 cursor-pointer" onclick="gameApp.showScreen('welcome')">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid font-outfit text-lg sm:text-xl font-black">#</i>
             </div>
             <div>
-                <h1 class="text-xl font-extrabold font-outfit bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400">
+                <h1 class="text-lg sm:text-xl font-extrabold font-outfit bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400">
                     MathVerse
                 </h1>
-                <p class="text-xs text-slate-400 font-medium">Komposisi & Dekomposisi Bilangan</p>
+                <p class="text-[10px] sm:text-xs text-slate-400 font-medium">Komposisi & Dekomposisi Bilangan</p>
             </div>
         </div>
 
-        <div class="flex items-center space-x-3">
-            <button id="soundToggleBtn" onclick="gameApp.toggleSound()" class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-white transition" title="Suara">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <button id="soundToggleBtn" onclick="gameApp.toggleSound()" class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-white transition" title="Suara">
                 <i id="soundIcon" class="fa-solid fa-volume-high"></i>
             </button>
-            <button onclick="gameApp.showLeaderboardModal()" class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-amber-400 hover:text-amber-300 transition" title="Skor Tertinggi">
+            <button onclick="gameApp.showLeaderboardModal()" class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl glass-card flex items-center justify-center text-amber-400 hover:text-amber-300 transition" title="Skor Tertinggi">
                 <i class="fa-solid fa-trophy"></i>
             </button>
         </div>
@@ -150,18 +150,18 @@
 
     <!-- SCREEN 1: WELCOME & SETUP -->
     <main id="welcomeScreen" class="w-full max-w-4xl z-10 my-auto flex flex-col items-center">
-        <div class="glass-panel w-full p-6 sm:p-8 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
+        <div class="glass-panel w-full p-5 sm:p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
             <div class="absolute -top-24 -right-24 w-60 h-60 bg-indigo-500/20 rounded-full blur-3xl"></div>
             <div class="absolute -bottom-24 -left-24 w-60 h-60 bg-purple-500/20 rounded-full blur-3xl"></div>
 
-            <div class="text-center max-w-xl mx-auto mb-8">
-                <span class="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-300 bg-indigo-500/20 rounded-full border border-indigo-500/30">
+            <div class="text-center max-w-xl mx-auto mb-5 sm:mb-8">
+                <span class="px-2.5 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-indigo-300 bg-indigo-500/20 rounded-full border border-indigo-500/30">
                     Game Edukasi Matematika
                 </span>
-                <h2 class="text-3xl sm:text-4xl font-extrabold font-outfit mt-3 text-white">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold font-outfit mt-2 sm:mt-3 text-white">
                     Uji Kecepatan & Ketelitian Bilangan
                 </h2>
-                <p class="text-slate-300 mt-2 text-sm sm:text-base">
+                <p class="text-slate-300 mt-1.5 sm:mt-2 text-xs sm:text-sm md:text-base">
                     Gabungkan (Komposisi) dan Uraikan (Dekomposisi) nilai tempat angka untuk meraih Combo terbesar hingga <strong class="text-amber-400 font-bold">100x Multiplier!</strong>
                 </p>
             </div>
@@ -169,17 +169,17 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Mode Soal -->
                 <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <label class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 sm:gap-2">
                         <i class="fa-solid fa-cubes text-indigo-400"></i> Mode Permainan
                     </label>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="gameApp.setMode('mixed')" id="mode-mixed" class="mode-btn p-3 rounded-xl border text-center transition text-sm font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white">
+                    <div class="grid grid-cols-3 gap-1.5 sm:gap-2">
+                        <button type="button" onclick="gameApp.setMode('mixed')" id="mode-mixed" class="mode-btn p-2 sm:p-3 rounded-xl border text-center transition text-[11px] sm:text-sm font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white">
                             Campuran
                         </button>
-                        <button type="button" onclick="gameApp.setMode('komposisi')" id="mode-komposisi" class="mode-btn p-3 rounded-xl border text-center transition text-sm font-semibold glass-card border-white/10 text-slate-300">
+                        <button type="button" onclick="gameApp.setMode('komposisi')" id="mode-komposisi" class="mode-btn p-2 sm:p-3 rounded-xl border text-center transition text-[11px] sm:text-sm font-semibold glass-card border-white/10 text-slate-300">
                             Komposisi
                         </button>
-                        <button type="button" onclick="gameApp.setMode('dekomposisi')" id="mode-dekomposisi" class="mode-btn p-3 rounded-xl border text-center transition text-sm font-semibold glass-card border-white/10 text-slate-300">
+                        <button type="button" onclick="gameApp.setMode('dekomposisi')" id="mode-dekomposisi" class="mode-btn p-2 sm:p-3 rounded-xl border text-center transition text-[11px] sm:text-sm font-semibold glass-card border-white/10 text-slate-300">
                             Dekomposisi
                         </button>
                     </div>
@@ -187,53 +187,53 @@
 
                 <!-- Rentang Bilangan / Level -->
                 <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <label class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 sm:gap-2">
                         <i class="fa-solid fa-layer-group text-purple-400"></i> Rentang Bilangan (Digit)
                     </label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="gameApp.setLevel('11-99')" id="level-11-99" class="level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-indigo-500 bg-indigo-600/30 text-white flex justify-between items-center">
+                    <div class="grid grid-cols-2 gap-1.5 sm:gap-2">
+                        <button type="button" onclick="gameApp.setLevel('11-99')" id="level-11-99" class="level-btn p-2.5 sm:p-2.5 rounded-xl border text-left transition text-[11px] sm:text-xs font-medium glass-card border-indigo-500 bg-indigo-600/30 text-white flex justify-between items-center">
                             <span>11 – 99</span>
-                            <span class="text-[10px] text-indigo-300 px-1.5 py-0.5 bg-indigo-900/60 rounded">2 Digit</span>
+                            <span class="text-[9px] sm:text-[10px] text-indigo-300 px-1 sm:px-1.5 py-0.5 bg-indigo-900/60 rounded">2 Digit</span>
                         </button>
-                        <button type="button" onclick="gameApp.setLevel('111-999')" id="level-111-999" class="level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center">
+                        <button type="button" onclick="gameApp.setLevel('111-999')" id="level-111-999" class="level-btn p-2.5 sm:p-2.5 rounded-xl border text-left transition text-[11px] sm:text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center">
                             <span>111 – 999</span>
-                            <span class="text-[10px] text-slate-400 px-1.5 py-0.5 bg-slate-800 rounded">3 Digit</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400 px-1 sm:px-1.5 py-0.5 bg-slate-800 rounded">3 Digit</span>
                         </button>
-                        <button type="button" onclick="gameApp.setLevel('1111-9999')" id="level-1111-9999" class="level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center">
+                        <button type="button" onclick="gameApp.setLevel('1111-9999')" id="level-1111-9999" class="level-btn p-2.5 sm:p-2.5 rounded-xl border text-left transition text-[11px] sm:text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center">
                             <span>1,111 – 9,999</span>
-                            <span class="text-[10px] text-slate-400 px-1.5 py-0.5 bg-slate-800 rounded">4 Digit</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400 px-1 sm:px-1.5 py-0.5 bg-slate-800 rounded">4 Digit</span>
                         </button>
-                        <button type="button" onclick="gameApp.setLevel('11111-99999')" id="level-11111-99999" class="level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center">
+                        <button type="button" onclick="gameApp.setLevel('11111-99999')" id="level-11111-99999" class="level-btn p-2.5 sm:p-2.5 rounded-xl border text-left transition text-[11px] sm:text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center">
                             <span>11,111 – 99,999</span>
-                            <span class="text-[10px] text-slate-400 px-1.5 py-0.5 bg-slate-800 rounded">5 Digit</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-400 px-1 sm:px-1.5 py-0.5 bg-slate-800 rounded">5 Digit</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Timer Per Soal -->
                 <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <label class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 sm:gap-2">
                         <i class="fa-solid fa-stopwatch text-amber-400"></i> Timer Per Soal
                     </label>
-                    <div class="grid grid-cols-5 gap-1.5">
-                        <button type="button" onclick="gameApp.setTimer(3)" id="timer-3" class="timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-white/10 text-slate-300">3s</button>
-                        <button type="button" onclick="gameApp.setTimer(5)" id="timer-5" class="timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-white/10 text-slate-300">5s</button>
-                        <button type="button" onclick="gameApp.setTimer(10)" id="timer-10" class="timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-indigo-500 bg-indigo-600/30 text-white">10s</button>
-                        <button type="button" onclick="gameApp.setTimer(15)" id="timer-15" class="timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-white/10 text-slate-300">15s</button>
-                        <button type="button" onclick="gameApp.setTimer(30)" id="timer-30" class="timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-white/10 text-slate-300">30s</button>
+                    <div class="grid grid-cols-5 gap-1 sm:gap-1.5">
+                        <button type="button" onclick="gameApp.setTimer(3)" id="timer-3" class="timer-btn p-2 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-bold glass-card border-white/10 text-slate-300">3s</button>
+                        <button type="button" onclick="gameApp.setTimer(5)" id="timer-5" class="timer-btn p-2 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-bold glass-card border-white/10 text-slate-300">5s</button>
+                        <button type="button" onclick="gameApp.setTimer(10)" id="timer-10" class="timer-btn p-2 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-bold glass-card border-indigo-500 bg-indigo-600/30 text-white">10s</button>
+                        <button type="button" onclick="gameApp.setTimer(15)" id="timer-15" class="timer-btn p-2 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-bold glass-card border-white/10 text-slate-300">15s</button>
+                        <button type="button" onclick="gameApp.setTimer(30)" id="timer-30" class="timer-btn p-2 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-bold glass-card border-white/10 text-slate-300">30s</button>
                     </div>
                 </div>
 
                 <!-- Jumlah Soal -->
                 <div class="space-y-2">
-                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <label class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 sm:gap-2">
                         <i class="fa-solid fa-list-ol text-emerald-400"></i> Jumlah Soal
                     </label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="gameApp.setCount(5)" id="count-5" class="count-btn p-2.5 rounded-xl border text-center transition text-xs font-semibold glass-card border-white/10 text-slate-300">5 Soal</button>
-                        <button type="button" onclick="gameApp.setCount(10)" id="count-10" class="count-btn p-2.5 rounded-xl border text-center transition text-xs font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white">10 Soal</button>
-                        <button type="button" onclick="gameApp.setCount(15)" id="count-15" class="count-btn p-2.5 rounded-xl border text-center transition text-xs font-semibold glass-card border-white/10 text-slate-300">15 Soal</button>
-                        <button type="button" onclick="gameApp.setCount('sudden_death')" id="count-sudden_death" class="count-btn p-2.5 rounded-xl border text-center transition text-xs font-bold glass-card border-rose-500/50 bg-rose-950/40 text-rose-300 flex items-center justify-center gap-1.5">
+                    <div class="grid grid-cols-2 gap-1.5 sm:gap-2">
+                        <button type="button" onclick="gameApp.setCount(5)" id="count-5" class="count-btn p-2.5 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-semibold glass-card border-white/10 text-slate-300">5 Soal</button>
+                        <button type="button" onclick="gameApp.setCount(10)" id="count-10" class="count-btn p-2.5 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white">10 Soal</button>
+                        <button type="button" onclick="gameApp.setCount(15)" id="count-15" class="count-btn p-2.5 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-semibold glass-card border-white/10 text-slate-300">15 Soal</button>
+                        <button type="button" onclick="gameApp.setCount('sudden_death')" id="count-sudden_death" class="count-btn p-2.5 sm:p-2.5 rounded-xl border text-center transition text-[10px] sm:text-xs font-bold glass-card border-rose-500/50 bg-rose-950/40 text-rose-300 flex items-center justify-center gap-1 sm:gap-1.5">
                             <i class="fa-solid fa-skull text-rose-400"></i> 1 Salah = Kalah
                         </button>
                     </div>
@@ -241,7 +241,7 @@
             </div>
 
             <div class="mt-8 flex justify-center">
-                <button onclick="gameApp.startGame()" class="w-full sm:w-80 py-4 px-8 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-extrabold font-outfit text-xl btn-glow flex items-center justify-center gap-3">
+                <button onclick="gameApp.startGame()" class="w-full sm:w-80 py-3.5 sm:py-4 px-6 sm:px-8 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-extrabold font-outfit text-lg sm:text-xl btn-glow flex items-center justify-center gap-2 sm:gap-3">
                     <span>Mulai Main</span>
                     <i class="fa-solid fa-play text-lg"></i>
                 </button>
@@ -252,21 +252,21 @@
     <!-- SCREEN 2: GAMEPLAY -->
     <main id="gameScreen" class="w-full max-w-4xl z-10 my-auto hidden flex-col items-center">
         <!-- Top Info Dashboard -->
-        <div class="w-full glass-panel p-4 rounded-2xl mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-4">
+        <div class="w-full glass-panel p-4 sm:p-4 md:p-6 rounded-2xl mb-3 sm:mb-4 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+                <div class="flex items-center gap-3 sm:gap-4">
                 <div>
-                    <span class="text-xs text-slate-400 block font-semibold">SOAL</span>
-                    <span id="questionProgressText" class="text-xl font-black font-outfit text-white">1 / 10</span>
+                    <span class="text-[10px] sm:text-xs text-slate-400 block font-semibold">SOAL</span>
+                    <span id="questionProgressText" class="text-lg sm:text-xl font-black font-outfit text-white">1 / 10</span>
                 </div>
-                <div class="h-8 w-px bg-slate-700"></div>
+                <div class="h-7 sm:h-8 w-px bg-slate-700"></div>
                 <div>
-                    <span class="text-xs text-slate-400 block font-semibold">SKOR</span>
-                    <span id="currentScoreText" class="text-xl font-black font-outfit text-indigo-400">0</span>
+                    <span class="text-[10px] sm:text-xs text-slate-400 block font-semibold">SKOR</span>
+                    <span id="currentScoreText" class="text-lg sm:text-xl font-black font-outfit text-indigo-400">0</span>
                 </div>
             </div>
 
             <!-- Dynamic Combo Indicator -->
-            <div id="comboContainer" class="flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-rose-500/20 border border-amber-500/40 px-3 py-1.5 rounded-xl animate-pulse">
+            <div id="comboContainer" class="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-amber-500/20 to-rose-500/20 border border-amber-500/40 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl animate-pulse">
                 <i class="fa-solid fa-fire text-amber-400 text-lg"></i>
                 <div>
                     <span class="text-[10px] text-amber-300 uppercase tracking-widest font-black block leading-none">COMBO</span>
@@ -276,37 +276,37 @@
         </div>
 
         <!-- Timer Visual Bar -->
-        <div class="w-full bg-slate-800/80 rounded-full h-3 mb-6 p-0.5 border border-white/10 overflow-hidden relative">
+        <div class="w-full bg-slate-800/80 rounded-full h-2.5 sm:h-3 mb-4 sm:mb-6 p-0.5 border border-white/10 overflow-hidden relative">
             <div id="timerBar" class="timer-bar h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-indigo-500 rounded-full w-full"></div>
         </div>
 
         <!-- Main Question Area -->
-        <div class="w-full glass-panel p-6 sm:p-10 rounded-3xl border border-white/10 shadow-2xl relative">
+        <div class="w-full glass-panel p-4 sm:p-6 md:p-10 rounded-3xl border border-white/10 shadow-2xl relative">
 
             <!-- Question Type Tag -->
-            <div class="flex justify-between items-center mb-6">
-                <span id="questionTypeBadge" class="px-3.5 py-1 text-xs font-extrabold uppercase tracking-widest rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            <div class="flex justify-between items-center mb-4 sm:mb-6">
+                <span id="questionTypeBadge" class="px-2.5 sm:px-3.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-extrabold uppercase tracking-widest rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                     KOMPOSISI
                 </span>
-                <span id="digitBadge" class="text-xs font-semibold text-slate-400 bg-slate-800 px-3 py-1 rounded-full">
+                <span id="digitBadge" class="text-[10px] sm:text-xs font-semibold text-slate-400 bg-slate-800 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
                     3 Digit
                 </span>
             </div>
 
             <!-- Question Prompt Box -->
             <div class="text-center mb-8">
-                <p id="questionPromptTitle" class="text-sm sm:text-base text-slate-300 font-medium mb-2">
+                <p id="questionPromptTitle" class="text-xs sm:text-sm md:text-base text-slate-300 font-medium mb-1.5 sm:mb-2">
                     Berapakah hasil penggabungan nilai tempat berikut?
                 </p>
                 
                 <!-- Expanded Form / Target Number Visual -->
-                <div id="questionDisplay" class="text-2xl sm:text-4xl font-black font-outfit text-white tracking-wide py-4 px-6 rounded-2xl bg-slate-900/60 border border-white/5 inline-block max-w-full overflow-x-auto shadow-inner">
+                <div id="questionDisplay" class="text-xl sm:text-2xl md:text-4xl font-black font-outfit text-white tracking-wide py-3 sm:py-4 px-4 sm:px-6 rounded-2xl bg-slate-900/60 border border-white/5 inline-block max-w-full overflow-x-auto shadow-inner">
                     <!-- Dynamic insertion -->
                 </div>
             </div>
 
             <!-- Visual Helper (Place Value Tags) -->
-            <div id="placeValueContainer" class="flex flex-wrap justify-center gap-2 mb-8">
+            <div id="placeValueContainer" class="flex flex-wrap justify-center gap-1.5 sm:gap-2 mb-5 sm:mb-8">
                 <!-- Dynamic breakdown tags -->
             </div>
 
@@ -316,9 +316,9 @@
             </div>
 
             <!-- Feedback Toast Overlay -->
-            <div id="feedbackOverlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">
-                <div id="feedbackIcon" class="text-6xl mb-3"></div>
-                <h3 id="feedbackText" class="text-2xl font-black font-outfit"></h3>
+                <div id="feedbackOverlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">
+                <div id="feedbackIcon" class="text-4xl sm:text-6xl mb-2 sm:mb-3"></div>
+                <h3 id="feedbackText" class="text-xl sm:text-2xl font-black font-outfit"></h3>
                 <p id="feedbackDetail" class="text-sm text-slate-300 mt-1 font-medium"></p>
                 <div id="scoreBonusText" class="text-amber-400 font-bold mt-2 text-lg"></div>
             </div>
@@ -327,43 +327,43 @@
 
     <!-- SCREEN 3: RESULTS / SUMMARY -->
     <main id="resultScreen" class="w-full max-w-4xl z-10 my-auto hidden flex-col items-center">
-        <div class="glass-panel w-full p-6 sm:p-10 rounded-3xl border border-white/10 shadow-2xl text-center relative overflow-hidden">
+        <div class="glass-panel w-full p-5 sm:p-6 md:p-10 rounded-3xl border border-white/10 shadow-2xl text-center relative overflow-hidden">
             <div class="w-20 h-20 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-4xl mx-auto mb-4">
                 <i class="fa-solid fa-trophy animate-bounce-short"></i>
             </div>
 
-            <h2 class="text-3xl sm:text-4xl font-black font-outfit text-white mb-1">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black font-outfit text-white mb-1">
                 Permainan Selesai!
             </h2>
-            <p id="resultSubtitle" class="text-slate-300 text-sm mb-6">Kerja bagus! Berikut statistik hasil permainanmu:</p>
+            <p id="resultSubtitle" class="text-slate-300 text-xs sm:text-sm mb-4 sm:mb-6">Kerja bagus! Berikut statistik hasil permainanmu:</p>
 
             <!-- Stats Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-                <div class="glass-card p-4 rounded-2xl">
-                    <span class="text-xs text-slate-400 font-bold uppercase block mb-1">Total Skor</span>
-                    <span id="finalScore" class="text-2xl sm:text-3xl font-black font-outfit text-indigo-400">0</span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-5 sm:mb-8">
+                <div class="glass-card p-3 sm:p-4 rounded-2xl">
+                    <span class="text-[10px] sm:text-xs text-slate-400 font-bold uppercase block mb-0.5 sm:mb-1">Total Skor</span>
+                    <span id="finalScore" class="text-xl sm:text-2xl md:text-3xl font-black font-outfit text-indigo-400">0</span>
                 </div>
-                <div class="glass-card p-4 rounded-2xl">
-                    <span class="text-xs text-slate-400 font-bold uppercase block mb-1">Max Combo</span>
-                    <span id="maxCombo" class="text-2xl sm:text-3xl font-black font-outfit text-amber-400">0x</span>
+                <div class="glass-card p-3 sm:p-4 rounded-2xl">
+                    <span class="text-[10px] sm:text-xs text-slate-400 font-bold uppercase block mb-0.5 sm:mb-1">Max Combo</span>
+                    <span id="maxCombo" class="text-xl sm:text-2xl md:text-3xl font-black font-outfit text-amber-400">0x</span>
                 </div>
-                <div class="glass-card p-4 rounded-2xl">
-                    <span class="text-xs text-slate-400 font-bold uppercase block mb-1">Akurasi</span>
-                    <span id="accuracy" class="text-2xl sm:text-3xl font-black font-outfit text-emerald-400">0%</span>
+                <div class="glass-card p-3 sm:p-4 rounded-2xl">
+                    <span class="text-[10px] sm:text-xs text-slate-400 font-bold uppercase block mb-0.5 sm:mb-1">Akurasi</span>
+                    <span id="accuracy" class="text-xl sm:text-2xl md:text-3xl font-black font-outfit text-emerald-400">0%</span>
                 </div>
-                <div class="glass-card p-4 rounded-2xl">
-                    <span class="text-xs text-slate-400 font-bold uppercase block mb-1">Benar / Total</span>
-                    <span id="correctRatio" class="text-2xl sm:text-3xl font-black font-outfit text-purple-400">0/0</span>
+                <div class="glass-card p-3 sm:p-4 rounded-2xl">
+                    <span class="text-[10px] sm:text-xs text-slate-400 font-bold uppercase block mb-0.5 sm:mb-1">Benar / Total</span>
+                    <span id="correctRatio" class="text-xl sm:text-2xl md:text-3xl font-black font-outfit text-purple-400">0/0</span>
                 </div>
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button onclick="gameApp.startGame()" class="py-3.5 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold font-outfit btn-glow flex items-center justify-center gap-2">
+            <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center">
+                <button onclick="gameApp.startGame()" class="py-3 sm:py-3.5 px-6 sm:px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold font-outfit btn-glow flex items-center justify-center gap-2">
                     <i class="fa-solid fa-rotate-right"></i>
                     <span>Main Lagi</span>
                 </button>
-                <button onclick="gameApp.showScreen('welcome')" class="py-3.5 px-8 rounded-2xl glass-card text-slate-300 hover:text-white font-bold font-outfit flex items-center justify-center gap-2">
+                <button onclick="gameApp.showScreen('welcome')" class="py-3 sm:py-3.5 px-6 sm:px-8 rounded-2xl glass-card text-slate-300 hover:text-white font-bold font-outfit flex items-center justify-center gap-2">
                     <i class="fa-solid fa-house"></i>
                     <span>Menu Utama</span>
                 </button>
@@ -372,9 +372,9 @@
     </main>
 
     <!-- MODAL: LEADERBOARD -->
-    <div id="leaderboardModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-md p-6 rounded-3xl border border-white/10 shadow-2xl relative">
-            <button onclick="gameApp.hideLeaderboardModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-full glass-card">
+    <div id="leaderboardModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="glass-panel w-full max-w-md p-4 sm:p-6 rounded-3xl border border-white/10 shadow-2xl relative">
+            <button onclick="gameApp.hideLeaderboardModal()" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-slate-400 hover:text-white w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full glass-card">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             
@@ -538,43 +538,43 @@
                 sound.playClick();
                 this.mode = val;
                 document.querySelectorAll('.mode-btn').forEach(btn => {
-                    btn.className = 'mode-btn p-3 rounded-xl border text-center transition text-sm font-semibold glass-card border-white/10 text-slate-300';
+                    btn.className = 'mode-btn p-2 sm:p-3 rounded-xl border text-center transition text-[11px] sm:text-sm font-semibold glass-card border-white/10 text-slate-300';
                 });
-                document.getElementById(`mode-${val}`).className = 'mode-btn p-3 rounded-xl border text-center transition text-sm font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white';
+                document.getElementById(`mode-${val}`).className = 'mode-btn p-2 sm:p-3 rounded-xl border text-center transition text-[11px] sm:text-sm font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white';
             }
 
             setLevel(val) {
                 sound.playClick();
                 this.level = val;
                 document.querySelectorAll('.level-btn').forEach(btn => {
-                    btn.className = 'level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center';
-                    btn.querySelector('span:last-child').className = 'text-[10px] text-slate-400 px-1.5 py-0.5 bg-slate-800 rounded';
+                    btn.className = 'level-btn p-2.5 sm:p-2.5 rounded-xl border text-left transition text-[11px] sm:text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center';
+                    btn.querySelector('span:last-child').className = 'text-[9px] sm:text-[10px] text-slate-400 px-1 sm:px-1.5 py-0.5 bg-slate-800 rounded';
                 });
                 const activeBtn = document.getElementById(`level-${val}`);
-                activeBtn.className = 'level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-indigo-500 bg-indigo-600/30 text-white flex justify-between items-center';
-                activeBtn.querySelector('span:last-child').className = 'text-[10px] text-indigo-300 px-1.5 py-0.5 bg-indigo-900/60 rounded';
+                activeBtn.className = 'level-btn p-2.5 sm:p-2.5 rounded-xl border text-left transition text-[11px] sm:text-xs font-medium glass-card border-indigo-500 bg-indigo-600/30 text-white flex justify-between items-center';
+                activeBtn.querySelector('span:last-child').className = 'text-[9px] sm:text-[10px] text-indigo-300 px-1 sm:px-1.5 py-0.5 bg-indigo-900/60 rounded';
             }
 
             setTimer(sec) {
                 sound.playClick();
                 this.timerSec = sec;
                 document.querySelectorAll('.timer-btn').forEach(btn => {
-                    btn.className = 'timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-white/10 text-slate-300';
+                    btn.className = 'timer-btn p-2 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-bold glass-card border-white/10 text-slate-300';
                 });
-                document.getElementById(`timer-${sec}`).className = 'timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-indigo-500 bg-indigo-600/30 text-white';
+                document.getElementById(`timer-${sec}`).className = 'timer-btn p-2 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-bold glass-card border-indigo-500 bg-indigo-600/30 text-white';
             }
 
             setCount(cnt) {
                 sound.playClick();
                 this.questionCount = cnt;
                 document.querySelectorAll('.count-btn').forEach(btn => {
-                    btn.className = 'count-btn p-2.5 rounded-xl border text-center transition text-xs font-semibold glass-card border-white/10 text-slate-300';
+                    btn.className = 'count-btn p-2.5 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-semibold glass-card border-white/10 text-slate-300';
                 });
                 
                 if (cnt === 'sudden_death') {
-                    document.getElementById('count-sudden_death').className = 'count-btn p-2.5 rounded-xl border text-center transition text-xs font-bold glass-card border-rose-500 bg-rose-600/40 text-rose-200 flex items-center justify-center gap-1.5 shadow-lg shadow-rose-900/50';
+                    document.getElementById('count-sudden_death').className = 'count-btn p-2.5 sm:p-2.5 rounded-xl border text-center transition text-[10px] sm:text-xs font-bold glass-card border-rose-500 bg-rose-600/40 text-rose-200 flex items-center justify-center gap-1 sm:gap-1.5 shadow-lg shadow-rose-900/50';
                 } else {
-                    document.getElementById(`count-${cnt}`).className = 'count-btn p-2.5 rounded-xl border text-center transition text-xs font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white';
+                    document.getElementById(`count-${cnt}`).className = 'count-btn p-2.5 sm:p-2.5 rounded-xl border text-center transition text-[11px] sm:text-xs font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white';
                 }
             }
 
@@ -727,12 +727,12 @@
 
                 if (this.currentQuestion.type === 'komposisi') {
                     typeBadge.innerText = "KOMPOSISI BILANGAN";
-                    typeBadge.className = "px-3.5 py-1 text-xs font-extrabold uppercase tracking-widest rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30";
+                    typeBadge.className = "px-2.5 sm:px-3.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-extrabold uppercase tracking-widest rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30";
                     promptTitle.innerText = "Berapakah hasil penggabungan nilai tempat berikut?";
                     qDisplay.innerText = this.currentQuestion.expandedString;
                 } else {
                     typeBadge.innerText = "DEKOMPOSISI BILANGAN";
-                    typeBadge.className = "px-3.5 py-1 text-xs font-extrabold uppercase tracking-widest rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30";
+                    typeBadge.className = "px-2.5 sm:px-3.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-extrabold uppercase tracking-widest rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30";
                     promptTitle.innerText = "Manakah uraian nilai tempat yang tepat untuk bilangan:";
                     qDisplay.innerText = this.currentQuestion.targetNumber.toLocaleString('id-ID');
                 }
@@ -749,7 +749,7 @@
 
                 this.currentQuestion.options.forEach((opt, idx) => {
                     const btn = document.createElement('button');
-                    btn.className = 'glass-card p-4 sm:p-5 rounded-2xl text-base sm:text-lg font-bold font-outfit text-slate-100 hover:text-white border border-white/10 flex items-center justify-between text-left transition transform active:scale-95 hover:border-indigo-500 hover:bg-indigo-600/20 flex-1 min-w-[200px]';
+                    btn.className = 'glass-card p-3 sm:p-4 md:p-5 rounded-2xl text-sm sm:text-base md:text-lg font-bold font-outfit text-slate-100 hover:text-white border border-white/10 flex items-center justify-between text-left transition transform active:scale-95 hover:border-indigo-500 hover:bg-indigo-600/20 flex-1 min-w-0 sm:min-w-[200px]';
                     btn.innerHTML = `
                         <span class="truncate pr-2">${opt}</span>
                         <span class="w-8 h-8 rounded-xl bg-slate-800 text-xs font-extrabold flex items-center justify-center text-slate-400 group-hover:text-white shrink-0">${String.fromCharCode(65 + idx)}</span>
@@ -827,12 +827,12 @@
 
                     feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
                     feedbackText.innerText = "BENAR!";
-                    feedbackText.className = "text-2xl font-black font-outfit text-emerald-400";
+                    feedbackText.className = "text-xl sm:text-2xl font-black font-outfit text-emerald-400";
                     feedbackDetail.innerText = `Jawaban tepat! Nilai tempat terpasang sempurna.`;
                     scoreBonusText.innerText = `+${pointsGained.toLocaleString('id-ID')} Poin (Combo ${comboMultiplier}x | Speed ${speedMultiplier.toFixed(1)}x!)`;
 
                     if (buttonEl) {
-                        buttonEl.className = 'glass-card p-4 sm:p-5 rounded-2xl text-base sm:text-lg font-bold font-outfit text-white border-2 border-emerald-500 bg-emerald-600/30 flex items-center justify-between text-left flex-1 min-w-[200px]';
+                        buttonEl.className = 'glass-card p-3 sm:p-4 md:p-5 rounded-2xl text-sm sm:text-base md:text-lg font-bold font-outfit text-white border-2 border-emerald-500 bg-emerald-600/30 flex items-center justify-between text-left flex-1 min-w-0 sm:min-w-[200px]';
                     }
 
                     this.triggerConfettiBurst();
@@ -843,12 +843,12 @@
 
                     feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-400"></i>';
                     feedbackText.innerText = isTimeout ? "WAKTU HABIS!" : "KURANG TEPAT!";
-                    feedbackText.className = "text-2xl font-black font-outfit text-rose-400";
+                    feedbackText.className = "text-xl sm:text-2xl font-black font-outfit text-rose-400";
                     feedbackDetail.innerText = `Jawaban benar: ${this.currentQuestion.correctAnswer}`;
                     scoreBonusText.innerText = `Combo terhenti!`;
 
                     if (buttonEl) {
-                        buttonEl.className = 'glass-card p-4 sm:p-5 rounded-2xl text-base sm:text-lg font-bold font-outfit text-white border-2 border-rose-500 bg-rose-600/30 flex items-center justify-between text-left flex-1 min-w-[200px]';
+                        buttonEl.className = 'glass-card p-3 sm:p-4 md:p-5 rounded-2xl text-sm sm:text-base md:text-lg font-bold font-outfit text-white border-2 border-rose-500 bg-rose-600/30 flex items-center justify-between text-left flex-1 min-w-0 sm:min-w-[200px]';
                     }
 
                     // Sudden death check
