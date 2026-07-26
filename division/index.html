@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Pembagian - Flashcard & Tes Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', 'Outfit', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        @keyframes comboPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.25); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-combo-pop {
+            animation: comboPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+        .animate-float {
+            animation: floatSlow 6s ease-in-out infinite;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        @media (max-width: 380px) {
+            .fc-nav-text { display: none; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+    <div class="fixed inset-0 pointer-events-none opacity-10 overflow-hidden z-0">
+        <span class="absolute top-10 left-10 text-7xl font-bold animate-float" style="animation-delay: 0s;">÷</span>
+        <span class="absolute top-1/4 right-12 text-8xl font-bold animate-float" style="animation-delay: 1s;">×</span>
+        <span class="absolute bottom-20 left-1/5 text-9xl font-bold animate-float" style="animation-delay: 2s;">+</span>
+        <span class="absolute bottom-1/3 right-1/4 text-7xl font-bold animate-float" style="animation-delay: 1.5s;">=</span>
+        <span class="absolute top-1/2 left-1/3 text-6xl font-bold animate-float" style="animation-delay: 2.5s;">56÷8</span>
+    </div>
+
+    <header class="relative z-10 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md px-4 py-3 sm:px-8">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="app.showHome()">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-500 to-indigo-500 flex items-center justify-center text-white text-xl sm:text-2xl font-black shadow-lg shadow-cyan-500/30">
+                    ÷
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black tracking-wide bg-gradient-to-r from-cyan-400 via-blue-300 to-indigo-400 bg-clip-text text-transparent">
+                        Master Pembagian
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium hidden sm:block">Metode Belajar & Tes Pembagian Asyik!</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="audioToggleBtn" onclick="app.toggleAudio()" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/60 flex items-center justify-center text-slate-300 transition hover:scale-105 active:scale-95" title="Suara FX">
+                    <i id="audioIcon" class="fas fa-volume-up text-cyan-400"></i>
+                </button>
+                <button onclick="app.openStatsModal()" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/60 flex items-center justify-center text-amber-400 transition hover:scale-105 active:scale-95" title="Papan Skor">
+                    <i class="fas fa-trophy"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 max-w-4xl mx-auto w-full px-4 py-6 flex-1 flex flex-col justify-center">
+
+        <section id="viewHome" class="space-y-6 sm:space-y-8">
+            <div class="text-center space-y-2">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                    🎯 Pilih Mode & Angka
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Siap Jadi Jagoan Pembagian?</h2>
+                <p class="text-slate-400 text-sm sm:text-base max-w-md mx-auto">Pilih tabel pembagian yang ingin dipelajari, lalu tentukan metode belajarmu!</p>
+            </div>
+
+            <div class="bg-slate-800/60 border border-slate-700/60 rounded-3xl p-5 sm:p-6 backdrop-blur-sm space-y-4 shadow-xl">
+                <label class="block text-sm font-bold text-slate-300 flex items-center justify-between">
+                    <span><i class="fas fa-list-ol text-cyan-400 mr-2"></i> Pilih Pembagian:</span>
+                    <span id="selectedTableBadge" class="text-xs px-2.5 py-1 rounded-lg bg-cyan-600 text-white font-semibold">Semua (1 - 10)</span>
+                </label>
+
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2.5 sm:gap-3">
+                    <button onclick="app.selectTable('1')" class="num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-cyan-500 font-bold text-lg text-slate-200 transition-all active:scale-95 flex flex-col items-center gap-0.5" data-table="1">
+                        <span>÷ 1</span>
+                    </button>
+                    <button onclick="app.selectTable('2')" class="num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-cyan-500 font-bold text-lg text-slate-200 transition-all active:scale-95 flex flex-col items-center gap-0.5" data-table="2">
+                        <span>÷ 2</span>
+                    </button>
+                    <button onclick="app.selectTable('3')" class="num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-cyan-500 font-bold text-lg text-slate-200 transition-all active:scale-95 flex flex-col items-center gap-0.5" data-table="3">
+                        <span>÷ 3</span>
+                    </button>
+                    <button onclick="app.selectTable('4')" class="num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-cyan-500 font-bold text-lg text-slate-200 transition-all active:scale-95 flex flex-col items-center gap-0.5" data-table="4">
+                        <span>÷ 4</span>
+                    </button>
+                    <button onclick="app.selectTable('5')" class="num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-cyan-500 font-bold text-lg text-slate-200 transition-all active:scale-95 flex flex-col items-center gap-0.5" data-table="5">
+                        <span>÷ 5</span>
+                    </button>
+                    <button onclick="app.selectTable('6')" class="num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-cyan-500 font-bold text-lg text-slate-200 transition-all active:scale-95 flex flex-col items-center gap-0.5" data-table="6">
+                        <span>÷ 6</span>
+                    </button>
+                    <button onclick="app.selectTable('7')" class="num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-cyan-500 font-bold text-lg text-slate-200 transition-all active:scale-95 flex flex-col items-center gap-0.5" data-table="7">
+                        <span>÷ 7</span>
+                    </button>
+                    <button onclick="app.selectTable('8')" class="num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-cyan-500 font-bold text-lg text-slate-200 transition-all active:scale-95 flex flex-col items-center gap-0.5" data-table="8">
+                        <span>÷ 8</span>
+                    </button>
+                    <button onclick="app.selectTable('9')" class="num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-cyan-500 font-bold text-lg text-slate-200 transition-all active:scale-95 flex flex-col items-center gap-0.5" data-table="9">
+                        <span>÷ 9</span>
+                    </button>
+                    <button onclick="app.selectTable('10')" class="num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-cyan-500 font-bold text-lg text-slate-200 transition-all active:scale-95 flex flex-col items-center gap-0.5" data-table="10">
+                        <span>÷ 10</span>
+                    </button>
+                    <button onclick="app.selectTable('mixed')" class="num-select-btn col-span-2 py-3 rounded-2xl border-2 border-cyan-500 bg-cyan-600/20 font-bold text-lg text-cyan-300 transition-all active:scale-95 flex items-center justify-center gap-2" data-table="mixed">
+                        <i class="fas fa-random text-sm"></i>
+                        <span>Campuran (1 - 10)</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-4">
+                <div onclick="app.selectMode('flashcard')" id="cardModeFlashcard" class="mode-card group cursor-pointer bg-slate-800/80 border-2 border-cyan-500/80 hover:border-cyan-400 rounded-3xl p-6 transition-all duration-200 hover:-translate-y-1 shadow-lg relative overflow-hidden">
+                    <div class="flex items-start justify-between">
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
+                            🃏
+                        </div>
+                        <span class="text-xs bg-cyan-500/20 text-cyan-300 font-bold px-2.5 py-1 rounded-full">Mode Santai</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-1">Flashcard Kartu</h3>
+                    <p class="text-slate-400 text-sm">Bolak-balik kartu untuk latihan menghafal tanpa tekanan waktu dan tanpa skor.</p>
+                </div>
+
+                <div onclick="app.selectMode('test')" id="cardModeTest" class="mode-card group cursor-pointer bg-slate-800/40 border-2 border-slate-700 hover:border-cyan-500/60 rounded-3xl p-6 transition-all duration-200 hover:-translate-y-1 shadow-lg relative overflow-hidden">
+                    <div class="flex items-start justify-between">
+                        <div class="w-12 h-12 rounded-2xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
+                            ⏱️
+                        </div>
+                        <span class="text-xs bg-pink-500/20 text-pink-300 font-bold px-2.5 py-1 rounded-full">Tantangan Ujian</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-1">Ujian & Tes Skor</h3>
+                    <p class="text-slate-400 text-sm">Uji hafalan dengan timer, hitung ketepatan, dan capai Combo Multiplier tertinggi!</p>
+                </div>
+            </div>
+
+            <div id="testConfigPanel" class="hidden bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 space-y-5 animate-fade-in">
+                <h4 class="text-md font-bold text-pink-400 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fas fa-sliders-h"></i> Pengaturan Tes
+                </h4>
+
+                <div class="grid sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-2">JUMLAH SOAL</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="app.setQuestionCount(10)" class="q-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-sm hover:border-pink-500" data-count="10">10 Soal</button>
+                            <button onclick="app.setQuestionCount(20)" class="q-count-btn py-2 rounded-xl border border-pink-500 bg-pink-600/20 text-pink-300 font-semibold text-sm" data-count="20">20 Soal</button>
+                            <button onclick="app.setQuestionCount(30)" class="q-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-sm hover:border-pink-500" data-count="30">30 Soal</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-2">BATAS WAKTU (PER SOAL)</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="app.setTimerSetting(0)" class="timer-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-sm hover:border-pink-500" data-time="0">Tanpa Waktu</button>
+                            <button onclick="app.setTimerSetting(5)" class="timer-btn py-2 rounded-xl border border-pink-500 bg-pink-600/20 text-pink-300 font-semibold text-sm" data-time="5">⚡ 5 Detik</button>
+                            <button onclick="app.setTimerSetting(10)" class="timer-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-semibold text-sm hover:border-pink-500" data-time="10">⏳ 10 Detik</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <label class="block text-xs font-semibold text-slate-400 mb-2">METODE JAWABAN</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="app.setInputType('mcq')" class="input-type-btn py-2.5 rounded-xl border border-pink-500 bg-pink-600/20 text-pink-300 font-bold text-sm flex items-center justify-center gap-2" data-type="mcq">
+                            <i class="fas fa-th-large"></i> Pilihan Ganda (4 Opsi)
+                        </button>
+                        <button onclick="app.setInputType('numpad')" class="input-type-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 font-bold text-sm flex items-center justify-center gap-2" data-type="numpad">
+                            <i class="fas fa-calculator"></i> Ketik Angka (Numpad)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="app.startSelectedMode()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-500 hover:from-cyan-600 hover:to-indigo-600 font-black text-xl text-white shadow-xl shadow-cyan-500/25 transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-3">
+                <i class="fas fa-play text-lg"></i>
+                <span id="startBtnText">Mulai Latihan Flashcard</span>
+            </button>
+        </section>
+
+
+        <section id="viewFlashcard" class="hidden space-y-6">
+            <div class="flex items-center justify-between">
+                <button onclick="app.showHome()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sm font-semibold text-slate-300 flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i> Kembali
+                </button>
+                <div class="text-slate-400 text-sm font-bold">
+                    Kartu <span id="fcCurrentIndex" class="text-cyan-400">1</span> / <span id="fcTotalCards">10</span>
+                </div>
+                <button onclick="app.toggleShuffleFlashcards()" id="fcShuffleBtn" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sm font-semibold text-slate-300 flex items-center gap-2">
+                    <i class="fas fa-random text-cyan-400"></i> Acak
+                </button>
+            </div>
+
+            <div class="perspective-1000 w-full max-w-md mx-auto aspect-[4/3] sm:aspect-[16/10] cursor-pointer" onclick="app.flipFlashcard()">
+                <div id="flashcardInner" class="transform-style-3d relative w-full h-full rounded-3xl shadow-2xl transition-all">
+                    <div class="backface-hidden absolute inset-0 bg-gradient-to-br from-cyan-900 via-slate-800 to-slate-900 border-2 border-cyan-500/50 rounded-3xl p-6 flex flex-col items-center justify-between text-center select-none shadow-cyan-500/10">
+                        <div class="w-full flex justify-between items-center text-xs text-cyan-300 font-semibold uppercase tracking-widest">
+                            <span>SOAL</span>
+                            <span>Klik / Ketuk Kartu <i class="fas fa-sync-alt ml-1"></i></span>
+                        </div>
+                        <div class="my-auto">
+                            <span id="fcQuestionText" class="text-4xl sm:text-5xl md:text-7xl font-extrabold text-white tracking-wider">
+                                56 ÷ 8
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400">Sentuh untuk melihat jawaban</p>
+                    </div>
+
+                    <div class="rotate-y-180 backface-hidden absolute inset-0 bg-gradient-to-br from-emerald-900 via-slate-800 to-slate-900 border-2 border-emerald-500/50 rounded-3xl p-6 flex flex-col items-center justify-between text-center select-none">
+                        <div class="w-full flex justify-between items-center text-xs text-emerald-300 font-semibold uppercase tracking-widest">
+                            <span>JAWABAN</span>
+                            <span>Klik untuk balik <i class="fas fa-sync-alt ml-1"></i></span>
+                        </div>
+                        <div class="my-auto space-y-2">
+                            <div id="fcAnswerText" class="text-5xl sm:text-6xl md:text-8xl font-black text-emerald-400 tracking-wider">
+                                7
+                            </div>
+                            <div id="fcVisualHint" class="text-xs text-slate-400 font-medium">
+                                ( 56 dibagi rata ke dalam 8 kelompok )
+                            </div>
+                        </div>
+                        <span class="text-xs text-emerald-400/80 font-semibold">✨ Hebat! Sudah paham?</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center gap-4 max-w-md mx-auto pt-2">
+                <button onclick="app.prevFlashcard()" class="flex-1 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-slate-200 transition active:scale-95 flex items-center justify-center gap-2 min-h-[48px]">
+                    <i class="fas fa-chevron-left"></i> <span class="fc-nav-text">Sebelum</span>
+                </button>
+                <button onclick="app.flipFlashcard()" class="w-14 h-14 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xl flex items-center justify-center shadow-lg shadow-cyan-500/30 active:scale-95 min-w-[56px]" title="Membalik Kartu">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button onclick="app.nextFlashcard()" class="flex-1 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 font-bold text-slate-200 transition active:scale-95 flex items-center justify-center gap-2 min-h-[48px]">
+                    <span class="fc-nav-text">Lanjut</span> <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+
+        <section id="viewTest" class="hidden space-y-5">
+            <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-3 sm:p-4 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-3 shadow-lg">
+                <div class="flex items-center gap-3">
+                    <div class="text-xs font-bold text-slate-400">
+                        Soal <span id="testCurrentNum" class="text-lg text-white font-extrabold">1</span>/<span id="testTotalNum">10</span>
+                    </div>
+                </div>
+
+                <div id="timerContainer" class="flex items-center gap-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                    <i class="fas fa-stopwatch text-pink-400 text-sm"></i>
+                    <span id="timerText" class="font-black text-pink-400 text-base sm:text-lg min-w-[2.5rem] text-center">05.0s</span>
+                </div>
+
+                <div class="text-right">
+                    <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Skor Total</div>
+                    <div id="testScoreText" class="text-xl sm:text-2xl font-black text-amber-400">0</div>
+                </div>
+            </div>
+
+            <div class="relative bg-slate-800/90 border-2 border-slate-700 rounded-3xl p-6 sm:p-10 text-center shadow-2xl min-h-[200px] flex flex-col justify-center items-center overflow-hidden">
+                
+                <div id="comboBadge" class="hidden absolute top-3 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-xs sm:text-sm px-3 py-1 rounded-full shadow-lg shadow-amber-500/20 transform rotate-3 animate-combo-pop">
+                    🔥 COMBO <span id="comboMultiplierText">2x</span>!
+                </div>
+
+                <div class="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-2">Berapa hasil dari:</div>
+                <div id="testQuestionText" class="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-wide my-2">
+                    56 ÷ 8 = ?
+                </div>
+
+                <div id="timerBarBg" class="w-full bg-slate-700/60 h-2 rounded-full mt-4 overflow-hidden">
+                    <div id="timerBar" class="bg-gradient-to-r from-pink-500 to-purple-500 h-full w-full transition-all duration-100 ease-linear"></div>
+                </div>
+            </div>
+
+            <div id="mcqOptionsGrid" class="grid grid-cols-2 gap-3 sm:gap-4">
+                <button onclick="app.submitMcqAnswer(0)" class="mcq-btn py-4 sm:py-5 px-4 min-h-[56px] rounded-2xl bg-slate-800 border-2 border-slate-700 hover:border-cyan-500 text-2xl sm:text-3xl font-black text-white hover:bg-slate-700/80 transition active:scale-95 shadow-lg flex items-center justify-center">
+                    <span>7</span>
+                </button>
+                <button onclick="app.submitMcqAnswer(1)" class="mcq-btn py-4 sm:py-5 px-4 min-h-[56px] rounded-2xl bg-slate-800 border-2 border-slate-700 hover:border-cyan-500 text-2xl sm:text-3xl font-black text-white hover:bg-slate-700/80 transition active:scale-95 shadow-lg flex items-center justify-center">
+                    <span>8</span>
+                </button>
+                <button onclick="app.submitMcqAnswer(2)" class="mcq-btn py-4 sm:py-5 px-4 min-h-[56px] rounded-2xl bg-slate-800 border-2 border-slate-700 hover:border-cyan-500 text-2xl sm:text-3xl font-black text-white hover:bg-slate-700/80 transition active:scale-95 shadow-lg flex items-center justify-center">
+                    <span>6</span>
+                </button>
+                <button onclick="app.submitMcqAnswer(3)" class="mcq-btn py-4 sm:py-5 px-4 min-h-[56px] rounded-2xl bg-slate-800 border-2 border-slate-700 hover:border-cyan-500 text-2xl sm:text-3xl font-black text-white hover:bg-slate-700/80 transition active:scale-95 shadow-lg flex items-center justify-center">
+                    <span>9</span>
+                </button>
+            </div>
+
+            <div id="numpadGrid" class="hidden space-y-3 max-w-xs mx-auto">
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3 flex items-center justify-between min-h-[50px]">
+                    <span class="text-xs text-slate-400 font-bold uppercase">Jawaban:</span>
+                    <span id="numpadInputDisplay" class="text-3xl font-black text-cyan-400 tracking-wider">_</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="app.pressNumpad('1')" class="numpad-btn py-3 min-h-[48px] bg-slate-800 border border-slate-700 rounded-xl font-extrabold text-xl hover:bg-slate-700 active:scale-95">1</button>
+                    <button onclick="app.pressNumpad('2')" class="numpad-btn py-3 min-h-[48px] bg-slate-800 border border-slate-700 rounded-xl font-extrabold text-xl hover:bg-slate-700 active:scale-95">2</button>
+                    <button onclick="app.pressNumpad('3')" class="numpad-btn py-3 min-h-[48px] bg-slate-800 border border-slate-700 rounded-xl font-extrabold text-xl hover:bg-slate-700 active:scale-95">3</button>
+                    <button onclick="app.pressNumpad('4')" class="numpad-btn py-3 min-h-[48px] bg-slate-800 border border-slate-700 rounded-xl font-extrabold text-xl hover:bg-slate-700 active:scale-95">4</button>
+                    <button onclick="app.pressNumpad('5')" class="numpad-btn py-3 min-h-[48px] bg-slate-800 border border-slate-700 rounded-xl font-extrabold text-xl hover:bg-slate-700 active:scale-95">5</button>
+                    <button onclick="app.pressNumpad('6')" class="numpad-btn py-3 min-h-[48px] bg-slate-800 border border-slate-700 rounded-xl font-extrabold text-xl hover:bg-slate-700 active:scale-95">6</button>
+                    <button onclick="app.pressNumpad('7')" class="numpad-btn py-3 min-h-[48px] bg-slate-800 border border-slate-700 rounded-xl font-extrabold text-xl hover:bg-slate-700 active:scale-95">7</button>
+                    <button onclick="app.pressNumpad('8')" class="numpad-btn py-3 min-h-[48px] bg-slate-800 border border-slate-700 rounded-xl font-extrabold text-xl hover:bg-slate-700 active:scale-95">8</button>
+                    <button onclick="app.pressNumpad('9')" class="numpad-btn py-3 min-h-[48px] bg-slate-800 border border-slate-700 rounded-xl font-extrabold text-xl hover:bg-slate-700 active:scale-95">9</button>
+                    <button onclick="app.clearNumpad()" class="numpad-btn py-3 min-h-[48px] bg-rose-900/40 border border-rose-700/60 text-rose-300 rounded-xl font-bold text-sm hover:bg-rose-900/60 active:scale-95">C</button>
+                    <button onclick="app.pressNumpad('0')" class="numpad-btn py-3 min-h-[48px] bg-slate-800 border border-slate-700 rounded-xl font-extrabold text-xl hover:bg-slate-700 active:scale-95">0</button>
+                    <button onclick="app.submitNumpadAnswer()" class="numpad-btn py-3 min-h-[48px] bg-cyan-600 border border-cyan-500 text-white rounded-xl font-bold text-sm hover:bg-cyan-500 active:scale-95">OK <i class="fas fa-check"></i></button>
+                </div>
+            </div>
+        </section>
+
+
+        <section id="viewResult" class="hidden space-y-6 text-center">
+            <div class="bg-slate-800/90 border border-slate-700 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl backdrop-blur-md max-w-lg mx-auto">
+                <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-slate-950 text-4xl shadow-lg shadow-amber-500/20">
+                    <i class="fas fa-crown"></i>
+                </div>
+
+                <div>
+                    <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">HASIL TES PEMBAGIAN</span>
+                    <h2 id="resultTitle" class="text-3xl font-extrabold text-white mt-1">Luar Biasa!</h2>
+                    <p id="resultSubtitle" class="text-slate-400 text-sm mt-1">Kamu berhasil menyelesaikan ujian ini.</p>
+                </div>
+
+                <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-700">
+                    <div class="text-xs text-slate-400 font-semibold uppercase">SKOR AKHIR</div>
+                    <div id="finalScoreDisplay" class="text-5xl font-black bg-gradient-to-r from-amber-300 via-amber-400 to-orange-400 bg-clip-text text-transparent">
+                        1,250
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/60">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">BENAR</div>
+                        <div id="resCorrectCount" class="text-xl font-extrabold text-emerald-400">9/10</div>
+                    </div>
+                    <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/60">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">AKURASI</div>
+                        <div id="resAccuracyPercent" class="text-xl font-extrabold text-indigo-400">90%</div>
+                    </div>
+                    <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/60">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">MAX COMBO</div>
+                        <div id="resMaxCombo" class="text-xl font-extrabold text-amber-400">5x</div>
+                    </div>
+                </div>
+
+                <div id="wrongReviewContainer" class="hidden text-left bg-slate-900/60 rounded-2xl p-4 border border-rose-500/30 space-y-2">
+                    <div class="text-xs font-bold text-rose-400 flex items-center justify-between">
+                        <span><i class="fas fa-exclamation-triangle"></i> Evaluasi Jawaban Salah:</span>
+                    </div>
+                    <div id="wrongReviewList" class="space-y-1.5 text-xs text-slate-300 max-h-36 overflow-y-auto pr-1 no-scrollbar">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button onclick="app.startSelectedMode()" class="flex-1 py-3.5 rounded-2xl bg-cyan-600 hover:bg-cyan-500 font-bold text-white shadow-lg shadow-cyan-600/30 transition active:scale-95">
+                        <i class="fas fa-redo text-sm mr-1"></i> Coba Lagi
+                    </button>
+                    <button onclick="app.showHome()" class="flex-1 py-3.5 rounded-2xl bg-slate-700 hover:bg-slate-600 font-bold text-slate-200 transition active:scale-95">
+                        <i class="fas fa-home text-sm mr-1"></i> Beranda
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="statsModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 w-full max-w-md space-y-5 relative shadow-2xl">
+            <button onclick="app.closeStatsModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center hover:bg-slate-600">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Papan Skor Terbaik</h3>
+                    <p class="text-xs text-slate-400">Rekor tes pembagian tersimpan lokal</p>
+                </div>
+            </div>
+
+            <div id="highScoresList" class="space-y-2 max-h-60 overflow-y-auto pr-1 no-scrollbar">
+            </div>
+
+            <div class="pt-2 flex justify-between items-center text-xs text-slate-400">
+                <span>Punya rekor baru? Terus berlatih!</span>
+                <button onclick="app.clearHighScores()" class="text-rose-400 hover:underline">Hapus Skor</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="relative z-10 py-4 text-center text-xs text-slate-500 border-t border-slate-800">
+        <p>© 2026 Master Pembagian • Belajar Matematika Jadi Makin Seru!</p>
+    </footer>
+
+
+    <script>
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) this.ctx = new AudioContext();
+                }
+            }
+
+            playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.1) {
+                if (!this.enabled) return;
+                try {
+                    this.init();
+                    if (!this.ctx) return;
+                    if (this.ctx.state === 'suspended') this.ctx.resume();
+
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    
+                    gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {
+                    console.log('Audio error:', e);
+                }
+            }
+
+            correct() {
+                this.playTone(523.25, 'sine', 0.1, 0.15);
+                setTimeout(() => this.playTone(659.25, 'sine', 0.2, 0.15), 80);
+            }
+
+            wrong() {
+                this.playTone(220, 'sawtooth', 0.2, 0.12);
+                setTimeout(() => this.playTone(180, 'sawtooth', 0.25, 0.12), 120);
+            }
+
+            combo() {
+                this.playTone(587.33, 'triangle', 0.1, 0.15);
+                setTimeout(() => this.playTone(739.99, 'triangle', 0.1, 0.15), 70);
+                setTimeout(() => this.playTone(880.00, 'triangle', 0.25, 0.2), 140);
+            }
+
+            click() {
+                this.playTone(400, 'sine', 0.05, 0.05);
+            }
+        }
+
+        const soundFX = new SoundFX();
+
+        class DivisionApp {
+            constructor() {
+                this.selectedTable = 'mixed';
+                this.mode = 'flashcard';
+                
+                this.questionCount = 20;
+                this.timerLimit = 5;
+                this.inputType = 'mcq';
+
+                this.flashcards = [];
+                this.fcIndex = 0;
+                this.fcFlipped = false;
+
+                this.testQuestions = [];
+                this.testIndex = 0;
+                this.score = 0;
+                this.combo = 0;
+                this.maxCombo = 0;
+                this.correctCount = 0;
+                this.timerInterval = null;
+                this.timeLeft = 0;
+                this.numpadVal = '';
+                this.wrongAnswers = [];
+                this.currentView = 'home';
+
+                this.init();
+            }
+
+            init() {
+                this.updateUISelection();
+                this.setupKeyboardListeners();
+            }
+
+            setupKeyboardListeners() {
+                document.addEventListener('keydown', (e) => {
+                    if (this.currentView === 'flashcard') {
+                        if (e.code === 'Space') {
+                            e.preventDefault();
+                            this.flipFlashcard();
+                        } else if (e.code === 'ArrowRight') {
+                            this.nextFlashcard();
+                        } else if (e.code === 'ArrowLeft') {
+                            this.prevFlashcard();
+                        }
+                    } else if (this.currentView === 'test' && this.inputType === 'numpad') {
+                        if (e.key >= '0' && e.key <= '9') {
+                            this.pressNumpad(e.key);
+                        } else if (e.key === 'Backspace') {
+                            this.clearNumpad();
+                        } else if (e.key === 'Enter') {
+                            this.submitNumpadAnswer();
+                        }
+                    }
+                });
+            }
+
+            toggleAudio() {
+                soundFX.enabled = !soundFX.enabled;
+                const icon = document.getElementById('audioIcon');
+                if (soundFX.enabled) {
+                    icon.className = 'fas fa-volume-up text-cyan-400';
+                } else {
+                    icon.className = 'fas fa-volume-mute text-slate-500';
+                }
+            }
+
+            selectTable(table) {
+                soundFX.click();
+                this.selectedTable = table;
+                this.updateUISelection();
+            }
+
+            selectMode(mode) {
+                soundFX.click();
+                this.mode = mode;
+                this.updateUISelection();
+            }
+
+            setQuestionCount(count) {
+                soundFX.click();
+                this.questionCount = count;
+                this.updateUISelection();
+            }
+
+            setTimerSetting(time) {
+                soundFX.click();
+                this.timerLimit = time;
+                this.updateUISelection();
+            }
+
+            setInputType(type) {
+                soundFX.click();
+                this.inputType = type;
+                this.updateUISelection();
+            }
+
+            updateUISelection() {
+                document.querySelectorAll('.num-select-btn').forEach(btn => {
+                    const t = btn.getAttribute('data-table');
+                    if (t === this.selectedTable) {
+                        btn.className = "num-select-btn py-3 rounded-2xl border-2 border-cyan-500 bg-cyan-600/30 font-extrabold text-lg text-white shadow-lg shadow-cyan-500/20 active:scale-95 flex flex-col items-center justify-center";
+                    } else {
+                        btn.className = "num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-cyan-500/50 font-bold text-lg text-slate-300 transition-all active:scale-95 flex flex-col items-center justify-center";
+                    }
+                });
+
+                const badge = document.getElementById('selectedTableBadge');
+                badge.innerText = this.selectedTable === 'mixed' ? 'Semua (1 - 10)' : `Pembagian ${this.selectedTable}`;
+
+                const fcCard = document.getElementById('cardModeFlashcard');
+                const testCard = document.getElementById('cardModeTest');
+                const testPanel = document.getElementById('testConfigPanel');
+                const startBtnText = document.getElementById('startBtnText');
+
+                if (this.mode === 'flashcard') {
+                    fcCard.className = "mode-card group cursor-pointer bg-slate-800/90 border-2 border-cyan-500 rounded-3xl p-6 transition shadow-xl relative overflow-hidden";
+                    testCard.className = "mode-card group cursor-pointer bg-slate-800/40 border-2 border-slate-700 hover:border-cyan-500/60 rounded-3xl p-6 transition shadow-lg relative overflow-hidden opacity-70";
+                    testPanel.classList.add('hidden');
+                    startBtnText.innerText = "Mulai Flashcard";
+                } else {
+                    testCard.className = "mode-card group cursor-pointer bg-slate-800/90 border-2 border-pink-500 rounded-3xl p-6 transition shadow-xl relative overflow-hidden";
+                    fcCard.className = "mode-card group cursor-pointer bg-slate-800/40 border-2 border-slate-700 hover:border-cyan-500/60 rounded-3xl p-6 transition shadow-lg relative overflow-hidden opacity-70";
+                    testPanel.classList.remove('hidden');
+                    startBtnText.innerText = "Mulai Ujian Pembagian";
+                }
+
+                document.querySelectorAll('.q-count-btn').forEach(btn => {
+                    const c = parseInt(btn.getAttribute('data-count'));
+                    if (c === this.questionCount) {
+                        btn.className = "q-count-btn py-2 rounded-xl border-2 border-pink-500 bg-pink-600/20 text-pink-300 font-bold text-sm";
+                    } else {
+                        btn.className = "q-count-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-400 font-semibold text-sm hover:border-pink-500/50";
+                    }
+                });
+
+                document.querySelectorAll('.timer-btn').forEach(btn => {
+                    const t = parseInt(btn.getAttribute('data-time'));
+                    if (t === this.timerLimit) {
+                        btn.className = "timer-btn py-2 rounded-xl border-2 border-pink-500 bg-pink-600/20 text-pink-300 font-bold text-sm";
+                    } else {
+                        btn.className = "timer-btn py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-400 font-semibold text-sm hover:border-pink-500/50";
+                    }
+                });
+
+                document.querySelectorAll('.input-type-btn').forEach(btn => {
+                    const type = btn.getAttribute('data-type');
+                    if (type === this.inputType) {
+                        btn.className = "input-type-btn py-2.5 rounded-xl border-2 border-pink-500 bg-pink-600/20 text-pink-300 font-bold text-sm flex items-center justify-center gap-2";
+                    } else {
+                        btn.className = "input-type-btn py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-400 font-bold text-sm flex items-center justify-center gap-2 hover:border-pink-500/50";
+                    }
+                });
+            }
+
+            startSelectedMode() {
+                soundFX.click();
+                if (this.mode === 'flashcard') {
+                    this.initFlashcards();
+                    this.switchView('flashcard');
+                } else {
+                    this.initTest();
+                    this.switchView('test');
+                }
+            }
+
+            switchView(viewName) {
+                this.currentView = viewName;
+                document.getElementById('viewHome').classList.add('hidden');
+                document.getElementById('viewFlashcard').classList.add('hidden');
+                document.getElementById('viewTest').classList.add('hidden');
+                document.getElementById('viewResult').classList.add('hidden');
+
+                if (viewName === 'home') document.getElementById('viewHome').classList.remove('hidden');
+                if (viewName === 'flashcard') document.getElementById('viewFlashcard').classList.remove('hidden');
+                if (viewName === 'test') document.getElementById('viewTest').classList.remove('hidden');
+                if (viewName === 'result') document.getElementById('viewResult').classList.remove('hidden');
+            }
+
+            showHome() {
+                soundFX.click();
+                if (this.timerInterval) clearInterval(this.timerInterval);
+                this.switchView('home');
+            }
+
+            generateDivisionPool() {
+                const pool = [];
+                const divisors = this.selectedTable === 'mixed'
+                    ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                    : [parseInt(this.selectedTable)];
+
+                divisors.forEach(divisor => {
+                    for (let quotient = 1; quotient <= 10; quotient++) {
+                        const dividend = divisor * quotient;
+                        pool.push({ a: dividend, b: divisor, ans: quotient });
+                    }
+                });
+
+                return pool;
+            }
+
+            initFlashcards() {
+                this.flashcards = this.generateDivisionPool();
+                this.fcIndex = 0;
+                this.fcFlipped = false;
+                this.renderFlashcard();
+            }
+
+            toggleShuffleFlashcards() {
+                soundFX.click();
+                this.flashcards.sort(() => Math.random() - 0.5);
+                this.fcIndex = 0;
+                this.fcFlipped = false;
+                this.renderFlashcard();
+            }
+
+            renderFlashcard() {
+                const innerCard = document.getElementById('flashcardInner');
+                if (this.fcFlipped) {
+                    innerCard.classList.remove('rotate-y-180');
+                    this.fcFlipped = false;
+                }
+
+                const current = this.flashcards[this.fcIndex];
+                document.getElementById('fcCurrentIndex').innerText = this.fcIndex + 1;
+                document.getElementById('fcTotalCards').innerText = this.flashcards.length;
+
+                document.getElementById('fcQuestionText').innerText = `${current.a} ÷ ${current.b}`;
+                document.getElementById('fcAnswerText').innerText = current.ans;
+                document.getElementById('fcVisualHint').innerText = `( ${current.a} dibagi rata ke dalam ${current.b} kelompok )`;
+            }
+
+            flipFlashcard() {
+                soundFX.click();
+                const innerCard = document.getElementById('flashcardInner');
+                this.fcFlipped = !this.fcFlipped;
+                if (this.fcFlipped) {
+                    innerCard.classList.add('rotate-y-180');
+                } else {
+                    innerCard.classList.remove('rotate-y-180');
+                }
+            }
+
+            nextFlashcard() {
+                soundFX.click();
+                if (this.fcIndex < this.flashcards.length - 1) {
+                    this.fcIndex++;
+                } else {
+                    this.fcIndex = 0;
+                }
+                this.renderFlashcard();
+            }
+
+            prevFlashcard() {
+                soundFX.click();
+                if (this.fcIndex > 0) {
+                    this.fcIndex--;
+                } else {
+                    this.fcIndex = this.flashcards.length - 1;
+                }
+                this.renderFlashcard();
+            }
+
+            initTest() {
+                this.testIndex = 0;
+                this.score = 0;
+                this.combo = 0;
+                this.maxCombo = 0;
+                this.correctCount = 0;
+                this.wrongAnswers = [];
+
+                const pool = this.generateDivisionPool();
+                pool.sort(() => Math.random() - 0.5);
+                this.testQuestions = pool.slice(0, Math.min(this.questionCount, pool.length));
+
+                if (this.inputType === 'mcq') {
+                    document.getElementById('mcqOptionsGrid').classList.remove('hidden');
+                    document.getElementById('numpadGrid').classList.add('hidden');
+                } else {
+                    document.getElementById('mcqOptionsGrid').classList.add('hidden');
+                    document.getElementById('numpadGrid').classList.remove('hidden');
+                }
+
+                const timerContainer = document.getElementById('timerContainer');
+                const timerBarBg = document.getElementById('timerBarBg');
+                if (this.timerLimit > 0) {
+                    timerContainer.classList.remove('hidden');
+                    timerBarBg.classList.remove('hidden');
+                } else {
+                    timerContainer.classList.add('hidden');
+                    timerBarBg.classList.add('hidden');
+                }
+
+                this.renderQuestion();
+            }
+
+            renderQuestion() {
+                if (this.testIndex >= this.testQuestions.length) {
+                    this.finishTest();
+                    return;
+                }
+
+                const q = this.testQuestions[this.testIndex];
+                document.getElementById('testCurrentNum').innerText = this.testIndex + 1;
+                document.getElementById('testTotalNum').innerText = this.testQuestions.length;
+                document.getElementById('testScoreText').innerText = this.score.toLocaleString();
+                document.getElementById('testQuestionText').innerText = `${q.a} ÷ ${q.b} = ?`;
+
+                const comboBadge = document.getElementById('comboBadge');
+                if (this.combo >= 2) {
+                    comboBadge.classList.remove('hidden');
+                    document.getElementById('comboMultiplierText').innerText = `${this.combo}x`;
+                } else {
+                    comboBadge.classList.add('hidden');
+                }
+
+                if (this.inputType === 'mcq') {
+                    this.renderMcqOptions(q);
+                } else {
+                    this.numpadVal = '';
+                    this.updateNumpadDisplay();
+                }
+
+                this.startTimer();
+            }
+
+            renderMcqOptions(currentQ) {
+                const options = new Set();
+                options.add(currentQ.ans);
+
+                while (options.size < 4) {
+                    let offset = (Math.floor(Math.random() * 3) + 1) * (Math.random() < 0.5 ? 1 : -1);
+                    let wrongOption = currentQ.ans + offset;
+                    if (wrongOption > 0 && wrongOption !== currentQ.ans) {
+                        options.add(wrongOption);
+                    } else {
+                        let fallback = currentQ.ans + Math.floor(Math.random() * 5) + 1;
+                        if (fallback !== currentQ.ans) options.add(fallback);
+                        else options.add(currentQ.ans + 1);
+                    }
+                }
+
+                const optionsArr = Array.from(options).sort(() => Math.random() - 0.5);
+                const buttons = document.querySelectorAll('.mcq-btn');
+                
+                buttons.forEach((btn, idx) => {
+                    btn.disabled = false;
+                    btn.className = "mcq-btn py-4 sm:py-5 px-4 min-h-[56px] rounded-2xl bg-slate-800 border-2 border-slate-700 hover:border-cyan-500 text-2xl sm:text-3xl font-black text-white hover:bg-slate-700/80 transition active:scale-95 shadow-lg flex items-center justify-center";
+                    btn.setAttribute('data-ans', optionsArr[idx]);
+                    btn.querySelector('span').innerText = optionsArr[idx];
+                });
+            }
+
+            startTimer() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+                if (this.timerLimit <= 0) return;
+
+                this.timeLeft = this.timerLimit;
+                const timerText = document.getElementById('timerText');
+                const timerBar = document.getElementById('timerBar');
+
+                timerText.innerText = `${this.timeLeft.toFixed(1)}s`;
+                timerBar.style.width = "100%";
+
+                const startTime = Date.now();
+                const totalDuration = this.timerLimit * 1000;
+
+                this.timerInterval = setInterval(() => {
+                    const elapsed = Date.now() - startTime;
+                    const remainingMs = totalDuration - elapsed;
+
+                    this.timeLeft = remainingMs / 1000;
+
+                    if (remainingMs <= 0) {
+                        clearInterval(this.timerInterval);
+                        timerText.innerText = "0.0s";
+                        timerBar.style.width = "0%";
+                        this.handleAnswerTimeout();
+                    } else {
+                        const sec = (remainingMs / 1000).toFixed(1);
+                        timerText.innerText = `${sec}s`;
+                        const percent = (remainingMs / totalDuration) * 100;
+                        timerBar.style.width = `${percent}%`;
+                    }
+                }, 50);
+            }
+
+            handleAnswerTimeout() {
+                soundFX.wrong();
+                this.combo = 0;
+                const currentQ = this.testQuestions[this.testIndex];
+                this.wrongAnswers.push({
+                    q: `${currentQ.a} ÷ ${currentQ.b}`,
+                    userAns: 'Kehabisan Waktu',
+                    correctAns: currentQ.ans
+                });
+
+                this.nextQuestionDelay(false);
+            }
+
+            submitMcqAnswer(btnIdx) {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+                const buttons = document.querySelectorAll('.mcq-btn');
+                const selectedBtn = buttons[btnIdx];
+                const selectedVal = parseInt(selectedBtn.getAttribute('data-ans'));
+                const currentQ = this.testQuestions[this.testIndex];
+
+                buttons.forEach(b => b.disabled = true);
+
+                if (selectedVal === currentQ.ans) {
+                    selectedBtn.className = "mcq-btn py-4 sm:py-5 px-4 min-h-[56px] rounded-2xl bg-emerald-600/30 border-2 border-emerald-500 text-2xl sm:text-3xl font-black text-emerald-300 transition shadow-lg flex items-center justify-center";
+                    this.handleCorrectAnswer();
+                } else {
+                    selectedBtn.className = "mcq-btn py-4 sm:py-5 px-4 min-h-[56px] rounded-2xl bg-rose-600/30 border-2 border-rose-500 text-2xl sm:text-3xl font-black text-rose-300 transition shadow-lg flex items-center justify-center";
+                    
+                    buttons.forEach(b => {
+                        if (parseInt(b.getAttribute('data-ans')) === currentQ.ans) {
+                            b.className = "mcq-btn py-4 sm:py-5 px-4 min-h-[56px] rounded-2xl bg-emerald-600/30 border-2 border-emerald-500 text-2xl sm:text-3xl font-black text-emerald-300 transition flex items-center justify-center";
+                        }
+                    });
+
+                    this.handleWrongAnswer(selectedVal);
+                }
+            }
+
+            pressNumpad(numStr) {
+                soundFX.click();
+                if (this.numpadVal.length < 4) {
+                    this.numpadVal += numStr;
+                    this.updateNumpadDisplay();
+                }
+            }
+
+            clearNumpad() {
+                soundFX.click();
+                this.numpadVal = '';
+                this.updateNumpadDisplay();
+            }
+
+            updateNumpadDisplay() {
+                const display = document.getElementById('numpadInputDisplay');
+                display.innerText = this.numpadVal || '_';
+            }
+
+            submitNumpadAnswer() {
+                if (!this.numpadVal) return;
+                if (this.timerInterval) clearInterval(this.timerInterval);
+
+                const userVal = parseInt(this.numpadVal);
+                const currentQ = this.testQuestions[this.testIndex];
+
+                if (userVal === currentQ.ans) {
+                    this.handleCorrectAnswer();
+                } else {
+                    this.handleWrongAnswer(userVal);
+                }
+            }
+
+            handleCorrectAnswer() {
+                this.correctCount++;
+                this.combo++;
+                if (this.combo > this.maxCombo) this.maxCombo = this.combo;
+
+                let speedBonus = 0;
+                if (this.timerLimit > 0) {
+                    speedBonus = Math.round(parseFloat(this.timeLeft) * 15);
+                }
+                const points = (100 * Math.min(this.combo, 5)) + speedBonus;
+                this.score += points;
+
+                if (this.combo >= 3) {
+                    soundFX.combo();
+                } else {
+                    soundFX.correct();
+                }
+
+                this.nextQuestionDelay(true);
+            }
+
+            handleWrongAnswer(userAns) {
+                soundFX.wrong();
+                this.combo = 0;
+                const currentQ = this.testQuestions[this.testIndex];
+                this.wrongAnswers.push({
+                    q: `${currentQ.a} ÷ ${currentQ.b}`,
+                    userAns: userAns,
+                    correctAns: currentQ.ans
+                });
+
+                this.nextQuestionDelay(false);
+            }
+
+            nextQuestionDelay(isCorrect) {
+                setTimeout(() => {
+                    this.testIndex++;
+                    this.renderQuestion();
+                }, isCorrect ? 600 : 1200);
+            }
+
+            finishTest() {
+                if (this.timerInterval) clearInterval(this.timerInterval);
+
+                const total = this.testQuestions.length;
+                const accuracy = Math.round((this.correctCount / total) * 100);
+
+                document.getElementById('finalScoreDisplay').innerText = this.score.toLocaleString();
+                document.getElementById('resCorrectCount').innerText = `${this.correctCount}/${total}`;
+                document.getElementById('resAccuracyPercent').innerText = `${accuracy}%`;
+                document.getElementById('resMaxCombo').innerText = `${this.maxCombo}x`;
+
+                const title = document.getElementById('resultTitle');
+                const sub = document.getElementById('resultSubtitle');
+                if (accuracy === 100) {
+                    title.innerText = "🏆 Sempurna!";
+                    sub.innerText = "Kamu menghafal seluruh pembagian tanpa kesalahan!";
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                } else if (accuracy >= 80) {
+                    title.innerText = "🌟 Luar Biasa!";
+                    sub.innerText = "Hafalanmu sangat baik! Tingkatkan terus!";
+                    confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+                } else if (accuracy >= 50) {
+                    title.innerText = "👍 Cukup Bagus!";
+                    sub.innerText = "Ayo latih lagi bagian pembagian yang belum lancar.";
+                } else {
+                    title.innerText = "💪 Jangan Menyerah!";
+                    sub.innerText = "Gunakan mode Flashcard untuk latihan lebih lanjut.";
+                }
+
+                const wrongContainer = document.getElementById('wrongReviewContainer');
+                const wrongList = document.getElementById('wrongReviewList');
+                wrongList.innerHTML = '';
+
+                if (this.wrongAnswers.length > 0) {
+                    wrongContainer.classList.remove('hidden');
+                    this.wrongAnswers.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = "flex flex-col sm:flex-row sm:justify-between sm:items-center bg-slate-800/80 p-2.5 rounded-lg gap-1";
+                        div.innerHTML = `
+                            <span class="font-bold text-white text-sm">${item.q}</span>
+                            <span class="text-xs">Jawabanmu: <span class="text-rose-400 font-bold">${item.userAns}</span> | Benar: <span class="text-emerald-400 font-bold">${item.correctAns}</span></span>
+                        `;
+                        wrongList.appendChild(div);
+                    });
+                } else {
+                    wrongContainer.classList.add('hidden');
+                }
+
+                this.saveHighScore(this.score, accuracy);
+                this.switchView('result');
+            }
+
+            saveHighScore(score, accuracy) {
+                const tableName = this.selectedTable === 'mixed' ? 'Campuran (1-10)' : `Pembagian ${this.selectedTable}`;
+                const newRecord = {
+                    date: new Date().toLocaleDateString('id-ID'),
+                    table: tableName,
+                    score: score,
+                    accuracy: accuracy
+                };
+
+                let scores = JSON.parse(localStorage.getItem('master_pembagian_scores') || '[]');
+                scores.push(newRecord);
+                scores.sort((a, b) => b.score - a.score);
+                scores = scores.slice(0, 10);
+
+                localStorage.setItem('master_pembagian_scores', JSON.stringify(scores));
+            }
+
+            openStatsModal() {
+                soundFX.click();
+                const list = document.getElementById('highScoresList');
+                let scores = JSON.parse(localStorage.getItem('master_pembagian_scores') || '[]');
+
+                list.innerHTML = '';
+                if (scores.length === 0) {
+                    list.innerHTML = '<div class="text-center py-6 text-slate-500 text-sm">Belum ada rekor tersimpan. Mulai ujian sekarang!</div>';
+                } else {
+                    scores.forEach((item, index) => {
+                        const row = document.createElement('div');
+                        row.className = "flex items-center justify-between bg-slate-900/60 p-3 rounded-2xl border border-slate-700/50";
+                        row.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <span class="w-6 h-6 rounded-full ${index === 0 ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-700 text-slate-300'} flex items-center justify-center text-xs font-bold">${index + 1}</span>
+                                <div>
+                                    <div class="text-xs font-bold text-white">${item.table}</div>
+                                    <div class="text-[10px] text-slate-400">${item.date} • Akurasi: ${item.accuracy}%</div>
+                                </div>
+                            </div>
+                            <div class="text-amber-400 font-extrabold text-sm">${item.score.toLocaleString()}</div>
+                        `;
+                        list.appendChild(row);
+                    });
+                }
+
+                document.getElementById('statsModal').classList.remove('hidden');
+            }
+
+            closeStatsModal() {
+                soundFX.click();
+                document.getElementById('statsModal').classList.add('hidden');
+            }
+
+            clearHighScores() {
+                soundFX.click();
+                localStorage.removeItem('master_pembagian_scores');
+                this.openStatsModal();
+            }
+        }
+
+        let app;
+        window.addEventListener('DOMContentLoaded', () => {
+            app = new DivisionApp();
+        });
+    </script>
+</body>
+</html>
