@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,9 +40,17 @@
         }
 
         @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         /* Decorative animated blobs */
@@ -73,8 +82,13 @@
         }
 
         @keyframes float {
-            0% { transform: translateY(0) scale(1); }
-            100% { transform: translateY(30px) scale(1.1); }
+            0% {
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                transform: translateY(30px) scale(1.1);
+            }
         }
 
         /* Glassmorphism Card */
@@ -163,22 +177,25 @@
             .container {
                 padding: 2.5rem 2rem;
             }
+
             h1 {
                 font-size: 2rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
-    
+
     <div class="container">
         <h1>Teguh Permadi</h1>
         <p>Selamat datang di halaman utama saya. Silakan jelajahi proyek-proyek saya di bawah ini.</p>
-        <a href="https://teguhpermadi.github.io/math/" class="link-btn">
-            Buka Proyek Matematika
+        <a href="addition/index.html" class="link-btn">
+            Penjumlahan
         </a>
     </div>
 </body>
+
 </html>
