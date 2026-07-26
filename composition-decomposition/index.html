@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathVerse - Komposisi & Dekomposisi Bilangan</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-short': 'bounce 0.5s ease-in-out 2',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-glow {
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .btn-glow:hover {
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.7);
+            transform: scale(1.02);
+        }
+
+        .btn-glow:active {
+            transform: scale(0.98);
+        }
+
+        .combo-badge {
+            background: linear-gradient(90deg, #f59e0b, #ef4444, #ec4899);
+            background-size: 200% 200%;
+            animation: gradientMove 2s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .timer-bar {
+            transition: width 0.1s linear, background-color 0.3s ease;
+        }
+
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between items-center p-3 sm:p-6 relative">
+
+    <canvas id="bgCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+    <canvas id="confettiCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-50"></canvas>
+
+    <!-- Header Navigation -->
+    <header class="w-full max-w-4xl flex justify-between items-center z-10 mb-4 glass-panel p-4 rounded-2xl">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="gameApp.showScreen('welcome')">
+            <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid font-outfit text-xl font-black">#</i>
+            </div>
+            <div>
+                <h1 class="text-xl font-extrabold font-outfit bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400">
+                    MathVerse
+                </h1>
+                <p class="text-xs text-slate-400 font-medium">Komposisi & Dekomposisi Bilangan</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button id="soundToggleBtn" onclick="gameApp.toggleSound()" class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-white transition" title="Suara">
+                <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+            </button>
+            <button onclick="gameApp.showLeaderboardModal()" class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-amber-400 hover:text-amber-300 transition" title="Skor Tertinggi">
+                <i class="fa-solid fa-trophy"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- SCREEN 1: WELCOME & SETUP -->
+    <main id="welcomeScreen" class="w-full max-w-4xl z-10 my-auto flex flex-col items-center">
+        <div class="glass-panel w-full p-6 sm:p-8 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-60 h-60 bg-indigo-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-60 h-60 bg-purple-500/20 rounded-full blur-3xl"></div>
+
+            <div class="text-center max-w-xl mx-auto mb-8">
+                <span class="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-300 bg-indigo-500/20 rounded-full border border-indigo-500/30">
+                    Game Edukasi Matematika
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold font-outfit mt-3 text-white">
+                    Uji Kecepatan & Ketelitian Bilangan
+                </h2>
+                <p class="text-slate-300 mt-2 text-sm sm:text-base">
+                    Gabungkan (Komposisi) dan Uraikan (Dekomposisi) nilai tempat angka untuk meraih Combo terbesar hingga <strong class="text-amber-400 font-bold">100x Multiplier!</strong>
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Mode Soal -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-cubes text-indigo-400"></i> Mode Permainan
+                    </label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="gameApp.setMode('mixed')" id="mode-mixed" class="mode-btn p-3 rounded-xl border text-center transition text-sm font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white">
+                            Campuran
+                        </button>
+                        <button type="button" onclick="gameApp.setMode('komposisi')" id="mode-komposisi" class="mode-btn p-3 rounded-xl border text-center transition text-sm font-semibold glass-card border-white/10 text-slate-300">
+                            Komposisi
+                        </button>
+                        <button type="button" onclick="gameApp.setMode('dekomposisi')" id="mode-dekomposisi" class="mode-btn p-3 rounded-xl border text-center transition text-sm font-semibold glass-card border-white/10 text-slate-300">
+                            Dekomposisi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Rentang Bilangan / Level -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-purple-400"></i> Rentang Bilangan (Digit)
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="gameApp.setLevel('11-99')" id="level-11-99" class="level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-indigo-500 bg-indigo-600/30 text-white flex justify-between items-center">
+                            <span>11 – 99</span>
+                            <span class="text-[10px] text-indigo-300 px-1.5 py-0.5 bg-indigo-900/60 rounded">2 Digit</span>
+                        </button>
+                        <button type="button" onclick="gameApp.setLevel('111-999')" id="level-111-999" class="level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center">
+                            <span>111 – 999</span>
+                            <span class="text-[10px] text-slate-400 px-1.5 py-0.5 bg-slate-800 rounded">3 Digit</span>
+                        </button>
+                        <button type="button" onclick="gameApp.setLevel('1111-9999')" id="level-1111-9999" class="level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center">
+                            <span>1,111 – 9,999</span>
+                            <span class="text-[10px] text-slate-400 px-1.5 py-0.5 bg-slate-800 rounded">4 Digit</span>
+                        </button>
+                        <button type="button" onclick="gameApp.setLevel('11111-99999')" id="level-11111-99999" class="level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center">
+                            <span>11,111 – 99,999</span>
+                            <span class="text-[10px] text-slate-400 px-1.5 py-0.5 bg-slate-800 rounded">5 Digit</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Timer Per Soal -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-stopwatch text-amber-400"></i> Timer Per Soal
+                    </label>
+                    <div class="grid grid-cols-5 gap-1.5">
+                        <button type="button" onclick="gameApp.setTimer(3)" id="timer-3" class="timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-white/10 text-slate-300">3s</button>
+                        <button type="button" onclick="gameApp.setTimer(5)" id="timer-5" class="timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-white/10 text-slate-300">5s</button>
+                        <button type="button" onclick="gameApp.setTimer(10)" id="timer-10" class="timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-indigo-500 bg-indigo-600/30 text-white">10s</button>
+                        <button type="button" onclick="gameApp.setTimer(15)" id="timer-15" class="timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-white/10 text-slate-300">15s</button>
+                        <button type="button" onclick="gameApp.setTimer(30)" id="timer-30" class="timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-white/10 text-slate-300">30s</button>
+                    </div>
+                </div>
+
+                <!-- Jumlah Soal -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-list-ol text-emerald-400"></i> Jumlah Soal
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="gameApp.setCount(5)" id="count-5" class="count-btn p-2.5 rounded-xl border text-center transition text-xs font-semibold glass-card border-white/10 text-slate-300">5 Soal</button>
+                        <button type="button" onclick="gameApp.setCount(10)" id="count-10" class="count-btn p-2.5 rounded-xl border text-center transition text-xs font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white">10 Soal</button>
+                        <button type="button" onclick="gameApp.setCount(15)" id="count-15" class="count-btn p-2.5 rounded-xl border text-center transition text-xs font-semibold glass-card border-white/10 text-slate-300">15 Soal</button>
+                        <button type="button" onclick="gameApp.setCount('sudden_death')" id="count-sudden_death" class="count-btn p-2.5 rounded-xl border text-center transition text-xs font-bold glass-card border-rose-500/50 bg-rose-950/40 text-rose-300 flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-skull text-rose-400"></i> 1 Salah = Kalah
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-center">
+                <button onclick="gameApp.startGame()" class="w-full sm:w-80 py-4 px-8 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-extrabold font-outfit text-xl btn-glow flex items-center justify-center gap-3">
+                    <span>Mulai Main</span>
+                    <i class="fa-solid fa-play text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- SCREEN 2: GAMEPLAY -->
+    <main id="gameScreen" class="w-full max-w-4xl z-10 my-auto hidden flex-col items-center">
+        <!-- Top Info Dashboard -->
+        <div class="w-full glass-panel p-4 rounded-2xl mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-4">
+                <div>
+                    <span class="text-xs text-slate-400 block font-semibold">SOAL</span>
+                    <span id="questionProgressText" class="text-xl font-black font-outfit text-white">1 / 10</span>
+                </div>
+                <div class="h-8 w-px bg-slate-700"></div>
+                <div>
+                    <span class="text-xs text-slate-400 block font-semibold">SKOR</span>
+                    <span id="currentScoreText" class="text-xl font-black font-outfit text-indigo-400">0</span>
+                </div>
+            </div>
+
+            <!-- Dynamic Combo Indicator -->
+            <div id="comboContainer" class="flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-rose-500/20 border border-amber-500/40 px-3 py-1.5 rounded-xl animate-pulse">
+                <i class="fa-solid fa-fire text-amber-400 text-lg"></i>
+                <div>
+                    <span class="text-[10px] text-amber-300 uppercase tracking-widest font-black block leading-none">COMBO</span>
+                    <span id="comboMultiplierText" class="text-lg font-black font-outfit text-amber-400 leading-none">1x</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timer Visual Bar -->
+        <div class="w-full bg-slate-800/80 rounded-full h-3 mb-6 p-0.5 border border-white/10 overflow-hidden relative">
+            <div id="timerBar" class="timer-bar h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-indigo-500 rounded-full w-full"></div>
+        </div>
+
+        <!-- Main Question Area -->
+        <div class="w-full glass-panel p-6 sm:p-10 rounded-3xl border border-white/10 shadow-2xl relative">
+
+            <!-- Question Type Tag -->
+            <div class="flex justify-between items-center mb-6">
+                <span id="questionTypeBadge" class="px-3.5 py-1 text-xs font-extrabold uppercase tracking-widest rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                    KOMPOSISI
+                </span>
+                <span id="digitBadge" class="text-xs font-semibold text-slate-400 bg-slate-800 px-3 py-1 rounded-full">
+                    3 Digit
+                </span>
+            </div>
+
+            <!-- Question Prompt Box -->
+            <div class="text-center mb-8">
+                <p id="questionPromptTitle" class="text-sm sm:text-base text-slate-300 font-medium mb-2">
+                    Berapakah hasil penggabungan nilai tempat berikut?
+                </p>
+                
+                <!-- Expanded Form / Target Number Visual -->
+                <div id="questionDisplay" class="text-2xl sm:text-4xl font-black font-outfit text-white tracking-wide py-4 px-6 rounded-2xl bg-slate-900/60 border border-white/5 inline-block max-w-full overflow-x-auto shadow-inner">
+                    <!-- Dynamic insertion -->
+                </div>
+            </div>
+
+            <!-- Visual Helper (Place Value Tags) -->
+            <div id="placeValueContainer" class="flex flex-wrap justify-center gap-2 mb-8">
+                <!-- Dynamic breakdown tags -->
+            </div>
+
+            <!-- Answer Options (4 Multiple Choice Cards) -->
+            <div id="optionsGrid" class="flex flex-wrap gap-3">
+                <!-- Dynamic Options Buttons -->
+            </div>
+
+            <!-- Feedback Toast Overlay -->
+            <div id="feedbackOverlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">
+                <div id="feedbackIcon" class="text-6xl mb-3"></div>
+                <h3 id="feedbackText" class="text-2xl font-black font-outfit"></h3>
+                <p id="feedbackDetail" class="text-sm text-slate-300 mt-1 font-medium"></p>
+                <div id="scoreBonusText" class="text-amber-400 font-bold mt-2 text-lg"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SCREEN 3: RESULTS / SUMMARY -->
+    <main id="resultScreen" class="w-full max-w-4xl z-10 my-auto hidden flex-col items-center">
+        <div class="glass-panel w-full p-6 sm:p-10 rounded-3xl border border-white/10 shadow-2xl text-center relative overflow-hidden">
+            <div class="w-20 h-20 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-4xl mx-auto mb-4">
+                <i class="fa-solid fa-trophy animate-bounce-short"></i>
+            </div>
+
+            <h2 class="text-3xl sm:text-4xl font-black font-outfit text-white mb-1">
+                Permainan Selesai!
+            </h2>
+            <p id="resultSubtitle" class="text-slate-300 text-sm mb-6">Kerja bagus! Berikut statistik hasil permainanmu:</p>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                <div class="glass-card p-4 rounded-2xl">
+                    <span class="text-xs text-slate-400 font-bold uppercase block mb-1">Total Skor</span>
+                    <span id="finalScore" class="text-2xl sm:text-3xl font-black font-outfit text-indigo-400">0</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl">
+                    <span class="text-xs text-slate-400 font-bold uppercase block mb-1">Max Combo</span>
+                    <span id="maxCombo" class="text-2xl sm:text-3xl font-black font-outfit text-amber-400">0x</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl">
+                    <span class="text-xs text-slate-400 font-bold uppercase block mb-1">Akurasi</span>
+                    <span id="accuracy" class="text-2xl sm:text-3xl font-black font-outfit text-emerald-400">0%</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl">
+                    <span class="text-xs text-slate-400 font-bold uppercase block mb-1">Benar / Total</span>
+                    <span id="correctRatio" class="text-2xl sm:text-3xl font-black font-outfit text-purple-400">0/0</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="gameApp.startGame()" class="py-3.5 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold font-outfit btn-glow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Main Lagi</span>
+                </button>
+                <button onclick="gameApp.showScreen('welcome')" class="py-3.5 px-8 rounded-2xl glass-card text-slate-300 hover:text-white font-bold font-outfit flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Menu Utama</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL: LEADERBOARD -->
+    <div id="leaderboardModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md p-6 rounded-3xl border border-white/10 shadow-2xl relative">
+            <button onclick="gameApp.hideLeaderboardModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-full glass-card">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-extrabold font-outfit text-white">Papan Skor Tertinggi</h3>
+                    <p class="text-xs text-slate-400">Rekor lokal terbaik kamu</p>
+                </div>
+            </div>
+
+            <div id="leaderboardList" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <!-- Dynamic Highscores -->
+            </div>
+
+            <button onclick="gameApp.clearLeaderboard()" class="w-full mt-6 py-2.5 text-xs font-semibold text-rose-400 hover:text-rose-300 text-center block transition">
+                Hapus Riwayat Skor
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-4xl text-center py-3 text-xs text-slate-500 font-medium z-10">
+        MathVerse &copy; 2026 &bull; Game Edukasi Komposisi & Dekomposisi Bilangan
+    </footer>
+
+    <script>
+        // Sound Synthesizer using Web Audio API
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            }
+
+            playCorrect() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.3); // C6
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+
+            playWrong() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now); // A3
+                osc.frequency.linearRampToValueAtTime(130, now + 0.25);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+
+            playCombo() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, now);
+                osc.frequency.exponentialRampToValueAtTime(1760, now + 0.15);
+
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+
+            playClick() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        class MathGameApp {
+            constructor() {
+                // Game Settings
+                this.mode = 'mixed'; // mixed, komposisi, dekomposisi
+                this.level = '11-99'; // 11-99, 111-999, 1111-9999, 11111-99999
+                this.timerSec = 10; // 3, 5, 10, 15, 30
+                this.questionCount = 10; // 5, 10, 15, 'sudden_death'
+
+                // Runtime State
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.combo = 0;
+                this.maxComboReached = 0;
+                this.correctAnswersCount = 0;
+                this.timerInterval = null;
+                this.timeLeftMs = 0;
+                this.currentQuestion = null;
+                this.isAnswering = false;
+
+                // Canvas Ambient particles
+                this.initBackgroundParticles();
+            }
+
+            setMode(val) {
+                sound.playClick();
+                this.mode = val;
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.className = 'mode-btn p-3 rounded-xl border text-center transition text-sm font-semibold glass-card border-white/10 text-slate-300';
+                });
+                document.getElementById(`mode-${val}`).className = 'mode-btn p-3 rounded-xl border text-center transition text-sm font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white';
+            }
+
+            setLevel(val) {
+                sound.playClick();
+                this.level = val;
+                document.querySelectorAll('.level-btn').forEach(btn => {
+                    btn.className = 'level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-white/10 text-slate-300 flex justify-between items-center';
+                    btn.querySelector('span:last-child').className = 'text-[10px] text-slate-400 px-1.5 py-0.5 bg-slate-800 rounded';
+                });
+                const activeBtn = document.getElementById(`level-${val}`);
+                activeBtn.className = 'level-btn p-2.5 rounded-xl border text-left transition text-xs font-medium glass-card border-indigo-500 bg-indigo-600/30 text-white flex justify-between items-center';
+                activeBtn.querySelector('span:last-child').className = 'text-[10px] text-indigo-300 px-1.5 py-0.5 bg-indigo-900/60 rounded';
+            }
+
+            setTimer(sec) {
+                sound.playClick();
+                this.timerSec = sec;
+                document.querySelectorAll('.timer-btn').forEach(btn => {
+                    btn.className = 'timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-white/10 text-slate-300';
+                });
+                document.getElementById(`timer-${sec}`).className = 'timer-btn p-2 rounded-xl border text-center transition text-xs font-bold glass-card border-indigo-500 bg-indigo-600/30 text-white';
+            }
+
+            setCount(cnt) {
+                sound.playClick();
+                this.questionCount = cnt;
+                document.querySelectorAll('.count-btn').forEach(btn => {
+                    btn.className = 'count-btn p-2.5 rounded-xl border text-center transition text-xs font-semibold glass-card border-white/10 text-slate-300';
+                });
+                
+                if (cnt === 'sudden_death') {
+                    document.getElementById('count-sudden_death').className = 'count-btn p-2.5 rounded-xl border text-center transition text-xs font-bold glass-card border-rose-500 bg-rose-600/40 text-rose-200 flex items-center justify-center gap-1.5 shadow-lg shadow-rose-900/50';
+                } else {
+                    document.getElementById(`count-${cnt}`).className = 'count-btn p-2.5 rounded-xl border text-center transition text-xs font-semibold glass-card border-indigo-500 bg-indigo-600/30 text-white';
+                }
+            }
+
+            toggleSound() {
+                sound.enabled = !sound.enabled;
+                const icon = document.getElementById('soundIcon');
+                if (sound.enabled) {
+                    icon.className = 'fa-solid fa-volume-high text-indigo-400';
+                    sound.playClick();
+                } else {
+                    icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+                }
+            }
+
+            showScreen(screenId) {
+                document.getElementById('welcomeScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.add('hidden');
+                document.getElementById('resultScreen').classList.add('hidden');
+
+                if (screenId === 'welcome') {
+                    document.getElementById('welcomeScreen').classList.remove('hidden');
+                } else if (screenId === 'game') {
+                    document.getElementById('gameScreen').classList.remove('hidden');
+                    document.getElementById('gameScreen').classList.add('flex');
+                } else if (screenId === 'result') {
+                    document.getElementById('resultScreen').classList.remove('hidden');
+                    document.getElementById('resultScreen').classList.add('flex');
+                }
+            }
+
+            startGame() {
+                sound.playClick();
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.combo = 0;
+                this.maxComboReached = 0;
+                this.correctAnswersCount = 0;
+
+                this.showScreen('game');
+                this.nextQuestion();
+            }
+
+            // Generate Number based on range
+            getMinMax() {
+                switch(this.level) {
+                    case '11-99': return { min: 11, max: 99, label: '2 Digit (Puluhan)' };
+                    case '111-999': return { min: 111, max: 999, label: '3 Digit (Ratusan)' };
+                    case '1111-9999': return { min: 1111, max: 9999, label: '4 Digit (Ribuan)' };
+                    case '11111-99999': return { min: 11111, max: 99999, label: '5 Digit (Puluh Ribuan)' };
+                    default: return { min: 11, max: 99, label: '2 Digit' };
+                }
+            }
+
+            generateQuestion() {
+                const range = this.getMinMax();
+                // Random target number in range
+                const targetNumber = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+
+                // Decide type
+                let qType = this.mode;
+                if (qType === 'mixed') {
+                    qType = Math.random() > 0.5 ? 'komposisi' : 'dekomposisi';
+                }
+
+                // Break down digits
+                const numStr = targetNumber.toString();
+                const length = numStr.length;
+                const placeValues = [];
+
+                for (let i = 0; i < length; i++) {
+                    const digit = parseInt(numStr[i]);
+                    const place = Math.pow(10, length - 1 - i);
+                    if (digit > 0) {
+                        placeValues.push(digit * place);
+                    }
+                }
+
+                const expandedString = placeValues.map(v => v.toLocaleString('id-ID')).join(' + ');
+
+                // Generate 3 wrong options
+                const wrongAnswers = new Set();
+                while (wrongAnswers.size < 3) {
+                    let offset = (Math.floor(Math.random() * 5) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                    if (Math.random() > 0.5) offset *= 10;
+                    let wrongNum = targetNumber + offset;
+                    
+                    if (wrongNum >= range.min && wrongNum <= range.max && wrongNum !== targetNumber) {
+                        if (qType === 'komposisi') {
+                            wrongAnswers.add(wrongNum.toLocaleString('id-ID'));
+                        } else {
+                            // Decomposed wrong form
+                            const wrongPlaceValues = [];
+                            const wStr = wrongNum.toString();
+                            for (let i = 0; i < wStr.length; i++) {
+                                const d = parseInt(wStr[i]);
+                                const p = Math.pow(10, wStr.length - 1 - i);
+                                if (d > 0) wrongPlaceValues.push(d * p);
+                            }
+                            wrongAnswers.add(wrongPlaceValues.map(v => v.toLocaleString('id-ID')).join(' + '));
+                        }
+                    }
+                }
+
+                let correctAnswerStr = (qType === 'komposisi') 
+                    ? targetNumber.toLocaleString('id-ID')
+                    : expandedString;
+
+                const options = Array.from(wrongAnswers);
+                options.push(correctAnswerStr);
+                // Shuffle
+                options.sort(() => Math.random() - 0.5);
+
+                return {
+                    type: qType,
+                    targetNumber: targetNumber,
+                    expandedString: expandedString,
+                    placeValues: placeValues,
+                    correctAnswer: correctAnswerStr,
+                    options: options,
+                    digitLabel: range.label
+                };
+            }
+
+            nextQuestion() {
+                this.isAnswering = false;
+
+                // Check end condition
+                if (this.questionCount !== 'sudden_death' && this.currentQuestionIndex >= this.questionCount) {
+                    this.finishGame();
+                    return;
+                }
+
+                this.currentQuestionIndex++;
+                this.currentQuestion = this.generateQuestion();
+
+                // Update UI text
+                document.getElementById('questionProgressText').innerText = (this.questionCount === 'sudden_death')
+                    ? `# ${this.currentQuestionIndex} (Surv)`
+                    : `${this.currentQuestionIndex} / ${this.questionCount}`;
+                
+                document.getElementById('currentScoreText').innerText = this.score.toLocaleString('id-ID');
+                
+                // Combo display
+                const comboMult = Math.min(100, 1 + this.combo);
+                document.getElementById('comboMultiplierText').innerText = `${comboMult}x`;
+
+                const typeBadge = document.getElementById('questionTypeBadge');
+                const promptTitle = document.getElementById('questionPromptTitle');
+                const qDisplay = document.getElementById('questionDisplay');
+
+                if (this.currentQuestion.type === 'komposisi') {
+                    typeBadge.innerText = "KOMPOSISI BILANGAN";
+                    typeBadge.className = "px-3.5 py-1 text-xs font-extrabold uppercase tracking-widest rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30";
+                    promptTitle.innerText = "Berapakah hasil penggabungan nilai tempat berikut?";
+                    qDisplay.innerText = this.currentQuestion.expandedString;
+                } else {
+                    typeBadge.innerText = "DEKOMPOSISI BILANGAN";
+                    typeBadge.className = "px-3.5 py-1 text-xs font-extrabold uppercase tracking-widest rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30";
+                    promptTitle.innerText = "Manakah uraian nilai tempat yang tepat untuk bilangan:";
+                    qDisplay.innerText = this.currentQuestion.targetNumber.toLocaleString('id-ID');
+                }
+
+                document.getElementById('digitBadge').innerText = this.currentQuestion.digitLabel;
+
+                // Place value helper tags
+                const placeContainer = document.getElementById('placeValueContainer');
+                placeContainer.innerHTML = '';
+                
+                // Populate options grid
+                const grid = document.getElementById('optionsGrid');
+                grid.innerHTML = '';
+
+                this.currentQuestion.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'glass-card p-4 sm:p-5 rounded-2xl text-base sm:text-lg font-bold font-outfit text-slate-100 hover:text-white border border-white/10 flex items-center justify-between text-left transition transform active:scale-95 hover:border-indigo-500 hover:bg-indigo-600/20 flex-1 min-w-[200px]';
+                    btn.innerHTML = `
+                        <span class="truncate pr-2">${opt}</span>
+                        <span class="w-8 h-8 rounded-xl bg-slate-800 text-xs font-extrabold flex items-center justify-center text-slate-400 group-hover:text-white shrink-0">${String.fromCharCode(65 + idx)}</span>
+                    `;
+                    btn.onclick = () => this.handleAnswer(opt, btn);
+                    grid.appendChild(btn);
+                });
+
+                // Reset overlay
+                const feedback = document.getElementById('feedbackOverlay');
+                feedback.classList.add('opacity-0', 'pointer-events-none');
+
+                // Start Timer
+                this.startTimer();
+            }
+
+            startTimer() {
+                clearInterval(this.timerInterval);
+                const totalTime = this.timerSec * 1000;
+                this.timeLeftMs = totalTime;
+
+                const timerBar = document.getElementById('timerBar');
+                timerBar.style.width = '100%';
+                timerBar.className = 'timer-bar h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-indigo-500 rounded-full';
+
+                const intervalStep = 50;
+                this.timerInterval = setInterval(() => {
+                    this.timeLeftMs -= intervalStep;
+                    const pct = Math.max(0, (this.timeLeftMs / totalTime) * 100);
+                    timerBar.style.width = `${pct}%`;
+
+                    if (pct < 30) {
+                        timerBar.className = 'timer-bar h-full bg-rose-500 rounded-full animate-pulse';
+                    }
+
+                    if (this.timeLeftMs <= 0) {
+                        clearInterval(this.timerInterval);
+                        this.handleAnswer(null, null, true); // Timeout
+                    }
+                }, intervalStep);
+            }
+
+            handleAnswer(selectedOption, buttonEl, isTimeout = false) {
+                if (this.isAnswering) return;
+                this.isAnswering = true;
+                clearInterval(this.timerInterval);
+
+                const isCorrect = (selectedOption === this.currentQuestion.correctAnswer);
+                const feedbackOverlay = document.getElementById('feedbackOverlay');
+                const feedbackIcon = document.getElementById('feedbackIcon');
+                const feedbackText = document.getElementById('feedbackText');
+                const feedbackDetail = document.getElementById('feedbackDetail');
+                const scoreBonusText = document.getElementById('scoreBonusText');
+
+                if (isCorrect) {
+                    this.combo++;
+                    if (this.combo > this.maxComboReached) {
+                        this.maxComboReached = this.combo;
+                    }
+                    this.correctAnswersCount++;
+
+                    // Calculation score with Combo up to 100x multiplier + speed factor!
+                    const comboMultiplier = Math.min(100, this.combo);
+                    const basePoints = 100;
+                    const timeRatio = this.timeLeftMs / (this.timerSec * 1000);
+                    const speedMultiplier = 1 + (timeRatio * 4);
+                    const pointsGained = Math.floor(basePoints * comboMultiplier * speedMultiplier);
+                    
+                    this.score += pointsGained;
+
+                    sound.playCorrect();
+                    if (comboMultiplier > 1) {
+                        setTimeout(() => sound.playCombo(), 100);
+                    }
+
+                    feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+                    feedbackText.innerText = "BENAR!";
+                    feedbackText.className = "text-2xl font-black font-outfit text-emerald-400";
+                    feedbackDetail.innerText = `Jawaban tepat! Nilai tempat terpasang sempurna.`;
+                    scoreBonusText.innerText = `+${pointsGained.toLocaleString('id-ID')} Poin (Combo ${comboMultiplier}x | Speed ${speedMultiplier.toFixed(1)}x!)`;
+
+                    if (buttonEl) {
+                        buttonEl.className = 'glass-card p-4 sm:p-5 rounded-2xl text-base sm:text-lg font-bold font-outfit text-white border-2 border-emerald-500 bg-emerald-600/30 flex items-center justify-between text-left flex-1 min-w-[200px]';
+                    }
+
+                    this.triggerConfettiBurst();
+
+                } else {
+                    this.combo = 0; // Reset combo
+                    sound.playWrong();
+
+                    feedbackIcon.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-400"></i>';
+                    feedbackText.innerText = isTimeout ? "WAKTU HABIS!" : "KURANG TEPAT!";
+                    feedbackText.className = "text-2xl font-black font-outfit text-rose-400";
+                    feedbackDetail.innerText = `Jawaban benar: ${this.currentQuestion.correctAnswer}`;
+                    scoreBonusText.innerText = `Combo terhenti!`;
+
+                    if (buttonEl) {
+                        buttonEl.className = 'glass-card p-4 sm:p-5 rounded-2xl text-base sm:text-lg font-bold font-outfit text-white border-2 border-rose-500 bg-rose-600/30 flex items-center justify-between text-left flex-1 min-w-[200px]';
+                    }
+
+                    // Sudden death check
+                    if (this.questionCount === 'sudden_death') {
+                        setTimeout(() => {
+                            this.finishGame();
+                        }, 1500);
+                        return;
+                    }
+                }
+
+                feedbackOverlay.classList.remove('opacity-0', 'pointer-events-none');
+
+                setTimeout(() => {
+                    this.nextQuestion();
+                }, 1400);
+            }
+
+            finishGame() {
+                clearInterval(this.timerInterval);
+                this.saveHighscore();
+                this.showScreen('result');
+
+                document.getElementById('finalScore').innerText = this.score.toLocaleString('id-ID');
+                document.getElementById('maxCombo').innerText = `${this.maxComboReached}x`;
+                
+                const totalPlayed = this.currentQuestionIndex;
+                const accuracyPct = totalPlayed > 0 ? Math.round((this.correctAnswersCount / totalPlayed) * 100) : 0;
+                document.getElementById('accuracy').innerText = `${accuracyPct}%`;
+                document.getElementById('correctRatio').innerText = `${this.correctAnswersCount} / ${totalPlayed}`;
+
+                if (accuracyPct >= 80) {
+                    this.triggerConfettiFull();
+                }
+            }
+
+            saveHighscore() {
+                const history = JSON.parse(localStorage.getItem('mathverse_highscores') || '[]');
+                history.push({
+                    score: this.score,
+                    combo: this.maxComboReached,
+                    level: this.level,
+                    timer: this.timerSec,
+                    date: new Date().toLocaleDateString('id-ID')
+                });
+
+                history.sort((a, b) => b.score - a.score);
+                const top10 = history.slice(0, 10);
+                localStorage.setItem('mathverse_highscores', JSON.stringify(top10));
+            }
+
+            showLeaderboardModal() {
+                sound.playClick();
+                const modal = document.getElementById('leaderboardModal');
+                const list = document.getElementById('leaderboardList');
+                const history = JSON.parse(localStorage.getItem('mathverse_highscores') || '[]');
+
+                list.innerHTML = '';
+                if (history.length === 0) {
+                    list.innerHTML = '<div class="text-center py-6 text-slate-400 text-xs">Belum ada skor tersimpan. Ayo mainkan game!</div>';
+                } else {
+                    history.forEach((item, index) => {
+                        const row = document.createElement('div');
+                        row.className = 'flex items-center justify-between p-3 rounded-xl glass-card text-xs';
+                        row.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <span class="font-black w-5 text-center font-outfit ${index < 3 ? 'text-amber-400 text-sm' : 'text-slate-400'}">#${index + 1}</span>
+                                <div>
+                                    <span class="font-bold text-white block text-sm font-outfit">${item.score.toLocaleString('id-ID')} Poin</span>
+                                    <span class="text-[10px] text-slate-400">Level: ${item.level} | Max Combo: ${item.combo}x</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] text-slate-500 font-medium">${item.date}</span>
+                        `;
+                        list.appendChild(row);
+                    });
+                }
+
+                modal.classList.remove('hidden');
+            }
+
+            hideLeaderboardModal() {
+                sound.playClick();
+                document.getElementById('leaderboardModal').classList.add('hidden');
+            }
+
+            clearLeaderboard() {
+                sound.playClick();
+                localStorage.removeItem('mathverse_highscores');
+                this.showLeaderboardModal();
+            }
+
+            initBackgroundParticles() {
+                const canvas = document.getElementById('bgCanvas');
+                const ctx = canvas.getContext('2d');
+                let width = canvas.width = window.innerWidth;
+                let height = canvas.height = window.innerHeight;
+
+                window.addEventListener('resize', () => {
+                    width = canvas.width = window.innerWidth;
+                    height = canvas.height = window.innerHeight;
+                });
+
+                const particles = [];
+                for (let i = 0; i < 40; i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        r: Math.random() * 2 + 1,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        alpha: Math.random() * 0.5 + 0.2
+                    });
+                }
+
+                function draw() {
+                    ctx.clearRect(0, 0, width, height);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    
+                    particles.forEach(p => {
+                        ctx.globalAlpha = p.alpha;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        p.x += p.vx;
+                        p.y += p.vy;
+
+                        if (p.x < 0) p.x = width;
+                        if (p.x > width) p.x = 0;
+                        if (p.y < 0) p.y = height;
+                        if (p.y > height) p.y = 0;
+                    });
+
+                    requestAnimationFrame(draw);
+                }
+
+                draw();
+            }
+
+            triggerConfettiBurst() {
+                const canvas = document.getElementById('confettiCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                const confetti = [];
+                const colors = ['#6366f1', '#a855f7', '#ec4899', '#f59e0b', '#10b981'];
+
+                for (let i = 0; i < 30; i++) {
+                    confetti.push({
+                        x: canvas.width / 2,
+                        y: canvas.height / 2,
+                        vx: (Math.random() - 0.5) * 12,
+                        vy: (Math.random() - 0.5) * 12 - 4,
+                        size: Math.random() * 6 + 4,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        life: 1
+                    });
+                }
+
+                let frame = 0;
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    confetti.forEach(c => {
+                        ctx.fillStyle = c.color;
+                        ctx.globalAlpha = c.life;
+                        ctx.fillRect(c.x, c.y, c.size, c.size);
+
+                        c.x += c.vx;
+                        c.y += c.vy;
+                        c.vy += 0.2; // gravity
+                        c.life -= 0.03;
+                    });
+
+                    frame++;
+                    if (frame < 35) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    }
+                }
+                animate();
+            }
+
+            triggerConfettiFull() {
+                const canvas = document.getElementById('confettiCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                const confetti = [];
+                const colors = ['#6366f1', '#a855f7', '#ec4899', '#f59e0b', '#10b981'];
+
+                for (let i = 0; i < 100; i++) {
+                    confetti.push({
+                        x: Math.random() * canvas.width,
+                        y: -10,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: Math.random() * 5 + 3,
+                        size: Math.random() * 8 + 4,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        life: 1
+                    });
+                }
+
+                let frame = 0;
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    confetti.forEach(c => {
+                        ctx.fillStyle = c.color;
+                        ctx.globalAlpha = c.life;
+                        ctx.fillRect(c.x, c.y, c.size, c.size);
+
+                        c.x += c.vx;
+                        c.y += c.vy;
+                        if (c.y > canvas.height) c.y = -10;
+                    });
+
+                    frame++;
+                    if (frame < 120) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    }
+                }
+                animate();
+            }
+        }
+
+        let gameApp;
+        window.onload = () => {
+            gameApp = new MathGameApp();
+        };
+    </script>
+</body>
+</html>
