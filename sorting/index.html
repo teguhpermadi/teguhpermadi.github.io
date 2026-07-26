@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Urutan Angka - Game Matematika Interaktif</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Fredoka', 'cursive'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    },
+                    animation: {
+                        'bounce-short': 'bounceShort 0.3s ease-in-out 2',
+                        'pulse-fast': 'pulse 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shake': 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both',
+                        'pop': 'pop 0.25s ease-out forwards',
+                    },
+                    keyframes: {
+                        bounceShort: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-8px)' },
+                        },
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-2px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(4px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-6px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(6px, 0, 0)' }
+                        },
+                        pop: {
+                            '0%': { transform: 'scale(0.8)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #091313 0%, #112220 50%, #081a24 100%);
+            min-height: 100vh;
+            user-select: none;
+        }
+        .font-math {
+            font-family: 'Fredoka', cursive;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .glass-card {
+            background: rgba(15, 28, 36, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .btn-press {
+            transition: all 0.12s ease;
+        }
+        .btn-press:active {
+            transform: scale(0.95);
+        }
+        /* Custom Card Selection Highlights */
+        .card-selected {
+            border-color: #38bdf8 !important;
+            background: rgba(14, 165, 233, 0.25) !important;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            transform: translateY(-4px);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="text-slate-100 flex flex-col justify-between p-3 md:p-6 min-h-screen">
+
+    <header class="max-w-4xl mx-auto w-full flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 text-white font-math text-2xl font-bold">
+                <i class="fa-solid fa-arrow-down-short-wide"></i>
+            </div>
+            <div>
+                <h1 class="font-math text-2xl md:text-3xl font-bold tracking-wide bg-gradient-to-r from-emerald-400 via-teal-200 to-cyan-300 bg-clip-text text-transparent">
+                    Master Urutan Angka
+                </h1>
+                <p class="text-xs text-slate-400">Susun & Temukan Kesalahan Urutan Bilangan</p>
+            </div>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="flex items-center gap-2">
+            <button id="soundToggle" onclick="game.toggleSound()" class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center hover:bg-white/20 transition text-emerald-300" title="Suara On/Off">
+                <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+            </button>
+            <button onclick="game.showHelpModal()" class="w-10 h-10 rounded-xl glass-panel flex items-center justify-center hover:bg-white/20 transition text-yellow-300" title="Panduan Mengurutkan">
+                <i class="fa-solid fa-lightbulb"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto w-full flex-grow flex flex-col justify-center items-center relative">
+
+        <!-- VIEW 1: START / MENU SCREEN -->
+        <div id="startScreen" class="w-full max-w-xl glass-panel rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="text-center mb-6">
+                <span class="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-semibold uppercase tracking-wider mb-2 border border-emerald-500/30">
+                    Game Matematika Interaktif
+                </span>
+                <h2 class="text-2xl md:text-3xl font-bold font-math text-white">Uji Logika Urutanmu!</h2>
+                <p class="text-sm text-slate-300 mt-2">
+                    Urutkan deretan angka atau temukan angka yang salah posisi secara tepat dan cepat!
+                </p>
+            </div>
+
+            <!-- Settings Form -->
+            <div class="space-y-5">
+
+                <!-- Game Mode Selection -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                        <i class="fa-solid fa-gamepad text-emerald-400 mr-1"></i> Mode Permainan
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" onclick="game.setGameMode('sort')" id="btnModeSort" class="mode-btn p-3.5 rounded-2xl glass-card border-2 border-emerald-400 bg-emerald-500/10 text-left transition">
+                            <div class="flex items-center gap-2 text-emerald-300 font-bold font-math text-sm">
+                                <i class="fa-solid fa-arrow-up-wide-short text-base"></i> Urutkan Angka
+                            </div>
+                            <div class="text-[11px] text-slate-400 mt-1">Susun kartu angka dari Terkecil/Terbesar</div>
+                        </button>
+
+                        <button type="button" onclick="game.setGameMode('spot')" id="btnModeSpot" class="mode-btn p-3.5 rounded-2xl glass-card border-2 border-transparent text-left transition hover:border-emerald-400">
+                            <div class="flex items-center gap-2 text-cyan-300 font-bold font-math text-sm">
+                                <i class="fa-solid fa-magnifying-glass text-base"></i> Cari Kesalahan
+                            </div>
+                            <div class="text-[11px] text-slate-400 mt-1">Temukan angka yang salah posisi dalam deret</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Level Difficulty Selection -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                        <i class="fa-solid fa-layer-group text-emerald-400 mr-1"></i> Tingkat Kesulitan
+                    </label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="game.setDifficulty('easy')" id="btnDiffEasy" class="diff-btn p-3 rounded-2xl glass-card text-center border-2 border-transparent hover:border-emerald-400 transition">
+                            <div class="text-xs text-emerald-300 font-bold uppercase">Mudah</div>
+                            <div class="text-base font-bold font-math mt-0.5">10 - 999</div>
+                            <div class="text-[10px] text-slate-400">4-5 Angka</div>
+                        </button>
+                        <button type="button" onclick="game.setDifficulty('medium')" id="btnDiffMedium" class="diff-btn p-3 rounded-2xl glass-card text-center border-2 border-emerald-400 bg-emerald-500/10 transition">
+                            <div class="text-xs text-yellow-300 font-bold uppercase">Sedang</div>
+                            <div class="text-base font-bold font-math mt-0.5">1rb - 99rb</div>
+                            <div class="text-[10px] text-slate-400">5-6 Angka</div>
+                        </button>
+                        <button type="button" onclick="game.setDifficulty('hard')" id="btnDiffHard" class="diff-btn p-3 rounded-2xl glass-card text-center border-2 border-transparent hover:border-emerald-400 transition">
+                            <div class="text-xs text-rose-300 font-bold uppercase">Sulit</div>
+                            <div class="text-base font-bold font-math mt-0.5">100rb - 9Jt</div>
+                            <div class="text-[10px] text-slate-400">6-7 Angka (+/-)</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Timer & Order Option -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                            <i class="fa-solid fa-stopwatch text-emerald-400 mr-1"></i> Pengaturan Waktu
+                        </label>
+                        <select id="timeSelect" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-400 font-semibold text-sm">
+                            <option value="30">30 Detik (Cepat & Menantang)</option>
+                            <option value="60" selected>60 Detik (Standar)</option>
+                            <option value="120">120 Detik (Santai)</option>
+                            <option value="0">Tanpa Timer (Bebas / Latihan)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                            <i class="fa-solid fa-arrows-up-down text-emerald-400 mr-1"></i> Arah Urutan
+                        </label>
+                        <select id="directionSelect" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-400 font-semibold text-sm">
+                            <option value="random" selected>Acak (Terkecil/Terbesar)</option>
+                            <option value="asc">Terkecil → Terbesar saja</option>
+                            <option value="desc">Terbesar → Terkecil saja</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- High Score Banner -->
+                <div class="p-3 bg-teal-950/50 rounded-2xl border border-teal-500/30 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-trophy text-yellow-400 text-xl"></i>
+                        <div>
+                            <div class="text-[11px] text-teal-300 uppercase font-bold tracking-wider">Skor Terbaik Anda</div>
+                            <div id="highScoreDisplay" class="text-lg font-bold font-math text-white">0 Poin</div>
+                        </div>
+                    </div>
+                    <span class="text-xs text-teal-300 bg-teal-500/20 px-3 py-1 rounded-full border border-teal-400/30">Terbaik</span>
+                </div>
+
+                <!-- Start Button -->
+                <button onclick="game.start()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-math font-bold text-xl tracking-wide shadow-lg shadow-emerald-500/30 btn-press flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i> Mulai Bermain
+                </button>
+            </div>
+        </div>
+
+        <!-- VIEW 2: ACTIVE GAME SCREEN -->
+        <div id="gameScreen" class="w-full max-w-3xl hidden flex-col gap-4">
+
+            <!-- Top Game HUD Bar -->
+            <div class="grid grid-cols-3 gap-3">
+                <!-- Score Card -->
+                <div class="glass-panel p-3 rounded-2xl flex flex-col items-center justify-center border-l-4 border-l-emerald-400">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Skor</span>
+                    <span id="scoreText" class="font-math text-2xl font-bold text-emerald-300">0</span>
+                </div>
+
+                <!-- Timer Card -->
+                <div id="timerCard" class="glass-panel p-3 rounded-2xl flex flex-col items-center justify-center border-l-4 border-l-teal-400 relative overflow-hidden">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Sisa Waktu</span>
+                    <span id="timerText" class="font-math text-2xl font-bold text-teal-300">60s</span>
+                    <div id="timerProgress" class="absolute bottom-0 left-0 h-1 bg-teal-400 transition-all duration-1000 w-full"></div>
+                </div>
+
+                <!-- Streak Combo Card -->
+                <div class="glass-panel p-3 rounded-2xl flex flex-col items-center justify-center border-l-4 border-l-yellow-400">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Streak Combo</span>
+                    <div class="flex items-center gap-1">
+                        <i class="fa-solid fa-fire text-yellow-400 animate-pulse"></i>
+                        <span id="streakText" class="font-math text-2xl font-bold text-yellow-300">0x</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Card Header & Instruction Banner -->
+            <div class="glass-panel rounded-3xl p-5 md:p-7 flex flex-col items-center justify-center relative shadow-2xl border border-white/20">
+                <div class="w-full flex items-center justify-between text-xs text-slate-400 mb-3 pb-2 border-b border-white/10">
+                    <span id="questionCount">Soal #1</span>
+                    <div class="flex items-center gap-2">
+                        <span id="modeBadge" class="bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30 text-xs font-semibold">Mode Urutkan</span>
+                        <button onclick="game.endGame()" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 px-3 py-1 rounded-full transition text-[11px] font-semibold flex items-center gap-1">
+                            <i class="fa-solid fa-flag"></i> Selesai
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Prompt Instruction Text -->
+                <div class="text-center my-2">
+                    <div id="promptInstruction" class="inline-flex items-center gap-2 bg-slate-900/90 border border-emerald-500/40 text-emerald-300 px-5 py-2.5 rounded-2xl font-math text-lg md:text-xl font-bold shadow-inner">
+                        <!-- Dynamic prompt title loaded here -->
+                    </div>
+                    <p id="promptSubtitle" class="text-xs text-slate-300 mt-2">
+                        Klik angka dari bawah sesuai urutan agar naik ke kotak jawaban!
+                    </p>
+                </div>
+
+                <!-- Dynamic Interactive Numbers Container -->
+                <div id="cardsArea" class="w-full my-6 flex flex-col gap-4 min-h-[120px] p-2">
+                    <!-- Cards dynamically rendered here -->
+                </div>
+
+                <!-- Action Controls for Sorting Mode -->
+                <div id="sortControls" class="w-full max-w-md grid grid-cols-12 gap-2 mt-2">
+                    <button onclick="game.endGame()" class="col-span-3 py-3 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-semibold rounded-xl text-xs md:text-sm transition btn-press flex items-center justify-center gap-1" title="Akhiri Permainan Sekarang">
+                        <i class="fa-solid fa-flag"></i> Selesai
+                    </button>
+                    <button onclick="game.skipQuestion()" class="col-span-3 py-3 bg-slate-700/60 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs md:text-sm transition btn-press flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-forward"></i> Lewati
+                    </button>
+                    <button onclick="game.verifySortAnswer()" class="col-span-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-math font-bold text-lg rounded-xl transition shadow-lg shadow-emerald-500/20 btn-press flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check"></i> Periksa Urutan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hint & Helper Box -->
+            <div class="glass-card p-3 rounded-2xl text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-hand-pointer text-emerald-400"></i>
+                <span id="helperTipText">Tip: Ketuk dua angka berturut-turut untuk menukar posisi keduanya.</span>
+            </div>
+        </div>
+
+        <!-- VIEW 3: GAME OVER / RESULT SCREEN -->
+        <div id="resultScreen" class="w-full max-w-md hidden glass-panel rounded-3xl p-6 md:p-8 text-center relative shadow-2xl animate-pop">
+            <div class="w-20 h-20 mx-auto -mt-12 rounded-3xl bg-gradient-to-tr from-yellow-400 to-amber-500 flex items-center justify-center text-slate-900 font-math text-4xl shadow-xl shadow-yellow-500/30 border-4 border-slate-900">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+
+            <h2 class="text-2xl font-bold font-math text-white mt-4">Sesi Selesai!</h2>
+            <p id="resultSubtitle" class="text-xs text-slate-300 mt-1">Latihan teratur mengasah pemahaman matematika!</p>
+
+            <!-- Result Stats Grid -->
+            <div class="grid grid-cols-2 gap-3 my-6">
+                <div class="glass-card p-3 rounded-2xl">
+                    <div class="text-[10px] text-slate-400 uppercase font-bold">Total Skor</div>
+                    <div id="resScore" class="font-math text-2xl font-bold text-emerald-300">0</div>
+                </div>
+                <div class="glass-card p-3 rounded-2xl">
+                    <div class="text-[10px] text-slate-400 uppercase font-bold">Akurasi</div>
+                    <div id="resAccuracy" class="font-math text-2xl font-bold text-teal-300">0%</div>
+                </div>
+                <div class="glass-card p-3 rounded-2xl">
+                    <div class="text-[10px] text-slate-400 uppercase font-bold">Soal Benar</div>
+                    <div id="resCorrect" class="font-math text-2xl font-bold text-cyan-300">0 / 0</div>
+                </div>
+                <div class="glass-card p-3 rounded-2xl">
+                    <div class="text-[10px] text-slate-400 uppercase font-bold">Max Streak</div>
+                    <div id="resStreak" class="font-math text-2xl font-bold text-yellow-300">0x</div>
+                </div>
+            </div>
+
+            <!-- New Highscore Banner (Conditional) -->
+            <div id="newHighscoreBadge" class="hidden p-3 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-yellow-500/40 rounded-2xl mb-6 text-yellow-300 font-bold text-xs animate-bounce-short">
+                <i class="fa-solid fa-crown text-yellow-400 mr-1"></i> Rekor Baru Tercapai!
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col gap-2">
+                <button onclick="game.start()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-math font-bold text-lg shadow-lg shadow-emerald-500/30 btn-press">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Main Lagi
+                </button>
+                <button onclick="game.showStartScreen()" class="w-full py-3 rounded-2xl glass-card text-slate-300 hover:text-white font-semibold text-sm btn-press">
+                    <i class="fa-solid fa-sliders mr-1"></i> Ubah Mode / Pengaturan
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL: Panduan Mengurutkan Bilangan -->
+    <div id="helpModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-6 border border-white/20 shadow-2xl relative">
+            <button onclick="game.hideHelpModal()" class="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h3 class="font-math text-xl font-bold text-white">Tips Mengurutkan Bilangan</h3>
+                    <p class="text-xs text-slate-400">Panduan Matematika Dasar</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+                <div class="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-emerald-300">1. Urutkan Terkecil &rarr; Terbesar (Ascending):</div>
+                    <p class="text-slate-300">
+                        Pilih dan klik angka dari yang nilainya paling kecil terlebih dahulu agar masuk ke kotak jawaban, hingga angka yang terbesar.
+                    </p>
+                    <div class="font-math text-yellow-300 pt-1">Contoh: 125 &lt; 450 &lt; 1.200 &lt; 5.400</div>
+                </div>
+
+                <div class="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-cyan-300">2. Urutkan Terbesar &rarr; Terkecil (Descending):</div>
+                    <p class="text-slate-300">
+                        Pilih dan klik angka dengan nilai tertinggi terlebih dahulu, berlanjut menurun ke angka yang paling kecil.
+                    </p>
+                    <div class="font-math text-yellow-300 pt-1">Contoh: 8.900 &gt; 3.100 &gt; 750 &gt; 90</div>
+                </div>
+
+                <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-200">
+                    <i class="fa-solid fa-lightbulb mr-1 text-yellow-400"></i>
+                    <strong>Mode Cari Kesalahan:</strong> Perhatikan deret angka dari kiri ke kanan. Temukan satu angka yang "merusak" aturan urutan tersebut dan klik angka itu!
+                </div>
+            </div>
+
+            <button onclick="game.hideHelpModal()" class="w-full mt-5 py-3 bg-slate-800 hover:bg-slate-700 text-white font-math font-bold rounded-xl transition">
+                Saya Paham!
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="max-w-4xl mx-auto w-full text-center text-xs text-slate-500 py-3">
+        Master Urutan Angka Matematika &copy; 2026 Math Master App
+    </footer>
+
+    <script>
+        /* WEB AUDIO SYNTHESIZER FOR SOUND EFFECTS */
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        this.ctx = new AudioContext();
+                    }
+                }
+            }
+
+            playCorrect() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.35);
+            }
+
+            playWrong() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.3);
+            }
+
+            playSelect() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.08);
+            }
+
+            playSwap() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(350, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.12);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.12);
+            }
+
+            playTick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, now);
+
+                gain.gain.setValueAtTime(0.04, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+
+            playFinish() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                    gain.gain.setValueAtTime(0.2, now + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.1);
+                    osc.stop(now + idx * 0.1 + 0.3);
+                });
+            }
+        }
+
+        class NumberOrderingGame {
+            constructor() {
+                this.sound = new SoundEngine();
+                this.gameMode = 'sort'; // 'sort' or 'spot'
+                this.difficulty = 'medium'; // 'easy', 'medium', 'hard'
+                this.timeLimit = 60; // in seconds
+                
+                this.score = 0;
+                this.streak = 0;
+                this.maxStreak = 0;
+                this.totalQuestions = 0;
+                this.correctCount = 0;
+                
+                this.currentQuestion = null; // Holds numbers, direction ('asc'/'desc'), faulty index if mode='spot'
+                this.poolNumbers = []; // For sorting mode pool
+                this.answerNumbers = []; // For sorting mode answers
+                this.timerInterval = null;
+                this.timeLeft = 0;
+                this.isPlaying = false;
+
+                this.highScore = parseInt(localStorage.getItem('math_order_highscore') || '0');
+
+                this.dom = {
+                    startScreen: document.getElementById('startScreen'),
+                    gameScreen: document.getElementById('gameScreen'),
+                    resultScreen: document.getElementById('resultScreen'),
+                    helpModal: document.getElementById('helpModal'),
+                    
+                    timeSelect: document.getElementById('timeSelect'),
+                    directionSelect: document.getElementById('directionSelect'),
+                    highScoreDisplay: document.getElementById('highScoreDisplay'),
+                    
+                    scoreText: document.getElementById('scoreText'),
+                    timerText: document.getElementById('timerText'),
+                    timerProgress: document.getElementById('timerProgress'),
+                    timerCard: document.getElementById('timerCard'),
+                    streakText: document.getElementById('streakText'),
+                    questionCount: document.getElementById('questionCount'),
+                    modeBadge: document.getElementById('modeBadge'),
+                    
+                    promptInstruction: document.getElementById('promptInstruction'),
+                    promptSubtitle: document.getElementById('promptSubtitle'),
+                    cardsArea: document.getElementById('cardsArea'),
+                    sortControls: document.getElementById('sortControls'),
+                    helperTipText: document.getElementById('helperTipText'),
+                    
+                    resScore: document.getElementById('resScore'),
+                    resAccuracy: document.getElementById('resAccuracy'),
+                    resCorrect: document.getElementById('resCorrect'),
+                    resStreak: document.getElementById('resStreak'),
+                    resSubtitle: document.getElementById('resultSubtitle'),
+                    newHighscoreBadge: document.getElementById('newHighscoreBadge'),
+                    
+                    soundIcon: document.getElementById('soundIcon'),
+                };
+
+                this.updateHighScoreUI();
+            }
+
+            toggleSound() {
+                this.sound.enabled = !this.sound.enabled;
+                if (this.sound.enabled) {
+                    this.dom.soundIcon.className = 'fa-solid fa-volume-high text-emerald-300';
+                } else {
+                    this.dom.soundIcon.className = 'fa-solid fa-volume-xmark text-slate-500';
+                }
+            }
+
+            setGameMode(mode) {
+                this.gameMode = mode;
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('border-emerald-400', 'bg-emerald-500/10');
+                    btn.classList.add('border-transparent');
+                });
+
+                let activeBtn;
+                if (mode === 'sort') activeBtn = document.getElementById('btnModeSort');
+                else if (mode === 'spot') activeBtn = document.getElementById('btnModeSpot');
+
+                if (activeBtn) {
+                    activeBtn.classList.remove('border-transparent');
+                    activeBtn.classList.add('border-emerald-400', 'bg-emerald-500/10');
+                }
+            }
+
+            setDifficulty(diff) {
+                this.difficulty = diff;
+                document.querySelectorAll('.diff-btn').forEach(btn => {
+                    btn.classList.remove('border-emerald-400', 'bg-emerald-500/10');
+                    btn.classList.add('border-transparent');
+                });
+
+                let activeBtn;
+                if (diff === 'easy') activeBtn = document.getElementById('btnDiffEasy');
+                else if (diff === 'medium') activeBtn = document.getElementById('btnDiffMedium');
+                else if (diff === 'hard') activeBtn = document.getElementById('btnDiffHard');
+
+                if (activeBtn) {
+                    activeBtn.classList.remove('border-transparent');
+                    activeBtn.classList.add('border-emerald-400', 'bg-emerald-500/10');
+                }
+            }
+
+            updateHighScoreUI() {
+                this.dom.highScoreDisplay.textContent = `${this.highScore.toLocaleString('id-ID')} Poin`;
+            }
+
+            showStartScreen() {
+                this.isPlaying = false;
+                clearInterval(this.timerInterval);
+                this.dom.gameScreen.classList.add('hidden');
+                this.dom.resultScreen.classList.add('hidden');
+                this.dom.startScreen.classList.remove('hidden');
+                this.updateHighScoreUI();
+            }
+
+            showHelpModal() {
+                this.dom.helpModal.classList.remove('hidden');
+            }
+
+            hideHelpModal() {
+                this.dom.helpModal.classList.add('hidden');
+            }
+
+            generateQuestion() {
+                let count = 5;
+                let min = 10;
+                let max = 999;
+
+                if (this.difficulty === 'medium') {
+                    count = 6;
+                    min = 1000;
+                    max = 99999;
+                } else if (this.difficulty === 'hard') {
+                    count = 7;
+                    min = 100000;
+                    max = 9999999;
+                    // Bilangan negatif dihapus sesuai permintaan
+                }
+
+                // Determine Direction (Ascending or Descending)
+                let selectedDir = this.dom.directionSelect.value;
+                if (selectedDir === 'random') {
+                    selectedDir = Math.random() > 0.5 ? 'asc' : 'desc';
+                }
+
+                // Generate Unique Random Numbers
+                let numbersSet = new Set();
+                while (numbersSet.size < count) {
+                    let num = Math.floor(Math.random() * (max - min + 1)) + min;
+                    numbersSet.add(num);
+                }
+
+                let originalNumbers = Array.from(numbersSet);
+                // Correctly sorted copy
+                let sortedNumbers = [...originalNumbers].sort((a, b) => selectedDir === 'asc' ? a - b : b - a);
+
+                if (this.gameMode === 'sort') {
+                    // Shuffle until it's NOT already perfectly sorted
+                    let shuffled = [...sortedNumbers];
+                    let isIdentical = true;
+                    while (isIdentical && count > 1) {
+                        shuffled.sort(() => Math.random() - 0.5);
+                        isIdentical = shuffled.every((val, index) => val === sortedNumbers[index]);
+                    }
+
+                    this.currentQuestion = {
+                        targetSortedNumbers: sortedNumbers,
+                        direction: selectedDir
+                    };
+                    this.poolNumbers = [...shuffled];
+                    this.answerNumbers = [];
+                } else if (this.gameMode === 'spot') {
+                    // MODE: Spot the error (Cari Kesalahan)
+                    let faultySequence = [...sortedNumbers];
+                    let idx1 = Math.floor(Math.random() * (count - 2)) + 1; 
+                    let idx2 = idx1 + 1;
+                    
+                    // Swap adjacent elements to create 1 obvious flaw
+                    [faultySequence[idx1], faultySequence[idx2]] = [faultySequence[idx2], faultySequence[idx1]];
+
+                    this.currentQuestion = {
+                        displayNumbers: faultySequence,
+                        targetSortedNumbers: sortedNumbers,
+                        faultyIndices: [idx1, idx2],
+                        direction: selectedDir
+                    };
+                }
+
+                this.renderQuestion();
+            }
+
+            renderQuestion() {
+                const isSortMode = this.gameMode === 'sort';
+                const dir = this.currentQuestion.direction;
+
+                // Update Badges & Titles
+                this.dom.modeBadge.textContent = isSortMode ? 'Mode Urutkan' : 'Mode Cari Kesalahan';
+                this.dom.modeBadge.className = isSortMode 
+                    ? 'bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/30 text-xs font-semibold'
+                    : 'bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/30 text-xs font-semibold';
+
+                const area = this.dom.cardsArea;
+                area.innerHTML = '';
+
+                if (isSortMode) {
+                    if (dir === 'asc') {
+                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-arrow-up-short-wide text-emerald-400"></i> Terkecil &rarr; Terbesar`;
+                    } else {
+                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-arrow-down-wide-short text-yellow-400"></i> Terbesar &rarr; Terkecil`;
+                    }
+                    this.dom.promptSubtitle.textContent = 'Klik angka dari bawah sesuai urutan agar naik ke kotak jawaban!';
+                    this.dom.helperTipText.textContent = 'Pilih semua kartu ke kotak atas sesuai aturan, lalu tekan Periksa Urutan.';
+                    this.dom.sortControls.classList.remove('hidden');
+                    this.dom.sortControls.classList.add('grid');
+
+                    // 1. Render Answer Box (Top)
+                    const answerBox = document.createElement('div');
+                    answerBox.className = 'w-full min-h-[110px] bg-slate-900/50 rounded-2xl border-2 border-dashed border-slate-600/50 p-4 flex flex-wrap items-center justify-center gap-3 transition-colors';
+                    
+                    if (this.answerNumbers.length === 0) {
+                        const placeholder = document.createElement('span');
+                        placeholder.className = 'text-slate-500 text-sm font-semibold tracking-wider flex items-center gap-2';
+                        placeholder.innerHTML = '<i class="fa-solid fa-arrow-up-from-bracket"></i> Kotak Jawaban';
+                        answerBox.appendChild(placeholder);
+                    } else {
+                        this.answerNumbers.forEach((num, index) => {
+                            const card = this.createSortCard(num, index, true);
+                            answerBox.appendChild(card);
+                        });
+                    }
+
+                    // 2. Render Pool Box (Bottom)
+                    const poolBox = document.createElement('div');
+                    poolBox.className = 'w-full p-2 flex flex-wrap items-center justify-center gap-3';
+                    
+                    this.poolNumbers.forEach((num, index) => {
+                        const card = this.createSortCard(num, index, false);
+                        poolBox.appendChild(card);
+                    });
+
+                    area.appendChild(answerBox);
+                    area.appendChild(poolBox);
+
+                } else {
+                    if (dir === 'asc') {
+                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-magnifying-glass text-cyan-400"></i> Temukan Kesalahan (Seharusnya: Terkecil &rarr; Terbesar)`;
+                    } else {
+                        this.dom.promptInstruction.innerHTML = `<i class="fa-solid fa-magnifying-glass text-cyan-400"></i> Temukan Kesalahan (Seharusnya: Terbesar &rarr; Terkecil)`;
+                    }
+                    this.dom.promptSubtitle.textContent = 'Satu angka merusak urutan. Klik angka yang posisinya salah!';
+                    this.dom.helperTipText.textContent = 'Langsung klik angka yang menempati posisi salah dalam deretan!';
+                    this.dom.sortControls.classList.add('hidden');
+                    this.dom.sortControls.classList.remove('grid');
+
+                    const spotBox = document.createElement('div');
+                    spotBox.className = 'w-full flex flex-wrap items-center justify-center gap-3 md:gap-4';
+
+                    this.currentQuestion.displayNumbers.forEach((num, index) => {
+                        const card = document.createElement('div');
+                        card.className = `glass-card p-3 md:p-4 rounded-2xl flex flex-col items-center justify-center cursor-pointer min-w-[80px] md:min-w-[110px] border-2 border-white/10 hover:border-emerald-400/60 transition duration-150 btn-press group`;
+                        
+                        const posBadge = document.createElement('span');
+                        posBadge.className = 'text-[10px] text-slate-400 font-bold mb-1 bg-slate-800/80 px-2 py-0.5 rounded-full';
+                        posBadge.textContent = `#${index + 1}`;
+                        
+                        const numDisplay = document.createElement('span');
+                        numDisplay.className = 'font-math text-xl md:text-2xl font-bold text-white tracking-wide';
+                        numDisplay.textContent = num.toLocaleString('id-ID');
+
+                        card.appendChild(posBadge);
+                        card.appendChild(numDisplay);
+                        card.onclick = () => this.handleSpotClick(index, card);
+                        spotBox.appendChild(card);
+                    });
+                    area.appendChild(spotBox);
+                }
+            }
+
+            createSortCard(num, index, isAnswer) {
+                const card = document.createElement('div');
+                card.className = `p-3 md:p-4 rounded-2xl flex flex-col items-center justify-center cursor-pointer min-w-[80px] md:min-w-[110px] border-2 transition duration-200 btn-press relative group shadow-lg `;
+                
+                if (isAnswer) {
+                    card.classList.add('bg-emerald-900/60', 'border-emerald-500/40', 'hover:border-rose-400');
+                } else {
+                    card.classList.add('glass-card', 'border-white/10', 'hover:border-emerald-400/60');
+                }
+
+                if (isAnswer) {
+                    const posBadge = document.createElement('span');
+                    posBadge.className = 'text-[10px] text-emerald-300 font-bold mb-1 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30';
+                    posBadge.textContent = `#${index + 1}`;
+                    card.appendChild(posBadge);
+                }
+
+                const numDisplay = document.createElement('span');
+                numDisplay.className = 'font-math text-xl md:text-2xl font-bold text-white tracking-wide';
+                numDisplay.textContent = num.toLocaleString('id-ID');
+                card.appendChild(numDisplay);
+
+                // Add hover icon hint
+                const hoverHint = document.createElement('div');
+                hoverHint.className = `absolute -top-3 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition shadow-md ${isAnswer ? 'bg-rose-500 text-white' : 'bg-emerald-500 text-white'}`;
+                hoverHint.innerHTML = isAnswer ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-arrow-up"></i>';
+                card.appendChild(hoverHint);
+
+                card.onclick = () => this.handleSortClick(num, isAnswer);
+                return card;
+            }
+
+            handleSortClick(num, isAnswer) {
+                if (!this.isPlaying) return;
+                this.sound.playSelect();
+
+                if (isAnswer) {
+                    // Remove from answer, back to pool
+                    const idx = this.answerNumbers.indexOf(num);
+                    if (idx > -1) {
+                        this.answerNumbers.splice(idx, 1);
+                        this.poolNumbers.push(num);
+                    }
+                } else {
+                    // Move from pool to answer
+                    const idx = this.poolNumbers.indexOf(num);
+                    if (idx > -1) {
+                        this.poolNumbers.splice(idx, 1);
+                        this.answerNumbers.push(num);
+                    }
+                }
+                this.renderQuestion();
+            }
+
+            handleSpotClick(index, cardElement) {
+                if (!this.isPlaying) return;
+                
+                this.totalQuestions++;
+                const isCorrectSpot = this.currentQuestion.faultyIndices.includes(index);
+
+                if (isCorrectSpot) {
+                    this.sound.playCorrect();
+                    this.correctCount++;
+                    this.streak++;
+                    if (this.streak > this.maxStreak) this.maxStreak = this.streak;
+
+                    const basePoints = 100;
+                    const streakBonus = (this.streak - 1) * 20;
+                    this.score += (basePoints + streakBonus);
+
+                    cardElement.classList.add('border-emerald-400', 'bg-emerald-500/30');
+                } else {
+                    this.sound.playWrong();
+                    this.streak = 0;
+                    cardElement.classList.add('border-rose-500', 'bg-rose-500/30', 'animate-shake');
+                }
+
+                this.updateHUD();
+                setTimeout(() => this.generateQuestion(), 400);
+            }
+
+            verifySortAnswer() {
+                if (!this.isPlaying || this.gameMode !== 'sort') return;
+
+                const currentList = this.answerNumbers;
+                const targetList = this.currentQuestion.targetSortedNumbers;
+
+                // Check if user has placed all cards
+                if (currentList.length !== targetList.length) {
+                    this.sound.playWrong();
+                    this.dom.cardsArea.children[0].classList.add('animate-shake', 'border-rose-500/50');
+                    setTimeout(() => {
+                        this.dom.cardsArea.children[0].classList.remove('animate-shake', 'border-rose-500/50');
+                    }, 400);
+                    return; // Don't process as wrong answer, just prompt to finish
+                }
+
+                this.totalQuestions++;
+                const isCorrect = currentList.every((val, idx) => val === targetList[idx]);
+
+                if (isCorrect) {
+                    this.sound.playCorrect();
+                    this.correctCount++;
+                    this.streak++;
+                    if (this.streak > this.maxStreak) this.maxStreak = this.streak;
+
+                    const basePoints = 120;
+                    const streakBonus = (this.streak - 1) * 25;
+                    this.score += (basePoints + streakBonus);
+
+                    this.dom.cardsArea.children[0].classList.add('bg-emerald-500/20', 'border-emerald-400');
+                    setTimeout(() => {
+                        this.dom.cardsArea.children[0].classList.remove('bg-emerald-500/20', 'border-emerald-400');
+                    }, 300);
+
+                } else {
+                    this.sound.playWrong();
+                    this.streak = 0;
+
+                    this.dom.cardsArea.children[0].classList.add('animate-shake', 'bg-rose-500/20', 'border-rose-500');
+                    setTimeout(() => {
+                        this.dom.cardsArea.children[0].classList.remove('animate-shake', 'bg-rose-500/20', 'border-rose-500');
+                    }, 400);
+                }
+
+                this.updateHUD();
+                this.generateQuestion();
+            }
+
+            skipQuestion() {
+                if (!this.isPlaying) return;
+                this.streak = 0;
+                this.totalQuestions++;
+                this.updateHUD();
+                this.generateQuestion();
+            }
+
+            updateHUD() {
+                this.dom.scoreText.textContent = this.score.toLocaleString('id-ID');
+                this.dom.streakText.textContent = `${this.streak}x`;
+                this.dom.questionCount.textContent = `Soal #${this.totalQuestions + 1}`;
+            }
+
+            start() {
+                this.score = 0;
+                this.streak = 0;
+                this.maxStreak = 0;
+                this.totalQuestions = 0;
+                this.correctCount = 0;
+                this.isPlaying = true;
+
+                this.timeLimit = parseInt(this.dom.timeSelect.value, 10);
+                this.timeLeft = this.timeLimit;
+
+                // Update Viewport HUD
+                this.dom.scoreText.textContent = '0';
+                this.dom.streakText.textContent = '0x';
+                this.dom.startScreen.classList.add('hidden');
+                this.dom.resultScreen.classList.add('hidden');
+                this.dom.gameScreen.classList.remove('hidden');
+                this.dom.gameScreen.classList.add('flex');
+
+                if (this.timeLimit > 0) {
+                    this.dom.timerCard.classList.remove('hidden');
+                    this.dom.timerText.textContent = `${this.timeLeft}s`;
+                    this.dom.timerProgress.style.width = '100%';
+                    this.startTimer();
+                } else {
+                    // Untimed Mode
+                    this.dom.timerText.textContent = '∞';
+                    this.dom.timerProgress.style.width = '100%';
+                }
+
+                this.generateQuestion();
+            }
+
+            startTimer() {
+                clearInterval(this.timerInterval);
+                this.timerInterval = setInterval(() => {
+                    if (!this.isPlaying) return;
+
+                    this.timeLeft--;
+                    this.dom.timerText.textContent = `${this.timeLeft}s`;
+
+                    const pct = (this.timeLeft / this.timeLimit) * 100;
+                    this.dom.timerProgress.style.width = `${pct}%`;
+
+                    if (this.timeLeft <= 10 && this.timeLeft > 0) {
+                        this.dom.timerCard.classList.add('animate-pulse-fast');
+                        this.sound.playTick();
+                    }
+
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.timerInterval);
+                        this.endGame();
+                    }
+                }, 1000);
+            }
+
+            endGame() {
+                this.isPlaying = false;
+                clearInterval(this.timerInterval);
+                this.sound.playFinish();
+
+                this.dom.timerCard.classList.remove('animate-pulse-fast');
+                this.dom.gameScreen.classList.add('hidden');
+                this.dom.resultScreen.classList.remove('hidden');
+
+                // Compute stats
+                const accuracy = this.totalQuestions > 0 ? Math.round((this.correctCount / this.totalQuestions) * 100) : 0;
+
+                this.dom.resScore.textContent = this.score.toLocaleString('id-ID');
+                this.dom.resAccuracy.textContent = `${accuracy}%`;
+                this.dom.resCorrect.textContent = `${this.correctCount} / ${this.totalQuestions}`;
+                this.dom.resStreak.textContent = `${this.maxStreak}x`;
+
+                // High score check
+                if (this.score > this.highScore && this.score > 0) {
+                    this.highScore = this.score;
+                    localStorage.setItem('math_order_highscore', this.highScore.toString());
+                    this.dom.newHighscoreBadge.classList.remove('hidden');
+                    this.dom.resSubtitle.textContent = 'Luar biasa! Rekor skor baru telah terukir!';
+                } else {
+                    this.dom.newHighscoreBadge.classList.add('hidden');
+                    this.dom.resSubtitle.textContent = 'Kerja bagus! Pertahankan fokus dan kecepatanmu!';
+                }
+            }
+        }
+
+        // Initialize App on Window Load
+        let game;
+        window.onload = () => {
+            game = new NumberOrderingGame();
+        };
+    </script>
+</body>
+</html>
