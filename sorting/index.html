@@ -123,6 +123,7 @@
             <button onclick="game.showHelpModal()" class="w-11 h-11 rounded-xl glass-panel flex items-center justify-center hover:bg-white/20 transition text-yellow-300" title="Panduan Mengurutkan">
                 <i class="fa-solid fa-lightbulb"></i>
             </button>
+            <div id="authContainer"></div>
         </div>
     </header>
 
@@ -363,6 +364,19 @@
             </div>
         </div>
     </main>
+
+    <!-- Leaderboard Panel -->
+    <div class="fixed inset-x-0 bottom-0 z-40 pointer-events-none">
+        <div class="max-w-4xl mx-auto px-3 pb-3 pointer-events-auto">
+            <div id="sortingLeaderboard" class="glass-panel rounded-3xl p-4 sm:p-5 max-h-[40vh] overflow-y-auto no-scrollbar">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fa-solid fa-trophy text-yellow-400"></i>
+                    <span class="font-math font-bold text-white text-sm">Leaderboard Mengurutkan</span>
+                </div>
+                <div id="sorting-lb-content"><div class="text-center py-4 text-slate-500 text-xs">Memuat skor...</div></div>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL: Panduan Mengurutkan Bilangan -->
     <div id="helpModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden">
@@ -1086,6 +1100,40 @@
         window.onload = () => {
             game = new NumberOrderingGame();
         };
+    </script>
+    <script src="../firebase-config.js"></script>
+    <script>
+        renderAuthUI('authContainer');
+
+        const _origEndGame = NumberOrderingGame.prototype.endGame;
+        NumberOrderingGame.prototype.endGame = function() {
+            _origEndGame.call(this);
+            const accuracy = this.totalQuestions > 0 ? Math.round((this.correctCount / this.totalQuestions) * 100) : 0;
+            saveScoreToFirestore({
+                gameType: 'sorting',
+                score: this.score,
+                accuracy: accuracy,
+                maxCombo: this.maxStreak,
+                totalQuestions: this.totalQuestions,
+                correctCount: this.correctCount,
+                difficulty: this.dom.difficultySelect ? this.dom.difficultySelect.value : '',
+                duration: this.timeLimit - this.timeLeft
+            });
+            loadSortingLeaderboard();
+        };
+
+        function loadSortingLeaderboard() {
+            const c = document.getElementById('sorting-lb-content');
+            if (!c) return;
+            getLeaderboardFromFirestore('sorting', 10).then(scores => {
+                renderLeaderboardTable(scores, c, {
+                    showUserPhoto: true,
+                    highlightUserId: window.currentUser ? window.currentUser.uid : null,
+                    maxEntries: 10,
+                    emptyMessage: 'Belum ada skor. Jadilah yang pertama!'
+                });
+            });
+        }
     </script>
 </body>
 </html>

@@ -145,6 +145,7 @@
             <button onclick="gameApp.showLeaderboardModal()" class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl glass-card flex items-center justify-center text-amber-400 hover:text-amber-300 transition" title="Skor Tertinggi">
                 <i class="fa-solid fa-trophy"></i>
             </button>
+            <div id="authContainer"></div>
         </div>
     </header>
 
@@ -384,16 +385,18 @@
                 </div>
                 <div>
                     <h3 class="text-xl font-extrabold font-outfit text-white">Papan Skor Tertinggi</h3>
-                    <p class="text-xs text-slate-400">Rekor lokal terbaik kamu</p>
+                    <p class="text-xs text-slate-400">Rekor global dari semua pemain</p>
                 </div>
             </div>
 
-            <div id="leaderboardList" class="space-y-2 max-h-64 overflow-y-auto pr-1">
-                <!-- Dynamic Highscores -->
+            <div id="composition-lb-content" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <div id="leaderboardList" class="space-y-2">
+                    <!-- Dynamic Highscores -->
+                </div>
             </div>
 
             <button onclick="gameApp.clearLeaderboard()" class="w-full mt-6 py-2.5 text-xs font-semibold text-rose-400 hover:text-rose-300 text-center block transition">
-                Hapus Riwayat Skor
+                Hapus Riwayat Skor Lokal
             </button>
         </div>
     </div>
@@ -1083,6 +1086,45 @@
         window.onload = () => {
             gameApp = new MathGameApp();
         };
+    </script>
+    <script src="../firebase-config.js"></script>
+    <script>
+        renderAuthUI('authContainer');
+
+        const _origFinishGame = MathGameApp.prototype.finishGame;
+        MathGameApp.prototype.finishGame = function() {
+            _origFinishGame.call(this);
+            saveScoreToFirestore({
+                gameType: 'composition',
+                score: this.score,
+                accuracy: this.totalQuestions > 0 ? Math.round((this.correctCount / this.totalQuestions) * 100) : 0,
+                maxCombo: this.maxComboReached || 0,
+                totalQuestions: this.totalQuestions,
+                correctCount: this.correctCount,
+                difficulty: this.currentLevel ? String(this.currentLevel) : '',
+                duration: this.timerSec || 0
+            });
+            loadCompositionLeaderboard();
+        };
+
+        const _origShowLB = MathGameApp.prototype.showLeaderboardModal;
+        MathGameApp.prototype.showLeaderboardModal = function() {
+            _origShowLB.call(this);
+            loadCompositionLeaderboard();
+        };
+
+        function loadCompositionLeaderboard() {
+            const c = document.getElementById('composition-lb-content');
+            if (!c) return;
+            getLeaderboardFromFirestore('composition', 10).then(scores => {
+                renderLeaderboardTable(scores, c, {
+                    showUserPhoto: true,
+                    highlightUserId: window.currentUser ? window.currentUser.uid : null,
+                    maxEntries: 10,
+                    emptyMessage: 'Belum ada skor. Jadilah yang pertama!'
+                });
+            });
+        }
     </script>
 </body>
 </html>

@@ -137,6 +137,7 @@
                 <button onclick="app.openStatsModal()" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/60 flex items-center justify-center text-amber-400 transition hover:scale-105 active:scale-95" title="Papan Skor">
                     <i class="fas fa-trophy"></i>
                 </button>
+                <div id="authContainer"></div>
             </div>
         </div>
     </header>
@@ -502,12 +503,14 @@
                 </div>
                 <div>
                     <h3 class="text-xl font-bold text-white">Papan Skor Terbaik</h3>
-                    <p class="text-xs text-slate-400">Rekor tes perkalian tersimpan lokal</p>
+                    <p class="text-xs text-slate-400">Rekor global dari semua pemain</p>
                 </div>
             </div>
 
-            <div id="highScoresList" class="space-y-2 max-h-60 overflow-y-auto pr-1 no-scrollbar">
-                <!-- Dynamically populated -->
+            <div id="mult-lb-content" class="space-y-2 max-h-60 overflow-y-auto pr-1 no-scrollbar">
+                <div id="highScoresList" class="space-y-2">
+                    <!-- Dynamically populated -->
+                </div>
             </div>
 
             <div class="pt-2 flex justify-between items-center text-xs text-slate-400">
@@ -1243,6 +1246,46 @@
         window.addEventListener('DOMContentLoaded', () => {
             app = new MultiplicationApp();
         });
+    </script>
+    <script src="../firebase-config.js"></script>
+    <script>
+        renderAuthUI('authContainer');
+
+        const _origFinishMult = MultiplicationApp.prototype.finishTest;
+        MultiplicationApp.prototype.finishTest = function() {
+            _origFinishMult.call(this);
+            const accuracy = Math.round((this.correctCount / this.testQuestions.length) * 100);
+            saveScoreToFirestore({
+                gameType: 'multiplication',
+                score: this.score,
+                accuracy: accuracy,
+                maxCombo: this.maxCombo,
+                totalQuestions: this.testQuestions.length,
+                correctCount: this.correctCount,
+                difficulty: this.selectedTable === 'mixed' ? 'Campuran' : 'Perkalian ' + this.selectedTable,
+                duration: this.timerLimit * this.testQuestions.length
+            });
+            loadMultLeaderboard();
+        };
+
+        const _origOpenStats = MultiplicationApp.prototype.openStatsModal;
+        MultiplicationApp.prototype.openStatsModal = function() {
+            _origOpenStats.call(this);
+            loadMultLeaderboard();
+        };
+
+        function loadMultLeaderboard() {
+            const c = document.getElementById('mult-lb-content');
+            if (!c) return;
+            getLeaderboardFromFirestore('multiplication', 10).then(scores => {
+                renderLeaderboardTable(scores, c, {
+                    showUserPhoto: true,
+                    highlightUserId: window.currentUser ? window.currentUser.uid : null,
+                    maxEntries: 10,
+                    emptyMessage: 'Belum ada skor. Mulai ujian sekarang!'
+                });
+            });
+        }
     </script>
 </body>
 </html>
