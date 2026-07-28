@@ -45,16 +45,6 @@ window.firebaseReady = new Promise(async (resolve) => {
         cache: { tabManager: 'AUTO' }
     });
 
-    // Handle redirect result (mobile login)
-    try {
-        const result = await firebase.auth().getRedirectResult();
-        if (result && result.user) {
-            console.log('Redirect sign-in successful:', result.user.displayName);
-        }
-    } catch (e) {
-        console.error('Redirect sign-in error:', e);
-    }
-
     // Resolve once auth state is determined (first callback)
     const unsub = firebase.auth().onAuthStateChanged((user) => {
         window.isUserLoggedIn = !!user;
@@ -66,6 +56,15 @@ window.firebaseReady = new Promise(async (resolve) => {
         } : null;
         window.dispatchEvent(new CustomEvent('authStateChanged', { detail: { user: window.currentUser } }));
         resolve();
+    });
+
+    // Handle redirect result (fire-and-forget, onAuthStateChanged will handle it)
+    firebase.auth().getRedirectResult().then((result) => {
+        if (result && result.user) {
+            console.log('Redirect sign-in successful:', result.user.displayName);
+        }
+    }).catch((e) => {
+        console.error('Redirect sign-in error:', e);
     });
 });
 
