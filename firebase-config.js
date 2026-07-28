@@ -70,21 +70,12 @@ window.firebaseReady = new Promise(async (resolve) => {
 });
 
 // ─── AUTH HELPERS ───
-window.isMobileDevice = function() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-        || (navigator.maxTouchPoints > 0 && /Macintosh/i.test(navigator.userAgent));
-};
-
 window.signInWithGoogle = async function() {
     try {
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.addScope('profile');
         provider.addScope('email');
-        if (window.isMobileDevice()) {
-            await firebase.auth().signInWithRedirect(provider);
-        } else {
-            await firebase.auth().signInWithPopup(provider);
-        }
+        await firebase.auth().signInWithRedirect(provider);
         return true;
     } catch (e) {
         console.error('Sign-in error:', e);
