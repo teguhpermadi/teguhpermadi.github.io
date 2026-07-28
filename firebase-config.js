@@ -45,6 +45,16 @@ window.firebaseReady = new Promise(async (resolve) => {
         cache: { tabManager: 'AUTO' }
     });
 
+    // Handle redirect result (mobile login)
+    try {
+        const result = await firebase.auth().getRedirectResult();
+        if (result && result.user) {
+            console.log('Redirect sign-in successful:', result.user.displayName);
+        }
+    } catch (e) {
+        console.error('Redirect sign-in error:', e);
+    }
+
     // Resolve once auth state is determined (first callback)
     const unsub = firebase.auth().onAuthStateChanged((user) => {
         window.isUserLoggedIn = !!user;
@@ -60,12 +70,21 @@ window.firebaseReady = new Promise(async (resolve) => {
 });
 
 // ─── AUTH HELPERS ───
+window.isMobileDevice = function() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        || (navigator.maxTouchPoints > 0 && /Macintosh/i.test(navigator.userAgent));
+};
+
 window.signInWithGoogle = async function() {
     try {
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.addScope('profile');
         provider.addScope('email');
-        await firebase.auth().signInWithPopup(provider);
+        if (window.isMobileDevice()) {
+            await firebase.auth().signInWithRedirect(provider);
+        } else {
+            await firebase.auth().signInWithPopup(provider);
+        }
         return true;
     } catch (e) {
         console.error('Sign-in error:', e);
