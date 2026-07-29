@@ -1087,12 +1087,12 @@
                 this.combo++;
                 if (this.combo > this.maxCombo) this.maxCombo = this.combo;
 
-                // Calculate Score: Base (100) * Combo Multiplier + Speed Bonus
-                let speedBonus = 0;
-                if (this.timerLimit > 0) {
-                    speedBonus = Math.round(parseFloat(this.timeLeft) * 15);
+                const basePoints = 100 / this.testQuestions.length;
+                let speedFactor = 1.0;
+                if (this.timerLimit > 0 && this.timeLeft > 0) {
+                    speedFactor = Math.min(1.5, 1.0 + (this.timeLeft / this.timerLimit) * 0.5);
                 }
-                const points = (100 * Math.min(this.combo, 5)) + speedBonus;
+                const points = Math.round(basePoints * speedFactor);
                 this.score += points;
 
                 if (this.combo >= 3) {

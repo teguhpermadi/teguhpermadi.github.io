@@ -814,12 +814,15 @@
                     }
                     this.correctAnswersCount++;
 
-                    // Calculation score with Combo up to 100x multiplier + speed factor!
-                    const comboMultiplier = Math.min(100, this.combo);
-                    const basePoints = 100;
+                    let basePoints;
+                    if (this.questionCount === 'sudden_death') {
+                        basePoints = 20;
+                    } else {
+                        basePoints = 100 / this.questionCount;
+                    }
                     const timeRatio = this.timeLeftMs / (this.timerSec * 1000);
-                    const speedMultiplier = 1 + (timeRatio * 4);
-                    const pointsGained = Math.floor(basePoints * comboMultiplier * speedMultiplier);
+                    const speedFactor = Math.min(1.5, 1.0 + timeRatio * 0.5);
+                    const pointsGained = Math.round(basePoints * speedFactor);
                     
                     this.score += pointsGained;
 

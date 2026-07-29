@@ -602,6 +602,7 @@
                 this.timerInterval = null;
                 this.timeLeft = 0;
                 this.isPlaying = false;
+                this.questionStartTime = null;
 
                 this.highScore = parseInt(localStorage.getItem('math_order_highscore') || '0');
 
@@ -709,6 +710,7 @@
             }
 
             generateQuestion() {
+                this.questionStartTime = Date.now();
                 let count = 5;
                 let min = 11;
                 let max = 99;
@@ -932,9 +934,14 @@
                     this.streak++;
                     if (this.streak > this.maxStreak) this.maxStreak = this.streak;
 
-                    const basePoints = 100;
-                    const streakBonus = (this.streak - 1) * 20;
-                    this.score += (basePoints + streakBonus);
+                    const timeSpent = (Date.now() - this.questionStartTime) / 1000;
+                    let speedFactor = 1.0;
+                    if (timeSpent <= 3) speedFactor = 1.5;
+                    else if (timeSpent <= 5) speedFactor = 1.4;
+                    else if (timeSpent <= 10) speedFactor = 1.3;
+                    else if (timeSpent <= 15) speedFactor = 1.2;
+                    else if (timeSpent <= 20) speedFactor = 1.1;
+                    this.score += Math.round(100 * speedFactor);
 
                     cardElement.classList.add('border-emerald-400', 'bg-emerald-500/30');
                 } else {
@@ -972,9 +979,14 @@
                     this.streak++;
                     if (this.streak > this.maxStreak) this.maxStreak = this.streak;
 
-                    const basePoints = 120;
-                    const streakBonus = (this.streak - 1) * 25;
-                    this.score += (basePoints + streakBonus);
+                    const timeSpent = (Date.now() - this.questionStartTime) / 1000;
+                    let speedFactor = 1.0;
+                    if (timeSpent <= 3) speedFactor = 1.5;
+                    else if (timeSpent <= 5) speedFactor = 1.4;
+                    else if (timeSpent <= 10) speedFactor = 1.3;
+                    else if (timeSpent <= 15) speedFactor = 1.2;
+                    else if (timeSpent <= 20) speedFactor = 1.1;
+                    this.score += Math.round(100 * speedFactor);
 
                     this.dom.cardsArea.children[0].classList.add('bg-emerald-500/20', 'border-emerald-400');
                     setTimeout(() => {
@@ -1016,6 +1028,7 @@
                 this.totalQuestions = 0;
                 this.correctCount = 0;
                 this.isPlaying = true;
+                this.questionStartTime = Date.now();
 
                 this.timeLimit = parseInt(this.dom.timeSelect.value, 10);
                 this.timeLeft = this.timeLimit;
@@ -1076,6 +1089,10 @@
 
                 // Compute stats
                 const accuracy = this.totalQuestions > 0 ? Math.round((this.correctCount / this.totalQuestions) * 100) : 0;
+
+                // Normalize score: all correct = 100, plus streak bonus for speed
+                const normalizedBase = Math.round((this.correctCount / Math.max(1, this.totalQuestions)) * 100);
+                this.score = normalizedBase + (this.maxStreak * 5);
 
                 this.dom.resScore.textContent = this.score.toLocaleString('id-ID');
                 this.dom.resAccuracy.textContent = `${accuracy}%`;
