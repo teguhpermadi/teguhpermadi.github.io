@@ -246,7 +246,7 @@
                 </div>
 
                 <!-- Submit Early Button -->
-                <button onclick="submitQuiz()"
+                <button onclick="recordTimeSpent(); submitQuiz()"
                     class="px-3 sm:px-4 py-2 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] sm:text-xs font-bold rounded-xl shadow-sm transition-all flex items-center space-x-1.5">
                     <i class="fa-solid fa-check"></i>
                     <span>Selesai & Kirim</span>
@@ -699,7 +699,7 @@
         function recordTimeSpent() {
             if (quizState.questionStartTime !== null) {
                 const elapsed = (Date.now() - quizState.questionStartTime) / 1000;
-                quizState.questions[quizState.currentIndex].timeSpent += elapsed;
+                quizState.questions[quizState.currentIndex].timeSpent = elapsed;
             }
         }
 
@@ -883,7 +883,6 @@
 
         function submitQuiz() {
             saveCurrentAnswer();
-            recordTimeSpent();
             stopTimer();
 
             // Check if there are unanswered questions
@@ -921,11 +920,11 @@
                 const t = q.timeSpent;
                 let sf;
                 if (t <= 3) sf = 1.5;
-                else if (t <= 5) sf = 1.2;
-                else if (t <= 10) sf = 1.0;
-                else if (t <= 20) sf = 0.8;
-                else if (t <= 30) sf = 0.6;
-                else sf = 0.5;
+                else if (t <= 5) sf = 1.4;
+                else if (t <= 10) sf = 1.3;
+                else if (t <= 15) sf = 1.2;
+                else if (t <= 20) sf = 1.1;
+                else sf = 1.0;
 
                 q.speedFactor = sf;
                 totalSpeedFactor += sf;
@@ -958,7 +957,7 @@
             const headline = document.getElementById('result-headline');
             const subtext = document.getElementById('result-subtext');
 
-            if (finalScore >= 150) {
+            if (finalScore >= 140) {
                 headline.innerText = "Sempurna & Kilat! ⚡";
                 subtext.innerText = "Jawaban 100% benar dan diselesaikan dengan kecepatan luar biasa!";
             } else if (finalScore >= 100) {
@@ -967,7 +966,7 @@
             } else if (finalScore >= 70) {
                 headline.innerText = "Kerja Bagus! 🎉";
                 subtext.innerText = "Hasil yang sangat memuaskan! Pertahankan kecepatan dan ketelitianmu.";
-            } else if (finalScore >= 40) {
+            } else if (finalScore >= 50) {
                 headline.innerText = "Cukup Baik! 👍";
                 subtext.innerText = "Bagus! Terus berlatih agar lebih cepat dan akurat.";
             } else {
