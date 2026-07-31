@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM Cash Master | Komposisi & Dekomposisi Uang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        atm: {
+                            dark: '#0b1220',
+                            deep: '#0e1a2f',
+                            panel: '#111c33',
+                            line: '#1e2a45',
+                            neon: '#22c55e',
+                            neon2: '#34d399',
+                            cyan: '#38bdf8',
+                            dim: '#64748b',
+                        }
+                    },
+                    animation: {
+                        'pop-in': 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+                        'star-pop': 'starPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+                        'slide-up': 'slideUp 0.35s ease-out both',
+                        'pulse-slow': 'pulse 2.5s ease-in-out infinite',
+                        'float-y': 'floatY 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        popIn: {
+                            '0%': { transform: 'scale(0.7)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                        starPop: {
+                            '0%': { transform: 'scale(0) rotate(-30deg)', opacity: '0' },
+                            '70%': { transform: 'scale(1.4) rotate(8deg)' },
+                            '100%': { transform: 'scale(1) rotate(0deg)', opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(24px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        floatY: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0b1220 0%, #0e1a2f 50%, #0b1220 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(15, 26, 44, 0.72);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.045);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+            background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 3px);
+            mix-blend-mode: overlay;
+        }
+
+        .neon-text {
+            color: #4ade80;
+            text-shadow: 0 0 8px rgba(34, 197, 94, 0.7), 0 0 24px rgba(34, 197, 94, 0.35);
+        }
+
+        .led-readout {
+            color: #4ade80;
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-glow {
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.35);
+            transition: all 0.2s ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 32px rgba(34, 197, 94, 0.6);
+            transform: scale(1.02);
+        }
+        .btn-glow:active {
+            transform: scale(0.98);
+        }
+
+        .denom-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .denom-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(34, 197, 94, 0.55);
+            box-shadow: 0 8px 24px -8px rgba(34, 197, 94, 0.35);
+        }
+        .denom-add {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.9rem 0.5rem 0.75rem;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .denom-add:active {
+            transform: scale(0.94);
+        }
+        .denom-card.out-of-stock .denom-add {
+            opacity: 0.35;
+            pointer-events: none;
+            filter: grayscale(0.8);
+        }
+        .denom-card.out-of-stock::after {
+            content: 'OUT OF STOCK';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.65rem;
+            letter-spacing: 0.12em;
+            color: #fda4af;
+            background: rgba(127, 29, 29, 0.35);
+            border: 2px dashed rgba(252, 165, 165, 0.6);
+            border-radius: 1rem;
+            z-index: 5;
+            pointer-events: none;
+            transform: rotate(-6deg);
+            text-align: center;
+            padding: 0 0.4rem;
+        }
+
+        .minus-btn {
+            position: absolute;
+            top: 0.4rem;
+            right: 0.4rem;
+            width: 1.55rem;
+            height: 1.55rem;
+            border-radius: 999px;
+            background: rgba(244, 63, 94, 0.18);
+            border: 1px solid rgba(244, 63, 94, 0.4);
+            color: #fda4af;
+            font-weight: 900;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            z-index: 3;
+        }
+        .minus-btn:hover {
+            background: rgba(244, 63, 94, 0.35);
+        }
+        .minus-btn:active {
+            transform: scale(0.85);
+        }
+        .denom-card.out-of-stock .minus-btn {
+            display: none;
+        }
+
+        .count-badge {
+            background: rgba(5, 46, 22, 0.85);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            border-radius: 999px;
+            padding: 0.1rem 0.7rem;
+            font-weight: 800;
+            font-size: 0.72rem;
+            font-family: 'Outfit', sans-serif;
+            white-space: nowrap;
+        }
+
+        .timer-bar {
+            transition: width 0.25s linear, background-color 0.4s ease;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            background: rgba(4, 10, 20, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal.hidden {
+            display: none;
+        }
+        .modal-box {
+            width: 100%;
+            max-width: 26rem;
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+
+        @keyframes shakeX {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+        }
+        .shake {
+            animation: shakeX 0.45s ease both;
+        }
+
+        .flash-green {
+            animation: flashGreen 0.6s ease both;
+        }
+        @keyframes flashGreen {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.8); }
+            100% { box-shadow: 0 0 0 24px rgba(34, 197, 94, 0); }
+        }
+
+        .banknote-float {
+            animation: banknote 0.8s ease both;
+        }
+        @keyframes banknote {
+            0% { transform: translateY(0) scale(1); }
+            40% { transform: translateY(-14px) scale(1.15); }
+            70% { transform: translateY(4px) scale(0.95); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        .keypad-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 0.9rem;
+            padding: 0.85rem 0;
+            font-weight: 800;
+            font-size: 1.25rem;
+            font-family: 'Outfit', sans-serif;
+            color: #f8fafc;
+            transition: all 0.12s ease;
+            cursor: pointer;
+        }
+        .keypad-btn:hover {
+            background: rgba(34, 197, 94, 0.18);
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+        .keypad-btn:active {
+            transform: scale(0.93);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(34, 197, 94, 0.5);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen items-center p-3 sm:p-5 relative">
+
+    <canvas id="bgCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-50"></canvas>
+    <canvas id="confettiCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-[70]"></canvas>
+    <div class="scanlines"></div>
+
+    <!-- HEADER HUD -->
+    <header class="w-full max-w-4xl z-10 mb-3 sm:mb-4">
+        <div class="glass-panel rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
+            <div class="flex items-center gap-2.5 sm:gap-3 cursor-pointer" onclick="gameApp.openWelcome()">
+                <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30 text-xl">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-xl font-extrabold font-outfit neon-text leading-tight">ATM CASH MASTER</h1>
+                    <p class="text-[9px] sm:text-[11px] text-slate-400 font-medium leading-tight">Komposisi & Dekomposisi Uang</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button id="soundToggleBtn" onclick="gameApp.toggleSound()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-white transition" title="Suara">
+                    <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+                </button>
+                <div id="authContainer"></div>
+            </div>
+        </div>
+
+        <!-- HUD Stats -->
+        <div class="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+            <div class="glass-card rounded-2xl p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-sm sm:text-base"><i class="fa-solid fa-bolt"></i></div>
+                <div class="min-w-0">
+                    <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Skor XP</span>
+                    <span id="hudXpText" class="led-readout text-base sm:text-xl font-black leading-none">0</span>
+                </div>
+            </div>
+            <div class="glass-card rounded-2xl p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 text-sm sm:text-base"><i class="fa-solid fa-star"></i></div>
+                <div class="min-w-0">
+                    <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Rating</span>
+                    <div id="hudStarsText" class="text-amber-400 text-xs sm:text-sm font-black leading-none whitespace-nowrap">
+                        <i class="fa-solid fa-star text-slate-700"></i><i class="fa-solid fa-star text-slate-700"></i><i class="fa-solid fa-star text-slate-700"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-2xl p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-sm sm:text-base"><i class="fa-solid fa-stopwatch"></i></div>
+                <div class="min-w-0 flex-1">
+                    <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Timer</span>
+                    <span id="hudTimerText" class="led-readout text-base sm:text-xl font-black leading-none">03:00</span>
+                    <div class="mt-1 h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div id="timerBar" class="timer-bar h-full bg-gradient-to-r from-emerald-400 to-emerald-300 rounded-full w-full"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-2xl p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-400 text-sm sm:text-base"><i class="fa-solid fa-layer-group"></i></div>
+                <div class="min-w-0">
+                    <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block">Level</span>
+                    <span id="hudLevelText" class="led-readout text-base sm:text-xl font-black leading-none">1</span>
+                    <span id="hudLevelTitle" class="text-[9px] sm:text-[10px] text-slate-400 block truncate max-w-[90px] sm:max-w-[130px]">Minimum Notes</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SCREEN: WELCOME -->
+    <main id="welcomeScreen" class="w-full max-w-4xl z-10 my-auto flex flex-col items-center">
+        <div class="glass-panel w-full p-5 sm:p-7 md:p-9 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-60 h-60 bg-emerald-500/15 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-60 h-60 bg-cyan-500/15 rounded-full blur-3xl"></div>
+
+            <div class="text-center max-w-xl mx-auto mb-5 sm:mb-7">
+                <span class="px-3 py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-300 bg-emerald-500/15 rounded-full border border-emerald-500/30">
+                    Game Edukasi Matematika Uang
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-black font-outfit mt-3 text-white leading-tight">
+                    Jadilah <span class="neon-text">ATM Engineer</span> Handal!
+                </h2>
+                <p class="text-slate-300 mt-2 text-xs sm:text-sm md:text-base leading-relaxed">
+                    Keluarkan uang tunai untuk para nasabah dengan komposisi pecahan yang <strong class="text-emerald-300">pas</strong>, <strong class="text-emerald-300">hemat</strong>, dan <strong class="text-emerald-300">tepat</strong>! Kumpulkan XP dan bintang untuk menjadi <strong class="text-amber-300">Master ATM Engineer</strong>.
+                </p>
+            </div>
+
+            <div class="space-y-2.5 mb-6 sm:mb-7">
+                <div class="flex items-start gap-3 glass-card rounded-2xl p-3 sm:p-4">
+                    <div class="w-9 h-9 shrink-0 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-hand-pointer"></i></div>
+                    <div>
+                        <p class="text-sm font-bold text-white">1. Klik Pecahan Uang</p>
+                        <p class="text-xs text-slate-400">Klik tombol pecahan untuk menambah lembar. Total nilai ter-update otomatis.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 glass-card rounded-2xl p-3 sm:p-4">
+                    <div class="w-9 h-9 shrink-0 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400"><i class="fa-solid fa-calculator"></i></div>
+                    <div>
+                        <p class="text-sm font-bold text-white">2. Perhatikan Target & Lembar</p>
+                        <p class="text-xs text-slate-400">Setiap level punya misi berbeda: nilai pas, efisien, atau jumlah lembar tepat.</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 glass-card rounded-2xl p-3 sm:p-4">
+                    <div class="w-9 h-9 shrink-0 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400"><i class="fa-solid fa-paper-plane"></i></div>
+                    <div>
+                        <p class="text-sm font-bold text-white">3. Kirim & Kumpulkan Bintang</p>
+                        <p class="text-xs text-slate-400">Tekan "Process Cash" untuk memproses. Semakin efisien dan cepat, semakin banyak XP & bintang!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-6 sm:mb-7">
+                <div id="missionCard1" class="mission-card glass-card rounded-2xl p-3 sm:p-4 border-l-4 border-l-emerald-400">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400">Level 1</span>
+                        <i class="fa-solid fa-lock-open text-emerald-500/70 text-xs"></i>
+                    </div>
+                    <p class="text-sm font-bold text-white leading-snug">Efisiensi Minimum</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Tarik uang dengan lembaran sesedikit mungkin</p>
+                </div>
+                <div id="missionCard2" class="mission-card glass-card rounded-2xl p-3 sm:p-4 border-l-4 border-l-emerald-400">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-emerald-400">Level 2</span>
+                        <i id="lockIcon2" class="fa-solid fa-lock text-slate-600 text-xs"></i>
+                    </div>
+                    <p class="text-sm font-bold text-white leading-snug">Batasan Stok</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Tarik uang tanpa pecahan Rp100rb</p>
+                </div>
+                <div id="missionCard3" class="mission-card glass-card rounded-2xl p-3 sm:p-4 border-l-4 border-l-cyan-400">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-cyan-400">Level 3</span>
+                        <i id="lockIcon3" class="fa-solid fa-lock text-slate-600 text-xs"></i>
+                    </div>
+                    <p class="text-sm font-bold text-white leading-snug">Fast Audit</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Hitung total setoran nasabah</p>
+                </div>
+                <div id="missionCard4" class="mission-card glass-card rounded-2xl p-3 sm:p-4 border-l-4 border-l-amber-400">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-amber-400">Level 4</span>
+                        <i id="lockIcon4" class="fa-solid fa-lock text-slate-600 text-xs"></i>
+                    </div>
+                    <p class="text-sm font-bold text-white leading-snug">Tepat Jumlah Lembar</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Tarik uang dengan jumlah lembar pas</p>
+                </div>
+            </div>
+
+            <div id="resumeArea" class="hidden mb-4">
+                <div class="text-center glass-card rounded-2xl p-3">
+                    <p class="text-xs text-slate-400">Progresmu tersimpan.</p>
+                    <p class="text-sm font-bold text-emerald-300 mt-0.5" id="resumeText">Lanjutkan ke Level 2</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-4 justify-center">
+                <button onclick="gameApp.startRun(1)" class="py-3.5 sm:py-4 px-8 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-950 font-extrabold font-outfit text-lg btn-glow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i>
+                    <span id="startBtnText">Mulai Misi</span>
+                </button>
+                <button id="resumeBtn" onclick="gameApp.resumeRun()" class="hidden py-3.5 px-8 rounded-2xl glass-card text-emerald-300 hover:text-white font-bold font-outfit text-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-forward"></i>
+                    <span>Lanjut</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- SCREEN: GAMEPLAY -->
+    <main id="gameScreen" class="w-full max-w-4xl z-10 my-auto hidden flex-col items-center gap-3 sm:gap-4">
+
+        <!-- Mission Card -->
+        <div class="w-full glass-panel rounded-2xl p-3.5 sm:p-5 border border-white/10 relative overflow-hidden">
+            <div class="absolute -top-16 -right-16 w-44 h-44 bg-emerald-500/10 rounded-full blur-3xl"></div>
+            <div class="flex items-start gap-3 sm:gap-4 relative">
+                <div id="missionAvatar" class="w-11 h-11 sm:w-14 sm:h-14 shrink-0 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl sm:text-3xl">🧑‍🌾</div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2 flex-wrap mb-1">
+                        <span id="missionBadge" class="px-2 py-0.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Misi Level 1</span>
+                        <span id="missionTarget" class="px-2 py-0.5 text-[9px] sm:text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">TARGET Rp875.000</span>
+                    </div>
+                    <h3 id="missionTitle" class="text-sm sm:text-lg font-extrabold font-outfit text-white leading-tight">Efisiensi Dekomposisi</h3>
+                    <p id="missionStory" class="text-[11px] sm:text-sm text-slate-300 mt-1 leading-relaxed"></p>
+                    <div id="stockWarning" class="hidden mt-2 inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-rose-500/15 border border-rose-500/40 text-rose-300 text-[10px] sm:text-xs font-bold">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Rp100.000 HABIS — mesin kehabisan stok pecahan ini!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Denomination Grid (Level 1,2,4) -->
+        <div id="denomPanel" class="w-full glass-panel rounded-2xl p-3.5 sm:p-5 border border-white/10">
+            <div class="flex items-center justify-between mb-2.5 sm:mb-3">
+                <h4 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-slate-300 flex items-center gap-2">
+                    <i class="fa-solid fa-money-bill-wave text-emerald-400"></i> Pilih Pecahan Uang
+                </h4>
+                <span class="text-[10px] sm:text-xs text-slate-500 font-medium">Klik untuk menambah lembar</span>
+            </div>
+            <div id="denomGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 sm:gap-2.5"></div>
+        </div>
+
+        <!-- Input Panel (Level 3) -->
+        <div id="inputPanel" class="w-full glass-panel rounded-2xl p-3.5 sm:p-5 border border-white/10 hidden">
+            <div class="flex items-center justify-between mb-2.5 sm:mb-3">
+                <h4 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-slate-300 flex items-center gap-2">
+                    <i class="fa-solid fa-vault text-cyan-400"></i> Setoran Nasabah
+                </h4>
+                <span class="text-[10px] sm:text-xs text-slate-500 font-medium">Hitung total untuk buka brankas</span>
+            </div>
+            <div id="missionChips" class="flex flex-wrap justify-center gap-2 mb-4"></div>
+            <div class="max-w-sm mx-auto">
+                <div class="text-center mb-2 text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Total Setoran</div>
+                <input id="keypadDisplay" readonly value="Rp 0" class="w-full text-center text-2xl sm:text-3xl font-black font-outfit led-readout bg-slate-900/70 border-2 border-cyan-500/40 rounded-2xl py-3 sm:py-4 outline-none">
+                <div class="grid grid-cols-3 gap-2 mt-3">
+                    <button class="keypad-btn" onclick="gameApp.keypad('1')">1</button>
+                    <button class="keypad-btn" onclick="gameApp.keypad('2')">2</button>
+                    <button class="keypad-btn" onclick="gameApp.keypad('3')">3</button>
+                    <button class="keypad-btn" onclick="gameApp.keypad('4')">4</button>
+                    <button class="keypad-btn" onclick="gameApp.keypad('5')">5</button>
+                    <button class="keypad-btn" onclick="gameApp.keypad('6')">6</button>
+                    <button class="keypad-btn" onclick="gameApp.keypad('7')">7</button>
+                    <button class="keypad-btn" onclick="gameApp.keypad('8')">8</button>
+                    <button class="keypad-btn" onclick="gameApp.keypad('9')">9</button>
+                    <button class="keypad-btn text-rose-400" onclick="gameApp.keypad('clear')"><i class="fa-solid fa-rotate-left"></i></button>
+                    <button class="keypad-btn" onclick="gameApp.keypad('0')">0</button>
+                    <button class="keypad-btn text-slate-500" onclick="gameApp.keypad('back')"><i class="fa-solid fa-delete-left"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary & Actions -->
+        <div class="w-full glass-panel rounded-2xl p-3.5 sm:p-5 border border-white/10">
+            <div id="summaryStats" class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-3.5 sm:mb-4">
+                <div class="glass-card rounded-2xl p-3 sm:p-4 text-center relative overflow-hidden">
+                    <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total Nilai Terkumpul</span>
+                    <span id="totalValueText" class="led-readout text-xl sm:text-2xl font-black font-outfit block mt-1">Rp0</span>
+                    <div id="valueFlash" class="absolute inset-0 pointer-events-none"></div>
+                </div>
+                <div class="glass-card rounded-2xl p-3 sm:p-4 text-center">
+                    <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total Lembar</span>
+                    <span id="totalNotesText" class="text-cyan-400 text-xl sm:text-2xl font-black font-outfit block mt-1">0</span>
+                </div>
+                <div class="glass-card rounded-2xl p-3 sm:p-4 text-center" id="diffCard">
+                    <span id="diffLabel" class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Sisa Target</span>
+                    <span id="diffText" class="text-amber-300 text-xl sm:text-2xl font-black font-outfit block mt-1">Rp875.000</span>
+                </div>
+            </div>
+
+            <div id="hintPanel" class="hidden mb-3.5 sm:mb-4 glass-card rounded-2xl p-3 sm:p-4 border-emerald-500/40 bg-emerald-500/10">
+                <p class="text-xs sm:text-sm font-bold text-emerald-300 mb-1"><i class="fa-solid fa-lightbulb mr-1"></i> Petunjuk:</p>
+                <p id="hintText" class="text-xs sm:text-sm text-emerald-100 font-semibold"></p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+                <button id="resetBtn" onclick="gameApp.resetNotes()" class="py-3 rounded-xl glass-card text-slate-300 hover:text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-rotate-left"></i> Reset Lembaran
+                </button>
+                <button onclick="gameApp.hint()" class="py-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 hover:bg-amber-500/25 font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-lightbulb"></i> Petunjuk
+                </button>
+                <button onclick="gameApp.submit()" class="py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-950 font-extrabold text-sm sm:text-base btn-glow flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Kirim / Process Cash
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- FEEDBACK TOAST -->
+    <div id="feedbackToast" class="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 hidden w-[92%] max-w-md">
+        <div id="feedbackToastBox" class="glass-panel rounded-2xl border-2 p-3.5 sm:p-4 flex items-start gap-3 animate-slide-up shadow-2xl">
+            <div id="feedbackToastIcon" class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl flex items-center justify-center text-lg"></div>
+            <div class="min-w-0 flex-1">
+                <p id="feedbackToastTitle" class="font-extrabold font-outfit text-sm sm:text-base"></p>
+                <p id="feedbackToastDetail" class="text-xs sm:text-sm text-slate-300 mt-0.5"></p>
+            </div>
+            <button onclick="gameApp.hideFeedback()" class="text-slate-500 hover:text-white text-sm px-1"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+
+    <!-- MODAL: LEVEL COMPLETE -->
+    <div id="levelCompleteModal" class="modal hidden">
+        <div class="modal-box glass-panel rounded-3xl border border-emerald-500/30 p-5 sm:p-7 text-center shadow-2xl animate-pop-in relative overflow-hidden">
+            <div class="absolute -top-20 -left-20 w-52 h-52 bg-emerald-500/15 rounded-full blur-3xl"></div>
+            <div class="relative">
+                <div class="w-16 h-16 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-3xl mx-auto mb-3">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <h3 id="lcTitle" class="text-xl sm:text-2xl font-black font-outfit text-white">Level 1 Selesai!</h3>
+                <p id="lcSubtitle" class="text-xs sm:text-sm text-slate-400 mt-1">Misi berhasil dikerjakan!</p>
+                <div id="lcStars" class="flex justify-center gap-2 mt-4 text-3xl sm:text-4xl">
+                    <i class="fa-solid fa-star text-slate-800"></i>
+                    <i class="fa-solid fa-star text-slate-800"></i>
+                    <i class="fa-solid fa-star text-slate-800"></i>
+                </div>
+                <div class="mt-5 space-y-1.5 text-left bg-slate-900/60 border border-white/10 rounded-2xl p-3.5 sm:p-4">
+                    <div class="flex justify-between text-xs sm:text-sm"><span class="text-slate-400">Skor Dasar</span><span id="lcBase" class="font-bold text-white">+100</span></div>
+                    <div class="flex justify-between text-xs sm:text-sm"><span class="text-slate-400">Bonus Efisiensi</span><span id="lcEff" class="font-bold text-amber-300">+50</span></div>
+                    <div class="flex justify-between text-xs sm:text-sm"><span class="text-slate-400">Bonus Kecepatan</span><span id="lcSpeed" class="font-bold text-cyan-300">+25</span></div>
+                    <div class="border-t border-white/10 mt-1.5 pt-1.5 flex justify-between text-sm sm:text-base"><span class="font-bold text-white">XP Didapat</span><span id="lcTotal" class="font-black led-readout">+175</span></div>
+                </div>
+                <p id="lcNote" class="hidden mt-3 text-[11px] sm:text-xs text-emerald-300 font-semibold"></p>
+                <p id="lcTotalRun" class="mt-2 text-[11px] sm:text-xs text-slate-400 font-medium">Total XP: <span id="lcRunXp" class="text-white font-bold">0</span> &bull; Bintang: <span id="lcRunStars" class="text-amber-300 font-bold">0</span>/12</p>
+                <button onclick="gameApp.nextLevel()" class="mt-5 w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-950 font-extrabold font-outfit text-base btn-glow flex items-center justify-center gap-2">
+                    <span id="lcNextLabel">Lanjut ke Level 2</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EFFICIENCY HINT -->
+    <div id="efficiencyModal" class="modal hidden">
+        <div class="modal-box glass-panel rounded-3xl border border-amber-500/40 p-5 sm:p-7 text-center shadow-2xl animate-pop-in relative overflow-hidden">
+            <div class="w-16 h-16 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-3xl mx-auto mb-3">
+                <i class="fa-solid fa-scale-balanced"></i>
+            </div>
+            <h3 id="effTitle" class="text-lg sm:text-xl font-black font-outfit text-white">Uang Pas, Tapi Belum Efisien!</h3>
+            <p id="effText" class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed"></p>
+            <div class="flex flex-col sm:flex-row gap-2.5 mt-6">
+                <button onclick="gameApp.efficiencyRetry()" class="flex-1 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-950 font-extrabold text-sm btn-glow">Coba Lagi</button>
+                <button onclick="gameApp.efficiencyContinue()" id="effContinueBtn" class="flex-1 py-3 rounded-2xl glass-card text-slate-300 hover:text-white font-bold text-sm">Lanjut (1 Bintang)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: TIMEOUT -->
+    <div id="timeoutModal" class="modal hidden">
+        <div class="modal-box glass-panel rounded-3xl border border-rose-500/40 p-5 sm:p-7 text-center shadow-2xl animate-pop-in relative overflow-hidden">
+            <div class="w-16 h-16 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 text-3xl mx-auto mb-3">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-black font-outfit text-white">Waktu Habis!</h3>
+            <p class="text-xs sm:text-sm text-slate-300 mt-2">Tenang, mesin ATM tidak akan rusak kok. Coba lagi ya, kamu pasti bisa!</p>
+            <button onclick="gameApp.retryTimeout()" class="mt-6 w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-950 font-extrabold text-base btn-glow flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i> Coba Lagi
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: FINAL / MISI SELESAI -->
+    <div id="finalModal" class="modal hidden">
+        <div class="modal-box glass-panel rounded-3xl border border-amber-500/40 p-5 sm:p-7 text-center shadow-2xl animate-pop-in relative overflow-hidden">
+            <div class="absolute -top-20 -right-20 w-52 h-52 bg-amber-500/15 rounded-full blur-3xl"></div>
+            <div class="relative">
+                <span class="inline-block px-3 py-1 text-[10px] sm:text-xs font-black uppercase tracking-widest text-amber-300 bg-amber-500/15 rounded-full border border-amber-500/40">Misi Selesai!</span>
+                <div id="finalIcon" class="text-6xl sm:text-7xl mt-4 animate-float-y">👑</div>
+                <h2 id="finalTitle" class="text-2xl sm:text-3xl font-black font-outfit neon-text mt-2">Master ATM Engineer</h2>
+                <p class="text-xs sm:text-sm text-slate-300 mt-1">Selamat! Kamu berhasil menangani semua misi ATM!</p>
+
+                <div class="grid grid-cols-2 gap-2.5 sm:gap-3 mt-5">
+                    <div class="glass-card rounded-2xl p-3.5 sm:p-4">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Total XP</span>
+                        <span id="finalXpText" class="led-readout text-2xl sm:text-3xl font-black font-outfit block mt-1">0</span>
+                    </div>
+                    <div class="glass-card rounded-2xl p-3.5 sm:p-4">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Bintang</span>
+                        <span id="finalStarsText" class="text-amber-400 text-2xl sm:text-3xl font-black font-outfit block mt-1">0/12</span>
+                    </div>
+                </div>
+
+                <div id="finalPerLevel" class="flex justify-center gap-2 mt-4 flex-wrap"></div>
+
+                <div class="flex flex-col sm:flex-row gap-2.5 mt-6">
+                    <button onclick="gameApp.startRun(1)" class="flex-1 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-950 font-extrabold text-sm btn-glow flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Main Lagi
+                    </button>
+                    <button onclick="gameApp.openWelcome()" class="flex-1 py-3 rounded-2xl glass-card text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-house"></i> Menu Utama
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-4xl text-center py-3 text-xs text-slate-500 font-medium z-10 mt-auto">
+        ATM Cash Master &copy; 2026 &bull; Komposisi & Dekomposisi Bilangan Cacah &bull; Game Edukasi Kelas 6 SD
+    </footer>
+
+    <script>
+        const DENOMS = [100000, 50000, 20000, 10000, 5000, 2000, 1000];
+
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function fmtRupiah(n) {
+            return 'Rp' + Number(n).toLocaleString('id-ID');
+        }
+
+        function fillTemplate(str, vars) {
+            return str.replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
+        }
+
+        function comboHint(combo) {
+            return Object.keys(combo)
+                .map(Number)
+                .sort((a, b) => b - a)
+                .map(d => combo[d] + ' × ' + fmtRupiah(d))
+                .join(' + ');
+        }
+
+        function minNotes(target, allowed) {
+            const scaled = allowed.map(d => d / 1000);
+            const t = target / 1000;
+            const INF = Infinity;
+            const best = new Array(t + 1).fill(INF);
+            const last = new Array(t + 1).fill(0);
+            best[0] = 0;
+            for (let v = 1; v <= t; v++) {
+                for (const s of scaled) {
+                    if (s <= v && best[v - s] + 1 < best[v]) {
+                        best[v] = best[v - s] + 1;
+                        last[v] = s;
+                    }
+                }
+            }
+            if (best[t] === INF) return null;
+            const combo = {};
+            let v = t;
+            while (v > 0) {
+                const s = last[v];
+                combo[s * 1000] = (combo[s * 1000] || 0) + 1;
+                v -= s;
+            }
+            return { count: best[t], combo };
+        }
+
+        function findExact(target, count, allowed) {
+            const scaled = allowed.map(d => d / 1000).sort((a, b) => b - a);
+            const t = target / 1000;
+            const minScale = scaled[scaled.length - 1];
+            const memo = new Map();
+            function rec(idx, notesLeft, remaining) {
+                if (remaining === 0 && notesLeft === 0) return {};
+                if (remaining < 0 || notesLeft <= 0 || idx >= scaled.length) return null;
+                const key = remaining + notesLeft * 2000 + idx * 100000;
+                if (memo.has(key)) return memo.get(key);
+                const denom = scaled[idx];
+                if (remaining > notesLeft * denom || remaining < notesLeft * minScale) {
+                    memo.set(key, null);
+                    return null;
+                }
+                const maxTake = Math.min(notesLeft, Math.floor(remaining / denom));
+                for (let take = maxTake; take >= 0; take--) {
+                    const res = rec(idx + 1, notesLeft - take, remaining - take * denom);
+                    if (res) {
+                        const out = Object.assign({}, res);
+                        if (take > 0) out[denom * 1000] = (out[denom * 1000] || 0) + take;
+                        memo.set(key, out);
+                        return out;
+                    }
+                }
+                memo.set(key, null);
+                return null;
+            }
+            const combo = rec(0, count, t);
+            return combo ? { count, combo } : null;
+        }
+
+        const LEVELS = {
+            1: {
+                id: 1, title: 'Efisiensi Dekomposisi', subtitle: 'Minimum Notes',
+                avatar: '🧑‍🌾', customer: 'Pak Budi',
+                story: 'Saya mau menarik uang tunai {target} untuk belanja kebutuhan pasar. Tolong keluarkan dengan lembaran SESEDIKIT MUNGKIN ya, Pak!',
+                timer: 180, mode: 'notes',
+                fallback: {
+                    target: 875000, optimal: 11,
+                    hint: '8 × Rp100.000 + 1 × Rp50.000 + 1 × Rp20.000 + 1 × Rp5.000 = 11 lembar',
+                    story: 'Saya mau menarik uang tunai Rp875.000 untuk belanja kebutuhan pasar. Tolong keluarkan dengan lembaran SESEDIKIT MUNGKIN ya, Pak!'
+                },
+                gen() {
+                    const target = randInt(500, 900) * 1000;
+                    const sol = minNotes(target, DENOMS);
+                    if (!sol || sol.count < 9 || sol.count > 13) return null;
+                    return {
+                        target,
+                        optimal: sol.count,
+                        hint: comboHint(sol.combo) + ' = ' + sol.count + ' lembar',
+                        story: fillTemplate(this.story, { target: fmtRupiah(target) })
+                    };
+                }
+            },
+            2: {
+                id: 2, title: 'Dekomposisi dengan Batasan Stok', subtitle: 'Out of Stock',
+                avatar: '👩‍🍳', customer: 'Bu Sari',
+                story: 'Saya ingin menarik {target} untuk modal warung saya. Tapi stok Rp100.000 di mesin sedang HABIS, silakan gunakan pecahan lain ya!',
+                timer: 180, mode: 'notes', stockOut: [100000],
+                fallback: {
+                    target: 640000, optimal: 14,
+                    hint: '12 × Rp50.000 + 2 × Rp20.000 = 14 lembar',
+                    story: 'Saya ingin menarik Rp640.000 untuk modal warung saya. Tapi stok Rp100.000 di mesin sedang HABIS, silakan gunakan pecahan lain ya!'
+                },
+                gen() {
+                    const allowed = DENOMS.filter(d => d !== 100000);
+                    const target = randInt(400, 800) * 1000;
+                    const sol = minNotes(target, allowed);
+                    if (!sol || sol.count < 12 || sol.count > 17) return null;
+                    return {
+                        target,
+                        optimal: sol.count,
+                        hint: comboHint(sol.combo) + ' = ' + sol.count + ' lembar',
+                        story: fillTemplate(this.story, { target: fmtRupiah(target) })
+                    };
+                }
+            },
+            3: {
+                id: 3, title: 'Komposisi Lintas Pecahan', subtitle: 'Fast Audit',
+                avatar: '🏪', customer: 'Toko Maju Jaya',
+                story: 'Pemilik toko menyetorkan uang hasil jualan dalam beberapa pecahan. Hitung TOTAL saldo setoran untuk membuka brankas mesin!',
+                timer: 120, mode: 'input',
+                fallback: {
+                    target: 900000,
+                    parts: [{ n: 4, v: 100000 }, { n: 7, v: 50000 }, { n: 12, v: 10000 }, { n: 15, v: 2000 }],
+                    hint: '400.000 + 350.000 + 120.000 + 30.000 = Rp900.000',
+                    story: 'Pemilik toko menyetorkan uang hasil jualan dalam beberapa pecahan. Hitung TOTAL saldo setoran untuk membuka brankas mesin!'
+                },
+                gen() {
+                    const picked = DENOMS.slice().sort(() => Math.random() - 0.5).slice(0, 4).sort((a, b) => b - a);
+                    const parts = picked.map(v => ({ v, n: randInt(3, 15) }));
+                    const total = parts.reduce((s, p) => s + p.n * p.v, 0);
+                    if (total < 300000 || total > 950000) return null;
+                    const sub = parts.map(p => fmtRupiah(p.n * p.v).slice(2));
+                    return {
+                        target: total,
+                        parts,
+                        hint: sub.join(' + ') + ' = ' + fmtRupiah(total),
+                        story: this.story
+                    };
+                }
+            },
+            4: {
+                id: 4, title: 'Tantangan Jumlah Lembar Tepat', subtitle: 'Exact Notes',
+                avatar: '🧔', customer: 'Pak Rudi',
+                story: 'Saya butuh uang {target} dengan menggunakan TEPAT {k} LEMBAR uang kertas. Tidak boleh lebih, tidak boleh kurang ya!',
+                timer: 180, mode: 'notes',
+                fallback: {
+                    target: 550000, exact: 11,
+                    hint: '11 × Rp50.000 = Rp550.000 (tepat 11 lembar)',
+                    story: 'Saya butuh uang Rp550.000 dengan menggunakan TEPAT 11 LEMBAR uang kertas. Tidak boleh lebih, tidak boleh kurang ya!'
+                },
+                gen() {
+                    const target = randInt(6, 12) * 50000;
+                    const k = randInt(9, 12);
+                    const sol = findExact(target, k, DENOMS);
+                    if (!sol) return null;
+                    return {
+                        target,
+                        exact: k,
+                        hint: comboHint(sol.combo) + ' = ' + fmtRupiah(target) + ' (tepat ' + k + ' lembar)',
+                        story: fillTemplate(this.story, { target: fmtRupiah(target), k })
+                    };
+                }
+            }
+        };
+
+        const TITLES = [
+            { min: 12, title: 'Master ATM Engineer', icon: '👑', color: 'text-amber-300' },
+            { min: 10, title: 'ATM Engineer Ahli', icon: '🛠️', color: 'text-cyan-300' },
+            { min: 8, title: 'ATM Engineer', icon: '💵', color: 'text-emerald-300' },
+            { min: 6, title: 'Teknisi ATM', icon: '🏧', color: 'text-blue-300' },
+            { min: 4, title: 'Kasir Cepat', icon: '🧮', color: 'text-yellow-300' },
+            { min: 0, title: 'Nasabah Pemula', icon: '🌱', color: 'text-slate-300' }
+        ];
+
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+            }
+
+            tone(freq, start, dur, type = 'sine', vol = 0.2, endFreq = null) {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                const t = this.ctx.currentTime + start;
+                osc.frequency.setValueAtTime(freq, t);
+                if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, t + dur);
+                gain.gain.setValueAtTime(vol, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(t);
+                osc.stop(t + dur + 0.02);
+            }
+
+            playCoin() {
+                if (!this.enabled) return;
+                this.tone(880, 0, 0.08, 'square', 0.08);
+                this.tone(1318, 0.08, 0.12, 'square', 0.08);
+            }
+
+            playMinus() {
+                if (!this.enabled) return;
+                this.tone(330, 0, 0.08, 'sine', 0.12);
+            }
+
+            playCorrect() {
+                if (!this.enabled) return;
+                this.tone(523.25, 0, 0.12, 'triangle', 0.18);
+                this.tone(659.25, 0.1, 0.12, 'triangle', 0.18);
+                this.tone(783.99, 0.2, 0.12, 'triangle', 0.18);
+                this.tone(1046.5, 0.3, 0.25, 'triangle', 0.2);
+            }
+
+            playWrong() {
+                if (!this.enabled) return;
+                this.tone(220, 0, 0.25, 'sawtooth', 0.16, 130);
+                this.tone(180, 0.12, 0.25, 'sawtooth', 0.12, 110);
+            }
+
+            playEfficiency() {
+                if (!this.enabled) return;
+                this.tone(659.25, 0, 0.12, 'sine', 0.16);
+                this.tone(659.25, 0.15, 0.18, 'sine', 0.16);
+                this.tone(523.25, 0.35, 0.3, 'sine', 0.18);
+            }
+
+            playFanfare() {
+                if (!this.enabled) return;
+                const seq = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5, 1318.5];
+                seq.forEach((f, i) => this.tone(f, i * 0.12, 0.16, 'triangle', 0.18));
+                this.tone(1568, seq.length * 0.12, 0.5, 'triangle', 0.2);
+            }
+
+            playTimeout() {
+                if (!this.enabled) return;
+                this.tone(300, 0, 0.4, 'sawtooth', 0.14, 120);
+                this.tone(200, 0.45, 0.6, 'sawtooth', 0.14, 80);
+            }
+
+            playClick() {
+                if (!this.enabled) return;
+                this.tone(500, 0, 0.05, 'sine', 0.1, 300);
+            }
+        }
+
+        const sound = new SoundEngine();
+
+        class ATMGame {
+            constructor() {
+                this.unlocked = this.loadProgress();
+                this.challenge = null;
+                this.state = {
+                    level: 1, counts: {}, totalValue: 0, totalNotes: 0,
+                    xp: 0, stars: 0, levelStars: 0, levelXp: 0,
+                    attempts: 0, hintUsed: false, inputRaw: '',
+                    timeLeftMs: 0, timerInterval: null,
+                    levelStarsRecord: {}, efficiencyStars: 1
+                };
+                this.initBackgroundParticles();
+            }
+
+            loadProgress() {
+                try {
+                    const p = JSON.parse(localStorage.getItem('atm_cash_master_progress') || '{}');
+                    return p.unlocked || 1;
+                } catch (e) {
+                    return 1;
+                }
+            }
+
+            saveProgress() {
+                try {
+                    localStorage.setItem('atm_cash_master_progress', JSON.stringify({ unlocked: this.unlocked }));
+                } catch (e) {}
+            }
+
+            resetRunProgress() {
+                try {
+                    localStorage.removeItem('atm_cash_master_progress');
+                } catch (e) {}
+            }
+
+            fmt(n) {
+                return 'Rp' + Number(n).toLocaleString('id-ID');
+            }
+
+            curLevel() {
+                return Object.assign({}, LEVELS[this.state.level], this.challenge || {});
+            }
+
+            generateChallenge(levelId) {
+                const meta = LEVELS[levelId];
+                let ch = null;
+                for (let i = 0; i < 500 && !ch; i++) {
+                    ch = meta.gen();
+                }
+                if (!ch) ch = meta.fallback;
+                return Object.assign({ level: levelId }, ch);
+            }
+
+            openWelcome() {
+                sound.playClick();
+                this.stopTimer();
+                this.updateWelcomeUI();
+                document.getElementById('welcomeScreen').classList.remove('hidden');
+                document.getElementById('welcomeScreen').classList.add('flex');
+                document.getElementById('gameScreen').classList.add('hidden');
+            }
+
+            showGame() {
+                document.getElementById('welcomeScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                document.getElementById('gameScreen').classList.add('flex');
+            }
+
+            updateWelcomeUI() {
+                const maxReached = this.unlocked;
+                for (let i = 1; i <= 4; i++) {
+                    const card = document.getElementById('missionCard' + i);
+                    const lock = document.getElementById('lockIcon' + i);
+                    if (!card) continue;
+                    if (i <= maxReached) {
+                        card.classList.remove('opacity-40', 'grayscale');
+                        if (lock) lock.className = 'fa-solid fa-circle-check text-emerald-500/70 text-xs';
+                    } else {
+                        card.classList.add('opacity-40', 'grayscale');
+                        if (lock) lock.className = 'fa-solid fa-lock text-slate-600 text-xs';
+                    }
+                }
+                const resumeArea = document.getElementById('resumeArea');
+                const resumeBtn = document.getElementById('resumeBtn');
+                if (maxReached > 1) {
+                    resumeArea.classList.remove('hidden');
+                    document.getElementById('resumeText').innerText = 'Progres terakhir: Level ' + maxReached;
+                    resumeBtn.classList.remove('hidden');
+                    document.getElementById('startBtnText').innerText = 'Main dari Awal';
+                } else {
+                    resumeArea.classList.add('hidden');
+                    resumeBtn.classList.add('hidden');
+                    document.getElementById('startBtnText').innerText = 'Mulai Misi';
+                }
+            }
+
+            startRun(level = 1) {
+                sound.playClick();
+                this.challenge = null;
+                this.state.xp = 0;
+                this.state.stars = 0;
+                this.state.levelStarsRecord = {};
+                this.resetRunProgress();
+                this.unlocked = 1;
+                this.saveProgress();
+                this.enterLevel(level);
+            }
+
+            resumeRun() {
+                sound.playClick();
+                this.challenge = null;
+                this.state.xp = 0;
+                this.state.stars = 0;
+                this.state.levelStarsRecord = {};
+                this.enterLevel(this.unlocked);
+            }
+
+            enterLevel(levelId) {
+                this.stopTimer();
+                this.state.level = levelId;
+                if (!this.challenge || this.challenge.level !== levelId) {
+                    this.challenge = this.generateChallenge(levelId);
+                }
+                const level = this.curLevel();
+                this.state.levelStars = 0;
+                this.state.levelXp = 0;
+                this.state.attempts = 0;
+                this.state.hintUsed = false;
+                this.state.inputRaw = '';
+                this.state.counts = {};
+                DENOMS.forEach(d => this.state.counts[d] = 0);
+                this.state.totalValue = 0;
+                this.state.totalNotes = 0;
+                document.getElementById('efficiencyModal').classList.add('hidden');
+                document.getElementById('hintPanel').classList.add('hidden');
+
+                this.updateHudLevel();
+                this.renderMission();
+                this.resetNotes();
+
+                if (level.mode === 'notes') {
+                    document.getElementById('denomPanel').classList.remove('hidden');
+                    document.getElementById('inputPanel').classList.add('hidden');
+                    document.getElementById('summaryStats').classList.remove('hidden');
+                    document.getElementById('resetBtn').classList.remove('hidden');
+                    this.renderDenoms();
+                } else {
+                    document.getElementById('denomPanel').classList.add('hidden');
+                    document.getElementById('inputPanel').classList.remove('hidden');
+                    document.getElementById('summaryStats').classList.add('hidden');
+                    document.getElementById('resetBtn').classList.add('hidden');
+                    this.renderChips();
+                    this.updateKeypadDisplay();
+                }
+
+                this.showGame();
+                this.startTimer(level.timer);
+            }
+
+            updateHudLevel() {
+                document.getElementById('hudLevelText').innerText = this.state.level;
+                document.getElementById('hudLevelTitle').innerText = this.curLevel().subtitle;
+                document.getElementById('hudXpText').innerText = this.state.xp.toLocaleString('id-ID');
+                this.updateHudStars();
+            }
+
+            updateHudStars() {
+                const earned = this.state.levelStars;
+                let html = '';
+                for (let i = 1; i <= 3; i++) {
+                    html += i <= earned
+                        ? '<i class="fa-solid fa-star text-amber-400"></i>'
+                        : '<i class="fa-solid fa-star text-slate-700"></i>';
+                }
+                document.getElementById('hudStarsText').innerHTML = html;
+            }
+
+            renderMission() {
+                const level = this.curLevel();
+                document.getElementById('missionAvatar').innerText = level.avatar;
+                document.getElementById('missionBadge').innerText = 'Misi Level ' + level.id;
+                document.getElementById('missionBadge').className = 'px-2 py-0.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                document.getElementById('missionTitle').innerText = level.title + ' — ' + level.customer;
+                document.getElementById('missionStory').innerText = level.story;
+                if (level.mode === 'input') {
+                    const totalLembar = level.parts.reduce((s, p) => s + p.n, 0);
+                    document.getElementById('missionTarget').innerText = totalLembar + ' LEMBAR • HITUNG TOTAL';
+                } else {
+                    let targetLabel = 'TARGET ' + this.fmt(level.target);
+                    if (level.exact) targetLabel += ' • TEPAT ' + level.exact + ' LEMBAR';
+                    document.getElementById('missionTarget').innerText = targetLabel;
+                }
+                const stock = document.getElementById('stockWarning');
+                if (level.stockOut && level.stockOut.length) {
+                    stock.classList.remove('hidden');
+                } else {
+                    stock.classList.add('hidden');
+                }
+            }
+
+            renderDenoms() {
+                const grid = document.getElementById('denomGrid');
+                grid.innerHTML = '';
+                const stockOut = (this.curLevel().stockOut || []);
+                DENOMS.forEach(d => {
+                    const card = document.createElement('div');
+                    card.className = 'denom-card' + (stockOut.includes(d) ? ' out-of-stock' : '');
+                    card.setAttribute('data-value', d);
+                    const badgeColor = this.denomColor(d);
+                    card.innerHTML = `
+                        <button class="denom-add" onclick="gameApp.addNote(${d})">
+                            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${badgeColor.bg} border ${badgeColor.border} flex items-center justify-center ${badgeColor.text} text-base sm:text-lg"><i class="fa-solid fa-money-bill-wave"></i></div>
+                            <span class="text-xs sm:text-sm font-extrabold font-outfit text-white leading-none">Rp${Number(d).toLocaleString('id-ID')}</span>
+                            <span class="count-badge"><span class="count-num" data-value="${d}">0</span> lembar</span>
+                        </button>
+                        <button class="minus-btn" onclick="gameApp.removeNote(${d})" title="Kurangi 1">&minus;</button>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            denomColor(d) {
+                const map = {
+                    100000: { bg: 'bg-rose-500/20', border: 'border-rose-500/40', text: 'text-rose-300' },
+                    50000: { bg: 'bg-blue-500/20', border: 'border-blue-500/40', text: 'text-blue-300' },
+                    20000: { bg: 'bg-emerald-500/20', border: 'border-emerald-500/40', text: 'text-emerald-300' },
+                    10000: { bg: 'bg-purple-500/20', border: 'border-purple-500/40', text: 'text-purple-300' },
+                    5000: { bg: 'bg-amber-500/20', border: 'border-amber-500/40', text: 'text-amber-300' },
+                    2000: { bg: 'bg-slate-500/20', border: 'border-slate-400/40', text: 'text-slate-300' },
+                    1000: { bg: 'bg-cyan-500/20', border: 'border-cyan-500/40', text: 'text-cyan-300' }
+                };
+                return map[d] || map[1000];
+            }
+
+            renderChips() {
+                const wrap = document.getElementById('missionChips');
+                wrap.innerHTML = '';
+                const colors = [
+                    'bg-rose-500/15 border-rose-500/40 text-rose-200',
+                    'bg-blue-500/15 border-blue-500/40 text-blue-200',
+                    'bg-purple-500/15 border-purple-500/40 text-purple-200',
+                    'bg-cyan-500/15 border-cyan-500/40 text-cyan-200'
+                ];
+                const level = this.curLevel();
+                level.parts.forEach((p, i) => {
+                    const chip = document.createElement('div');
+                    chip.className = 'px-3 py-2 rounded-xl border ' + (colors[i % colors.length]) + ' font-bold text-sm sm:text-base text-center';
+                    chip.innerHTML = `<span class="block text-[10px] uppercase tracking-wider opacity-70 font-black">${p.n} Lembar</span>${p.n} &times; ${this.fmt(p.v)}`;
+                    wrap.appendChild(chip);
+                });
+            }
+
+            addNote(denom) {
+                const level = this.curLevel();
+                if (level.stockOut && level.stockOut.includes(denom)) return;
+                sound.playCoin();
+                this.state.counts[denom]++;
+                this.state.totalValue += denom;
+                this.state.totalNotes++;
+                this.updateTotals(true, denom);
+            }
+
+            removeNote(denom) {
+                if (this.state.counts[denom] <= 0) return;
+                sound.playMinus();
+                this.state.counts[denom]--;
+                this.state.totalValue -= denom;
+                this.state.totalNotes--;
+                this.updateTotals(false, denom);
+            }
+
+            resetNotes() {
+                sound.playClick();
+                this.state.counts = {};
+                DENOMS.forEach(d => this.state.counts[d] = 0);
+                this.state.totalValue = 0;
+                this.state.totalNotes = 0;
+                this.updateTotals(false);
+                document.querySelectorAll('#denomGrid .denom-card').forEach(card => {
+                    card.classList.remove('flash-green');
+                });
+            }
+
+            updateTotals(animate, denom) {
+                document.getElementById('totalValueText').innerText = this.fmt(this.state.totalValue);
+                document.getElementById('totalNotesText').innerText = this.state.totalNotes;
+
+                const level = this.curLevel();
+                const target = level.target;
+                const diff = target - this.state.totalValue;
+                const diffText = document.getElementById('diffText');
+                const diffLabel = document.getElementById('diffLabel');
+
+                if (diff > 0) {
+                    diffLabel.innerText = 'Sisa Target';
+                    diffText.innerText = this.fmt(diff);
+                    diffText.className = 'text-amber-300 text-xl sm:text-2xl font-black font-outfit block mt-1';
+                } else if (diff === 0) {
+                    diffLabel.innerText = 'Nilai PAS!';
+                    diffText.innerText = '✓ PAS';
+                    diffText.className = 'text-emerald-300 text-xl sm:text-2xl font-black font-outfit block mt-1';
+                } else {
+                    diffLabel.innerText = 'Kelebihan';
+                    diffText.innerText = this.fmt(-diff);
+                    diffText.className = 'text-rose-400 text-xl sm:text-2xl font-black font-outfit block mt-1';
+                }
+
+                document.querySelectorAll('#denomGrid .count-num').forEach(el => {
+                    el.innerText = this.state.counts[Number(el.dataset.value)];
+                });
+
+                if (animate && denom) {
+                    const card = document.querySelector('#denomGrid .denom-card[data-value="' + denom + '"]');
+                    if (card) {
+                        const icon = card.querySelector('.denom-add i');
+                        if (icon) {
+                            icon.classList.remove('banknote-float');
+                            void icon.offsetWidth;
+                            icon.classList.add('banknote-float');
+                        }
+                    }
+                }
+            }
+
+            keypad(key) {
+                if (key === 'clear') {
+                    this.state.inputRaw = '';
+                } else if (key === 'back') {
+                    this.state.inputRaw = this.state.inputRaw.slice(0, -1);
+                } else {
+                    if (this.state.inputRaw.length >= 7) return;
+                    if (this.state.inputRaw === '0') this.state.inputRaw = key;
+                    else this.state.inputRaw += key;
+                }
+                sound.playClick();
+                this.updateKeypadDisplay();
+            }
+
+            updateKeypadDisplay() {
+                const val = this.state.inputRaw === '' ? 0 : Number(this.state.inputRaw);
+                document.getElementById('keypadDisplay').value = this.fmt(val);
+            }
+
+            startTimer(seconds) {
+                clearInterval(this.timerInterval);
+                const total = seconds * 1000;
+                this.state.timeLeftMs = total;
+                const bar = document.getElementById('timerBar');
+                bar.style.width = '100%';
+                bar.className = 'timer-bar h-full bg-gradient-to-r from-emerald-400 to-emerald-300 rounded-full';
+                document.getElementById('hudTimerText').innerText = this.formatTime(total);
+
+                this.timerInterval = setInterval(() => {
+                    this.state.timeLeftMs -= 250;
+                    const pct = Math.max(0, (this.state.timeLeftMs / total) * 100);
+                    bar.style.width = pct + '%';
+                    document.getElementById('hudTimerText').innerText = this.formatTime(Math.max(0, this.state.timeLeftMs));
+
+                    if (pct < 50 && pct >= 25) {
+                        bar.className = 'timer-bar h-full bg-gradient-to-r from-amber-400 to-amber-300 rounded-full';
+                    } else if (pct < 25) {
+                        bar.className = 'timer-bar h-full bg-rose-500 rounded-full animate-pulse';
+                    }
+
+                    if (this.state.timeLeftMs <= 0) {
+                        clearInterval(this.timerInterval);
+                        this.onTimeout();
+                    }
+                }, 250);
+            }
+
+            stopTimer() {
+                clearInterval(this.timerInterval);
+            }
+
+            formatTime(ms) {
+                const totalSec = Math.ceil(ms / 1000);
+                const m = Math.floor(totalSec / 60);
+                const s = totalSec % 60;
+                return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+            }
+
+            onTimeout() {
+                sound.playTimeout();
+                this.hideFeedback();
+                document.getElementById('timeoutModal').classList.remove('hidden');
+            }
+
+            retryTimeout() {
+                sound.playClick();
+                document.getElementById('timeoutModal').classList.add('hidden');
+                this.enterLevel(this.state.level);
+            }
+
+            hint() {
+                if (this.state.hintUsed) {
+                    this.showFeedback('info', 'Petunjuk sudah dipakai', 'Kamu sudah melihat petunjuk untuk level ini.');
+                    return;
+                }
+                sound.playEfficiency();
+                this.state.hintUsed = true;
+                document.getElementById('hintPanel').classList.remove('hidden');
+                document.getElementById('hintText').innerText = this.curLevel().hint;
+                this.showFeedback('info', 'Petunjuk muncul!', 'Menggunakan petunjuk membuat bintang maksimal menjadi 2.');
+            }
+
+            submit() {
+                const level = this.curLevel();
+                if (level.mode === 'input') {
+                    this.submitInput(level);
+                } else {
+                    this.submitNotes(level);
+                }
+            }
+
+            submitInput(level) {
+                const val = this.state.inputRaw === '' ? 0 : Number(this.state.inputRaw);
+                if (val === 0) {
+                    this.shakeKeypad();
+                    sound.playWrong();
+                    this.showFeedback('error', 'Kolom masih kosong!', 'Ketik total setoran nasabah dengan keypad.');
+                    return;
+                }
+                if (val === level.target) {
+                    const stars = Math.max(1, 3 - this.state.attempts);
+                    this.success(stars);
+                } else {
+                    this.state.attempts++;
+                    sound.playWrong();
+                    this.shakeKeypad();
+                    this.showFeedback('error', 'Belum Tepat!', this.fmt(val) + ' bukan total setoran. Hitung kembali ya!');
+                }
+            }
+
+            submitNotes(level) {
+                const total = this.state.totalValue;
+                const notes = this.state.totalNotes;
+
+                if (total !== level.target) {
+                    sound.playWrong();
+                    const diff = level.target - total;
+                    let msg;
+                    if (diff > 0) msg = 'Masih kurang ' + this.fmt(diff) + '. Hitung kembali komposisimu!';
+                    else msg = 'Kelebihan ' + this.fmt(-diff) + '. Ambil beberapa lembar kembali.';
+                    this.showFeedback('error', 'Belum Pas!', msg);
+                    return;
+                }
+
+                if (this.state.level === 1) {
+                    if (notes <= level.optimal) {
+                        this.success(3);
+                    } else {
+                        sound.playEfficiency();
+                        const continueStars = notes <= level.optimal + 1 ? 2 : 1;
+                        this.openEfficiency(
+                            'Uang Pas, Tapi Belum Efisien!',
+                            'Kamu sudah mencapai ' + this.fmt(total) + ', tapi masih memakai ' + notes + ' lembar. Bisakah kamu mencapainya dengan lembaran lebih sedikit? (Petunjuk: ' + level.optimal + ' lembar adalah yang paling hemat)',
+                            continueStars
+                        );
+                    }
+                } else if (this.state.level === 2) {
+                    let stars = 3;
+                    let note = null;
+                    if (notes <= level.optimal) {
+                        stars = 3;
+                    } else if (notes <= level.optimal + 2) {
+                        stars = 2;
+                        note = 'Komposisi pas! Tapi masih ada lembar ekstra. Kamu bisa lebih hemat lagi!';
+                    } else {
+                        stars = 1;
+                        note = 'Komposisi pas! Coba gunakan pecahan lebih besar agar lebih hemat.';
+                    }
+                    this.state.pendingNote = note;
+                    this.success(stars);
+                } else if (this.state.level === 4) {
+                    if (notes === level.exact) {
+                        this.success(3);
+                    } else {
+                        sound.playEfficiency();
+                        const more = notes > level.exact ? 'lebih' : 'kurang';
+                        this.openEfficiency(
+                            'Nilai Pas, Tapi Jumlah Lembar Salah!',
+                            this.fmt(total) + ' sudah pas, tapi nasabah meminta TEPAT ' + level.exact + ' lembar. Saat ini kamu memakai ' + notes + ' lembar (' + more + ' dari ' + level.exact + '). Coba lagi!',
+                            1
+                        );
+                    }
+                }
+            }
+
+            openEfficiency(title, text, continueStars) {
+                document.getElementById('effTitle').innerText = title;
+                document.getElementById('effText').innerText = text;
+                const stars = continueStars || 1;
+                document.getElementById('effContinueBtn').innerText = 'Lanjut (' + stars + ' Bintang)';
+                this.state.efficiencyStars = stars;
+                document.getElementById('efficiencyModal').classList.remove('hidden');
+            }
+
+            efficiencyRetry() {
+                sound.playClick();
+                document.getElementById('efficiencyModal').classList.add('hidden');
+            }
+
+            efficiencyContinue() {
+                sound.playClick();
+                document.getElementById('efficiencyModal').classList.add('hidden');
+                this.success(this.state.efficiencyStars || 1);
+            }
+
+            shakeKeypad() {
+                const el = document.getElementById('keypadDisplay');
+                el.classList.remove('shake');
+                void el.offsetWidth;
+                el.classList.add('shake');
+            }
+
+            success(stars) {
+                const level = this.curLevel();
+                if (this.state.hintUsed) stars = Math.min(stars, 2);
+                this.stopTimer();
+
+                this.state.levelStars = stars;
+                this.state.levelStarsRecord[this.state.level] = stars;
+                this.state.stars += stars;
+
+                const effBonus = { 3: 50, 2: 25, 1: 0 }[stars];
+                const timeRatio = Math.max(0, this.state.timeLeftMs / (level.timer * 1000));
+                const speedBonus = Math.round(50 * timeRatio / 5) * 5;
+                const gained = 100 + effBonus + speedBonus;
+                this.state.levelXp = gained;
+                this.state.xp += gained;
+
+                if (this.state.level < 4 && this.unlocked < this.state.level + 1) {
+                    this.unlocked = this.state.level + 1;
+                }
+                this.saveProgress();
+
+                document.getElementById('hudXpText').innerText = this.state.xp.toLocaleString('id-ID');
+                this.updateHudStars();
+
+                if (this.state.level === 4) {
+                    sound.playFanfare();
+                    this.triggerConfettiFull();
+                    this.showFinal();
+                } else {
+                    sound.playFanfare();
+                    this.triggerConfettiBurst();
+                    this.showLevelComplete(stars, effBonus, speedBonus, gained);
+                }
+            }
+
+            showLevelComplete(stars, effBonus, speedBonus, gained) {
+                document.getElementById('lcTitle').innerText = 'Level ' + this.state.level + ' Selesai!';
+                document.getElementById('lcSubtitle').innerText = 'Misi ' + this.curLevel().title + ' berhasil!';
+                document.getElementById('lcStars').innerHTML = '';
+                for (let i = 1; i <= 3; i++) {
+                    const icon = document.createElement('i');
+                    if (i <= stars) {
+                        icon.className = 'fa-solid fa-star text-amber-400 animate-star-pop';
+                        icon.style.animationDelay = (i * 0.2) + 's';
+                    } else {
+                        icon.className = 'fa-solid fa-star text-slate-800';
+                    }
+                    document.getElementById('lcStars').appendChild(icon);
+                }
+                document.getElementById('lcBase').innerText = '+100';
+                document.getElementById('lcEff').innerText = '+'+effBonus;
+                document.getElementById('lcSpeed').innerText = '+'+speedBonus;
+                document.getElementById('lcTotal').innerText = '+'+gained;
+                document.getElementById('lcRunXp').innerText = this.state.xp.toLocaleString('id-ID');
+                document.getElementById('lcRunStars').innerText = this.state.stars;
+
+                const note = document.getElementById('lcNote');
+                if (this.state.pendingNote) {
+                    note.classList.remove('hidden');
+                    note.innerText = this.state.pendingNote;
+                } else {
+                    note.classList.add('hidden');
+                }
+                this.state.pendingNote = null;
+
+                if (this.state.level === 4) {
+                    document.getElementById('lcNextLabel').innerText = 'Lihat Hasil Akhir';
+                } else {
+                    document.getElementById('lcNextLabel').innerText = 'Lanjut ke Level ' + (this.state.level + 1);
+                }
+
+                document.getElementById('levelCompleteModal').classList.remove('hidden');
+            }
+
+            nextLevel() {
+                sound.playClick();
+                document.getElementById('levelCompleteModal').classList.add('hidden');
+                if (this.state.level === 4) {
+                    this.showFinal();
+                } else {
+                    this.enterLevel(this.state.level + 1);
+                }
+            }
+
+            showFinal() {
+                const stars = this.state.stars;
+                const xp = this.state.xp;
+                const titleInfo = TITLES.find(t => stars >= t.min);
+
+                document.getElementById('finalTitle').innerText = titleInfo.title;
+                document.getElementById('finalTitle').className = 'text-2xl sm:text-3xl font-black font-outfit mt-2 ' + titleInfo.color;
+                document.getElementById('finalIcon').innerText = titleInfo.icon;
+                document.getElementById('finalXpText').innerText = xp.toLocaleString('id-ID');
+                document.getElementById('finalStarsText').innerText = stars + '/12';
+
+                const perLevel = document.getElementById('finalPerLevel');
+                perLevel.innerHTML = '';
+                for (let i = 1; i <= 4; i++) {
+                    const s = this.state.levelStarsRecord[i] || 0;
+                    const chip = document.createElement('div');
+                    chip.className = 'px-2.5 py-1.5 rounded-xl border border-white/10 bg-white/5 text-center';
+                    let starHtml = '';
+                    for (let j = 1; j <= 3; j++) {
+                        starHtml += j <= s
+                            ? '<i class="fa-solid fa-star text-amber-400 text-[10px]"></i>'
+                            : '<i class="fa-solid fa-star text-slate-700 text-[10px]"></i>';
+                    }
+                    chip.innerHTML = '<div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Lv' + i + '</div><div class="mt-0.5">' + starHtml + '</div>';
+                    perLevel.appendChild(chip);
+                }
+
+                document.getElementById('finalModal').classList.remove('hidden');
+            }
+
+            showFeedback(kind, title, detail) {
+                const toast = document.getElementById('feedbackToast');
+                const box = document.getElementById('feedbackToastBox');
+                const icon = document.getElementById('feedbackToastIcon');
+                const t = document.getElementById('feedbackToastTitle');
+                const d = document.getElementById('feedbackToastDetail');
+
+                if (kind === 'success') {
+                    box.className = 'glass-panel rounded-2xl border-2 border-emerald-500/60 p-3.5 sm:p-4 flex items-start gap-3 animate-slide-up shadow-2xl';
+                    icon.className = 'w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg';
+                    icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                    t.className = 'font-extrabold font-outfit text-sm sm:text-base text-emerald-300';
+                } else if (kind === 'info') {
+                    box.className = 'glass-panel rounded-2xl border-2 border-cyan-500/60 p-3.5 sm:p-4 flex items-start gap-3 animate-slide-up shadow-2xl';
+                    icon.className = 'w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-lg';
+                    icon.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+                    t.className = 'font-extrabold font-outfit text-sm sm:text-base text-cyan-300';
+                } else {
+                    box.className = 'glass-panel rounded-2xl border-2 border-rose-500/60 p-3.5 sm:p-4 flex items-start gap-3 animate-slide-up shadow-2xl';
+                    icon.className = 'w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 text-lg';
+                    icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+                    t.className = 'font-extrabold font-outfit text-sm sm:text-base text-rose-300';
+                }
+
+                t.innerText = title;
+                d.innerText = detail;
+                toast.classList.remove('hidden');
+
+                clearTimeout(this.feedbackTimer);
+                this.feedbackTimer = setTimeout(() => this.hideFeedback(), 3000);
+            }
+
+            hideFeedback() {
+                document.getElementById('feedbackToast').classList.add('hidden');
+            }
+
+            toggleSound() {
+                sound.enabled = !sound.enabled;
+                const icon = document.getElementById('soundIcon');
+                if (sound.enabled) {
+                    icon.className = 'fa-solid fa-volume-high text-emerald-400';
+                    sound.playClick();
+                } else {
+                    icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+                }
+            }
+
+            initBackgroundParticles() {
+                const canvas = document.getElementById('bgCanvas');
+                const ctx = canvas.getContext('2d');
+                let width = canvas.width = window.innerWidth;
+                let height = canvas.height = window.innerHeight;
+
+                window.addEventListener('resize', () => {
+                    width = canvas.width = window.innerWidth;
+                    height = canvas.height = window.innerHeight;
+                });
+
+                const particles = [];
+                for (let i = 0; i < 40; i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        r: Math.random() * 2 + 1,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        alpha: Math.random() * 0.5 + 0.2
+                    });
+                }
+
+                function draw() {
+                    ctx.clearRect(0, 0, width, height);
+                    particles.forEach(p => {
+                        ctx.fillStyle = 'rgba(74, 222, 128, 0.8)';
+                        ctx.globalAlpha = p.alpha;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                        ctx.fill();
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        if (p.x < 0) p.x = width;
+                        if (p.x > width) p.x = 0;
+                        if (p.y < 0) p.y = height;
+                        if (p.y > height) p.y = 0;
+                    });
+                    requestAnimationFrame(draw);
+                }
+                draw();
+            }
+
+            triggerConfettiBurst() {
+                const canvas = document.getElementById('confettiCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                const colors = ['#22c55e', '#34d399', '#38bdf8', '#f59e0b', '#a855f7'];
+                const confetti = [];
+                for (let i = 0; i < 40; i++) {
+                    confetti.push({
+                        x: canvas.width / 2,
+                        y: canvas.height / 2,
+                        vx: (Math.random() - 0.5) * 12,
+                        vy: (Math.random() - 0.5) * 12 - 4,
+                        size: Math.random() * 6 + 4,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        life: 1
+                    });
+                }
+                let frame = 0;
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    confetti.forEach(c => {
+                        ctx.fillStyle = c.color;
+                        ctx.globalAlpha = c.life;
+                        ctx.fillRect(c.x, c.y, c.size, c.size);
+                        c.x += c.vx;
+                        c.y += c.vy;
+                        c.vy += 0.2;
+                        c.life -= 0.03;
+                    });
+                    frame++;
+                    if (frame < 35) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    }
+                }
+                animate();
+            }
+
+            triggerConfettiFull() {
+                const canvas = document.getElementById('confettiCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                const colors = ['#22c55e', '#34d399', '#38bdf8', '#f59e0b', '#a855f7', '#f8fafc'];
+                const confetti = [];
+                for (let i = 0; i < 120; i++) {
+                    confetti.push({
+                        x: Math.random() * canvas.width,
+                        y: -10 - Math.random() * canvas.height * 0.4,
+                        vx: (Math.random() - 0.5) * 4,
+                        vy: Math.random() * 5 + 3,
+                        size: Math.random() * 8 + 4,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        life: 1
+                    });
+                }
+                let frame = 0;
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    confetti.forEach(c => {
+                        ctx.fillStyle = c.color;
+                        ctx.globalAlpha = c.life;
+                        ctx.fillRect(c.x, c.y, c.size, c.size);
+                        c.x += c.vx;
+                        c.y += c.vy;
+                        if (c.y > canvas.height) c.y = -10;
+                    });
+                    frame++;
+                    if (frame < 200) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    }
+                }
+                animate();
+            }
+        }
+
+        const gameApp = new ATMGame();
+        window.onload = () => {
+            gameApp.updateWelcomeUI();
+        };
+    </script>
+
+    <script src="../firebase-config.js"></script>
+    <script>
+        renderAuthUI('authContainer');
+    </script>
+</body>
+</html>

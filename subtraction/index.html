@@ -969,64 +969,8 @@
     </script>
     <script src="../firebase-config.js"></script>
     <script>
+        // Auth UI
         renderAuthUI('authContainer');
-
-        const _origCalcResults = calculateAndDisplayResults;
-        calculateAndDisplayResults = function() {
-            _origCalcResults();
-            const total = quizState.questionCount;
-            const rangeLabels = { a: '1-9', b: '11-99', c: '111-999', d: '11111-99999', e: '111111-999999' };
-            const questionTimes = quizState.questions.map(q => ({
-                timeSpent: Math.round(q.timeSpent * 10) / 10,
-                speedFactor: q.speedFactor || 1.0
-            }));
-            saveScoreToFirestore({
-                gameType: 'subtraction',
-                score: quizState.finalScore,
-                accuracy: quizState.accuracy,
-                avgSpeedFactor: quizState.avgSpeedFactor,
-                maxCombo: 0,
-                totalQuestions: total,
-                correctCount: quizState.questions.filter(q => q.userAnswer === q.correctAnswer).length,
-                difficulty: rangeLabels[quizState.rangeLimit] || quizState.rangeLimit,
-                duration: quizState.elapsedSeconds,
-                questionTimes: questionTimes
-            });
-            loadSubtractionLeaderboard();
-        };
-
-        function buildLeaderboardSection() {
-            if (document.getElementById('subtraction-leaderboard')) return;
-            const section = document.createElement('section');
-            section.id = 'subtraction-leaderboard';
-            section.className = 'bg-white rounded-2xl border border-slate-200 shadow-md p-4 sm:p-6';
-            section.innerHTML = `
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center"><i class="fa-solid fa-trophy text-amber-600"></i></div>
-                    <div><h3 class="text-lg font-bold text-slate-800">Leaderboard Pengurangan</h3><p class="text-xs text-slate-500">Top skor pemain lain</p></div>
-                </div>
-                <div id="subtraction-lb-content" class="min-h-[80px]"><div class="text-center py-4 text-slate-400 text-xs"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Memuat...</div></div>`;
-            const resultScreen = document.getElementById('result-screen');
-            const actionBtns = resultScreen.querySelector('.flex.flex-col');
-            if (actionBtns) resultScreen.insertBefore(section, actionBtns);
-        }
-        buildLeaderboardSection();
-
-        async function loadSubtractionLeaderboard() {
-            const c = document.getElementById('subtraction-lb-content');
-            if (!c) return;
-            try {
-                const scores = await getLeaderboardFromFirestore('subtraction', 10);
-                renderLeaderboardTable(scores, c, {
-                    showUserPhoto: true,
-                    highlightUserId: window.currentUser ? window.currentUser.uid : null,
-                    maxEntries: 10,
-                    emptyMessage: 'Belum ada skor. Jadilah yang pertama!'
-                });
-            } catch (e) {
-                c.innerHTML = '<div class="text-center py-4 text-slate-400 text-xs">Gagal memuat skor.</div>';
-            }
-        }
     </script>
 </body>
 

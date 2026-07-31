@@ -142,9 +142,6 @@
             <button id="soundToggleBtn" onclick="gameApp.toggleSound()" class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-white transition" title="Suara">
                 <i id="soundIcon" class="fa-solid fa-volume-high"></i>
             </button>
-            <button onclick="gameApp.showLeaderboardModal()" class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl glass-card flex items-center justify-center text-amber-400 hover:text-amber-300 transition" title="Skor Tertinggi">
-                <i class="fa-solid fa-trophy"></i>
-            </button>
             <div id="authContainer"></div>
         </div>
     </header>
@@ -371,35 +368,6 @@
             </div>
         </div>
     </main>
-
-    <!-- MODAL: LEADERBOARD -->
-    <div id="leaderboardModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="glass-panel w-full max-w-md p-4 sm:p-6 rounded-3xl border border-white/10 shadow-2xl relative">
-            <button onclick="gameApp.hideLeaderboardModal()" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-slate-400 hover:text-white w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full glass-card">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl font-bold">
-                    <i class="fa-solid fa-award"></i>
-                </div>
-                <div>
-                    <h3 class="text-xl font-extrabold font-outfit text-white">Papan Skor Tertinggi</h3>
-                    <p class="text-xs text-slate-400">Rekor global dari semua pemain</p>
-                </div>
-            </div>
-
-            <div id="composition-lb-content" class="space-y-2 max-h-64 overflow-y-auto pr-1">
-                <div id="leaderboardList" class="space-y-2">
-                    <!-- Dynamic Highscores -->
-                </div>
-            </div>
-
-            <button onclick="gameApp.clearLeaderboard()" class="w-full mt-6 py-2.5 text-xs font-semibold text-rose-400 hover:text-rose-300 text-center block transition">
-                Hapus Riwayat Skor Lokal
-            </button>
-        </div>
-    </div>
 
     <!-- Footer -->
     <footer class="w-full max-w-4xl text-center py-3 text-xs text-slate-500 font-medium z-10">
@@ -875,7 +843,6 @@
 
             finishGame() {
                 clearInterval(this.timerInterval);
-                this.saveHighscore();
                 this.showScreen('result');
 
                 document.getElementById('finalScore').innerText = this.score.toLocaleString('id-ID');
@@ -889,62 +856,6 @@
                 if (accuracyPct >= 80) {
                     this.triggerConfettiFull();
                 }
-            }
-
-            saveHighscore() {
-                const history = JSON.parse(localStorage.getItem('mathverse_highscores') || '[]');
-                history.push({
-                    score: this.score,
-                    combo: this.maxComboReached,
-                    level: this.level,
-                    timer: this.timerSec,
-                    date: new Date().toLocaleDateString('id-ID')
-                });
-
-                history.sort((a, b) => b.score - a.score);
-                const top10 = history.slice(0, 10);
-                localStorage.setItem('mathverse_highscores', JSON.stringify(top10));
-            }
-
-            showLeaderboardModal() {
-                sound.playClick();
-                const modal = document.getElementById('leaderboardModal');
-                const list = document.getElementById('leaderboardList');
-                const history = JSON.parse(localStorage.getItem('mathverse_highscores') || '[]');
-
-                list.innerHTML = '';
-                if (history.length === 0) {
-                    list.innerHTML = '<div class="text-center py-6 text-slate-400 text-xs">Belum ada skor tersimpan. Ayo mainkan game!</div>';
-                } else {
-                    history.forEach((item, index) => {
-                        const row = document.createElement('div');
-                        row.className = 'flex items-center justify-between p-3 rounded-xl glass-card text-xs';
-                        row.innerHTML = `
-                            <div class="flex items-center gap-3">
-                                <span class="font-black w-5 text-center font-outfit ${index < 3 ? 'text-amber-400 text-sm' : 'text-slate-400'}">#${index + 1}</span>
-                                <div>
-                                    <span class="font-bold text-white block text-sm font-outfit">${item.score.toLocaleString('id-ID')} Poin</span>
-                                    <span class="text-[10px] text-slate-400">Level: ${item.level} | Max Combo: ${item.combo}x</span>
-                                </div>
-                            </div>
-                            <span class="text-[10px] text-slate-500 font-medium">${item.date}</span>
-                        `;
-                        list.appendChild(row);
-                    });
-                }
-
-                modal.classList.remove('hidden');
-            }
-
-            hideLeaderboardModal() {
-                sound.playClick();
-                document.getElementById('leaderboardModal').classList.add('hidden');
-            }
-
-            clearLeaderboard() {
-                sound.playClick();
-                localStorage.removeItem('mathverse_highscores');
-                this.showLeaderboardModal();
             }
 
             initBackgroundParticles() {
@@ -1093,41 +1004,6 @@
     <script src="../firebase-config.js"></script>
     <script>
         renderAuthUI('authContainer');
-
-        const _origFinishGame = MathGameApp.prototype.finishGame;
-        MathGameApp.prototype.finishGame = function() {
-            _origFinishGame.call(this);
-            saveScoreToFirestore({
-                gameType: 'composition',
-                score: this.score,
-                accuracy: this.totalQuestions > 0 ? Math.round((this.correctCount / this.totalQuestions) * 100) : 0,
-                maxCombo: this.maxComboReached || 0,
-                totalQuestions: this.totalQuestions,
-                correctCount: this.correctCount,
-                difficulty: this.currentLevel ? String(this.currentLevel) : '',
-                duration: this.timerSec || 0
-            });
-            loadCompositionLeaderboard();
-        };
-
-        const _origShowLB = MathGameApp.prototype.showLeaderboardModal;
-        MathGameApp.prototype.showLeaderboardModal = function() {
-            _origShowLB.call(this);
-            loadCompositionLeaderboard();
-        };
-
-        function loadCompositionLeaderboard() {
-            const c = document.getElementById('composition-lb-content');
-            if (!c) return;
-            getLeaderboardFromFirestore('composition', 10).then(scores => {
-                renderLeaderboardTable(scores, c, {
-                    showUserPhoto: true,
-                    highlightUserId: window.currentUser ? window.currentUser.uid : null,
-                    maxEntries: 10,
-                    emptyMessage: 'Belum ada skor. Jadilah yang pertama!'
-                });
-            });
-        }
     </script>
 </body>
 </html>

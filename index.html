@@ -86,12 +86,6 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-
-        .lb-tab.active {
-            background: rgba(56, 189, 248, 0.15);
-            border-color: rgba(56, 189, 248, 0.5);
-            color: #38bdf8;
-        }
     </style>
 </head>
 
@@ -139,6 +133,10 @@
                     class="inline-block bg-sky-400/10 text-accent hover:text-bg-1 font-medium text-sm sm:text-lg py-2.5 sm:py-3 px-4 sm:px-8 rounded-full border border-sky-400/30 transition-all duration-300 relative overflow-hidden btn-hover-fx hover:border-accent hover:shadow-[0_0_20px_rgba(56,189,248,0.4)] z-0">
                     Komposisi
                 </a>
+                <a href="money/index.html"
+                    class="inline-block bg-emerald-400/10 text-emerald-300 hover:text-bg-1 font-medium text-sm sm:text-lg py-2.5 sm:py-3 px-4 sm:px-8 rounded-full border border-emerald-400/30 transition-all duration-300 relative overflow-hidden btn-hover-fx hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(52,211,153,0.4)] z-0">
+                    ATM Cash Master
+                </a>
                 <a href="multiplication/index.html"
                     class="inline-block bg-sky-400/10 text-accent hover:text-bg-1 font-medium text-sm sm:text-lg py-2.5 sm:py-3 px-4 sm:px-8 rounded-full border border-sky-400/30 transition-all duration-300 relative overflow-hidden btn-hover-fx hover:border-accent hover:shadow-[0_0_20px_rgba(56,189,248,0.4)] z-0">
                     Perkalian
@@ -150,108 +148,12 @@
             </div>
         </div>
 
-        <!-- Leaderboard Section -->
-        <div class="relative z-10 w-full lg:w-[400px] shrink-0">
-            <div
-                class="glass-panel border border-white/10 rounded-3xl p-4 sm:p-7 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]">
-                <div class="flex items-center gap-3 mb-4 sm:mb-5">
-                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                        <i class="fas fa-trophy text-amber-400 text-sm sm:text-base"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-base sm:text-lg font-bold text-white">Leaderboard</h2>
-                        <p class="text-[10px] sm:text-xs text-slate-400">Papan skor terbaik semua permainan</p>
-                    </div>
-                </div>
-
-                <!-- Tabs -->
-                <div class="flex gap-1.5 overflow-x-auto no-scrollbar mb-3 sm:mb-4 pb-1">
-                    <button onclick="switchTab('addition')" data-tab="addition"
-                        class="lb-tab active shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg border border-white/10 text-[10px] sm:text-xs font-semibold text-slate-400 transition-all">Penjumlahan</button>
-                    <button onclick="switchTab('sorting')" data-tab="sorting"
-                        class="lb-tab shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg border border-white/10 text-[10px] sm:text-xs font-semibold text-slate-400 transition-all">Mengurutkan</button>
-                    <button onclick="switchTab('composition')" data-tab="composition"
-                        class="lb-tab shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg border border-white/10 text-[10px] sm:text-xs font-semibold text-slate-400 transition-all">Komposisi</button>
-                    <button onclick="switchTab('multiplication')" data-tab="multiplication"
-                        class="lb-tab shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg border border-white/10 text-[10px] sm:text-xs font-semibold text-slate-400 transition-all">Perkalian</button>
-                    <button onclick="switchTab('division')" data-tab="division"
-                        class="lb-tab shrink-0 px-2.5 sm:px-3 py-1.5 rounded-lg border border-white/10 text-[10px] sm:text-xs font-semibold text-slate-400 transition-all">Pembagian</button>
-                </div>
-
-                <!-- Leaderboard Content -->
-                <div id="leaderboardContent" class="min-h-[120px] max-h-[420px] overflow-y-auto no-scrollbar">
-                    <div class="text-center py-8 text-slate-500 text-sm">
-                        <i class="fas fa-spinner fa-spin text-lg mb-2 block"></i>
-                        Memuat skor...
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <script src="firebase-config.js"></script>
     <script>
         // Auth UI
         renderAuthUI('authContainer');
-
-        // Leaderboard
-        let currentTab = 'addition';
-        let leaderboardCache = {};
-
-        const gameLabels = {
-            addition: 'Penjumlahan',
-            sorting: 'Mengurutkan',
-            composition: 'Komposisi',
-            multiplication: 'Perkalian',
-            division: 'Pembagian'
-        };
-
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.lb-tab').forEach(b => {
-                b.classList.toggle('active', b.dataset.tab === tab);
-            });
-            loadLeaderboard(tab);
-        }
-
-        async function loadLeaderboard(gameType) {
-            const container = document.getElementById('leaderboardContent');
-
-            if (leaderboardCache[gameType]) {
-                renderLeaderboardTable(leaderboardCache[gameType], container, {
-                    showUserPhoto: true,
-                    highlightUserId: window.currentUser ? window.currentUser.uid : null,
-                    maxEntries: 10,
-                    emptyMessage: 'Belum ada skor untuk kategori ini.'
-                });
-                return;
-            }
-
-            container.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm"><i class="fas fa-spinner fa-spin text-lg mb-2 block"></i>Memuat skor...</div>`;
-
-            try {
-                const scores = await getLeaderboardFromFirestore(gameType, 50);
-                leaderboardCache[gameType] = scores;
-                renderLeaderboardTable(scores, container, {
-                    showUserPhoto: true,
-                    highlightUserId: window.currentUser ? window.currentUser.uid : null,
-                    maxEntries: 10,
-                    emptyMessage: 'Belum ada skor untuk kategori ini. Mainkan gamenya!'
-                });
-            } catch (e) {
-                container.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">Gagal memuat skor.</div>`;
-            }
-        }
-
-        window.addEventListener('authStateChanged', () => {
-            leaderboardCache = {};
-            loadLeaderboard(currentTab);
-        });
-
-        window.firebaseReady.then(() => {
-            loadLeaderboard('addition');
-        });
     </script>
 </body>
 
