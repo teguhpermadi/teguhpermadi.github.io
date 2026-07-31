@@ -117,6 +117,17 @@
             transform: scale(0.98);
         }
 
+        .speed-btn {
+            transition: all 0.2s ease;
+        }
+        .speed-btn.speed-active {
+            background: rgba(34, 197, 94, 0.18);
+            border-color: rgba(34, 197, 94, 0.7);
+            color: #a7f3d0;
+            box-shadow: 0 0 16px rgba(34, 197, 94, 0.3);
+            transform: scale(1.03);
+        }
+
         .denom-card {
             position: relative;
             background: rgba(255, 255, 255, 0.04);
@@ -437,12 +448,37 @@
                     <p class="text-sm font-bold text-white leading-snug">Tepat Jumlah Lembar</p>
                     <p class="text-[11px] text-slate-400 mt-0.5">Tarik uang dengan jumlah lembar pas</p>
                 </div>
+                <div id="missionCard5" class="mission-card glass-card rounded-2xl p-3 sm:p-4 border-l-4 border-l-yellow-400">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-yellow-400">Level 5</span>
+                        <i id="lockIcon5" class="fa-solid fa-lock text-slate-600 text-xs"></i>
+                    </div>
+                    <p class="text-sm font-bold text-white leading-snug">Tukar Koin</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Hitung & susun koin 100/200/500</p>
+                </div>
             </div>
 
             <div id="resumeArea" class="hidden mb-4">
                 <div class="text-center glass-card rounded-2xl p-3">
                     <p class="text-xs text-slate-400">Progresmu tersimpan.</p>
                     <p class="text-sm font-bold text-emerald-300 mt-0.5" id="resumeText">Lanjutkan ke Level 2</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-gauge-high text-emerald-400"></i> Kecepatan Timer
+                </p>
+                <div id="speedBtn" class="flex flex-wrap items-center justify-center gap-2">
+                    <button type="button" data-speed="santai" onclick="gameApp.setSpeed('santai')" class="speed-btn bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-300 hover:text-white hover:border-emerald-400/50">
+                        🐢 Santai <span class="text-slate-500 font-semibold">(5 mnt)</span>
+                    </button>
+                    <button type="button" data-speed="normal" onclick="gameApp.setSpeed('normal')" class="speed-btn bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-300 hover:text-white hover:border-emerald-400/50">
+                        ⚡ Normal <span class="text-slate-500 font-semibold">(3 mnt)</span>
+                    </button>
+                    <button type="button" data-speed="cepat" onclick="gameApp.setSpeed('cepat')" class="speed-btn bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-slate-300 hover:text-white hover:border-emerald-400/50">
+                        🚀 Cepat <span class="text-slate-500 font-semibold">(1,5 mnt)</span>
+                    </button>
                 </div>
             </div>
 
@@ -530,7 +566,7 @@
                     <div id="valueFlash" class="absolute inset-0 pointer-events-none"></div>
                 </div>
                 <div class="glass-card rounded-2xl p-3 sm:p-4 text-center">
-                    <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total Lembar</span>
+                    <span id="totalNotesLabel" class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total Lembar</span>
                     <span id="totalNotesText" class="text-cyan-400 text-xl sm:text-2xl font-black font-outfit block mt-1">0</span>
                 </div>
                 <div class="glass-card rounded-2xl p-3 sm:p-4 text-center" id="diffCard">
@@ -647,7 +683,7 @@
                     </div>
                     <div class="glass-card rounded-2xl p-3.5 sm:p-4">
                         <span class="text-[10px] text-slate-400 font-bold uppercase block">Bintang</span>
-                        <span id="finalStarsText" class="text-amber-400 text-2xl sm:text-3xl font-black font-outfit block mt-1">0/12</span>
+                        <span id="finalStarsText" class="text-amber-400 text-2xl sm:text-3xl font-black font-outfit block mt-1">0/15</span>
                     </div>
                 </div>
 
@@ -672,6 +708,8 @@
 
     <script>
         const DENOMS = [100000, 50000, 20000, 10000, 5000, 2000, 1000];
+        const COIN_DENOMS = [500, 200, 100];
+        const ALL_DENOMS = DENOMS.concat(COIN_DENOMS);
 
         function randInt(min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -693,9 +731,15 @@
                 .join(' + ');
         }
 
+        function gcd(a, b) {
+            while (b) { const t = a % b; a = b; b = t; }
+            return a;
+        }
+
         function minNotes(target, allowed) {
-            const scaled = allowed.map(d => d / 1000);
-            const t = target / 1000;
+            const scale = allowed.reduce((g, d) => gcd(g, d));
+            const scaled = allowed.map(d => d / scale);
+            const t = target / scale;
             const INF = Infinity;
             const best = new Array(t + 1).fill(INF);
             const last = new Array(t + 1).fill(0);
@@ -713,15 +757,16 @@
             let v = t;
             while (v > 0) {
                 const s = last[v];
-                combo[s * 1000] = (combo[s * 1000] || 0) + 1;
+                combo[s * scale] = (combo[s * scale] || 0) + 1;
                 v -= s;
             }
             return { count: best[t], combo };
         }
 
         function findExact(target, count, allowed) {
-            const scaled = allowed.map(d => d / 1000).sort((a, b) => b - a);
-            const t = target / 1000;
+            const scale = allowed.reduce((g, d) => gcd(g, d));
+            const scaled = allowed.map(d => d / scale).sort((a, b) => b - a);
+            const t = target / scale;
             const minScale = scaled[scaled.length - 1];
             const memo = new Map();
             function rec(idx, notesLeft, remaining) {
@@ -739,7 +784,7 @@
                     const res = rec(idx + 1, notesLeft - take, remaining - take * denom);
                     if (res) {
                         const out = Object.assign({}, res);
-                        if (take > 0) out[denom * 1000] = (out[denom * 1000] || 0) + take;
+                        if (take > 0) out[denom * scale] = (out[denom * scale] || 0) + take;
                         memo.set(key, out);
                         return out;
                     }
@@ -844,15 +889,66 @@
                         story: fillTemplate(this.story, { target: fmtRupiah(target), k })
                     };
                 }
+            },
+            5: {
+                id: 5, title: 'Tukar Koin', subtitle: 'Tukar Koin',
+                avatar: '🪙', customer: 'Bu Kasir',
+                story: 'Nasabah ingin menukarkan uang menjadi koin pecahan 500, 200, dan 100. Bantu Bu Kasir ya!',
+                timer: 180, mode: 'notes', denoms: COIN_DENOMS, unit: 'koin',
+                fallback: {
+                    mode: 'notes', subtitle: 'Koin Sesedikit Mungkin',
+                    target: 4500, optimal: 9, unit: 'koin', denoms: COIN_DENOMS,
+                    hint: '9 × Rp500 = 9 koin',
+                    story: 'Tukarkan uang Rp4.500 menjadi KOIN SESEDIKIT MUNGKIN ya, Bu!'
+                },
+                gen() {
+                    const type = randInt(1, 3);
+                    if (type === 1) {
+                        const counts = { 500: randInt(3, 20), 200: randInt(3, 20), 100: randInt(3, 20) };
+                        const parts = Object.keys(counts).map(Number).sort((a, b) => b - a).map(v => ({ v, n: counts[v] }));
+                        const total = parts.reduce((s, p) => s + p.n * p.v, 0);
+                        const sub = parts.map(p => fmtRupiah(p.n * p.v).slice(2));
+                        return {
+                            mode: 'input', subtitle: 'Hitung Nilai Koin',
+                            target: total, parts, unit: 'koin', denoms: COIN_DENOMS,
+                            hint: sub.join(' + ') + ' = ' + fmtRupiah(total),
+                            story: 'Nasabah menyerahkan tumpukan koin. Hitung TOTAL nilai koinnya untuk membuka brankas!'
+                        };
+                    }
+                    if (type === 2) {
+                        const target = randInt(20, 200) * 100;
+                        const sol = minNotes(target, COIN_DENOMS);
+                        if (!sol || sol.count < 8 || sol.count > 30) return null;
+                        return {
+                            mode: 'notes', subtitle: 'Koin Sesedikit Mungkin',
+                            target, optimal: sol.count, unit: 'koin', denoms: COIN_DENOMS,
+                            hint: comboHint(sol.combo) + ' = ' + sol.count + ' koin',
+                            story: fillTemplate('Tukarkan uang {target} menjadi KOIN SESEDIKIT MUNGKIN ya, Bu!', { target: fmtRupiah(target) })
+                        };
+                    }
+                    const k = randInt(10, 20);
+                    const hi = Math.min(120, k * 5);
+                    const target = randInt(k, hi) * 100;
+                    const sol = findExact(target, k, COIN_DENOMS);
+                    if (!sol) return null;
+                    return {
+                        mode: 'notes', subtitle: 'Tepat Jumlah Koin',
+                        target, exact: k, unit: 'koin', denoms: COIN_DENOMS,
+                        hint: comboHint(sol.combo) + ' = ' + fmtRupiah(target) + ' (tepat ' + k + ' koin)',
+                        story: fillTemplate('Tukarkan uang {target} menjadi TEPAT {k} KOIN. Tidak boleh lebih, tidak boleh kurang ya!', { target: fmtRupiah(target), k })
+                    };
+                }
             }
         };
 
+        const TIMER_PRESETS = { santai: 300, normal: 180, cepat: 90 };
+
         const TITLES = [
-            { min: 12, title: 'Master ATM Engineer', icon: '👑', color: 'text-amber-300' },
-            { min: 10, title: 'ATM Engineer Ahli', icon: '🛠️', color: 'text-cyan-300' },
-            { min: 8, title: 'ATM Engineer', icon: '💵', color: 'text-emerald-300' },
-            { min: 6, title: 'Teknisi ATM', icon: '🏧', color: 'text-blue-300' },
-            { min: 4, title: 'Kasir Cepat', icon: '🧮', color: 'text-yellow-300' },
+            { min: 15, title: 'Master ATM Engineer', icon: '👑', color: 'text-amber-300' },
+            { min: 13, title: 'ATM Engineer Ahli', icon: '🛠️', color: 'text-cyan-300' },
+            { min: 11, title: 'ATM Engineer', icon: '💵', color: 'text-emerald-300' },
+            { min: 8, title: 'Teknisi ATM', icon: '🏧', color: 'text-blue-300' },
+            { min: 5, title: 'Kasir Cepat', icon: '🧮', color: 'text-yellow-300' },
             { min: 0, title: 'Nasabah Pemula', icon: '🌱', color: 'text-slate-300' }
         ];
 
@@ -942,15 +1038,56 @@
         class ATMGame {
             constructor() {
                 this.unlocked = this.loadProgress();
+                this.settings = this.loadSettings();
                 this.challenge = null;
                 this.state = {
                     level: 1, counts: {}, totalValue: 0, totalNotes: 0,
                     xp: 0, stars: 0, levelStars: 0, levelXp: 0,
                     attempts: 0, hintUsed: false, inputRaw: '',
-                    timeLeftMs: 0, timerInterval: null,
+                    timeLeftMs: 0, timerInterval: null, timerSeconds: 180,
                     levelStarsRecord: {}, efficiencyStars: 1
                 };
                 this.initBackgroundParticles();
+            }
+
+            loadSettings() {
+                try {
+                    const s = JSON.parse(localStorage.getItem('atm_cash_master_settings') || '{}');
+                    return { speed: TIMER_PRESETS[s.speed] ? s.speed : 'normal' };
+                } catch (e) {
+                    return { speed: 'normal' };
+                }
+            }
+
+            saveSettings() {
+                try {
+                    localStorage.setItem('atm_cash_master_settings', JSON.stringify(this.settings));
+                } catch (e) {}
+            }
+
+            setSpeed(speed) {
+                if (!TIMER_PRESETS[speed]) return;
+                sound.playClick();
+                this.settings.speed = speed;
+                this.saveSettings();
+                this.renderSpeedButtons();
+            }
+
+            effectiveTimer() {
+                return TIMER_PRESETS[this.settings.speed];
+            }
+
+            renderSpeedButtons() {
+                document.querySelectorAll('.speed-btn').forEach(btn => {
+                    const sp = btn.getAttribute('data-speed');
+                    if (sp === this.settings.speed) {
+                        btn.classList.add('speed-active');
+                        btn.classList.remove('bg-white/5');
+                    } else {
+                        btn.classList.remove('speed-active');
+                        btn.classList.add('bg-white/5');
+                    }
+                });
             }
 
             loadProgress() {
@@ -1009,7 +1146,7 @@
 
             updateWelcomeUI() {
                 const maxReached = this.unlocked;
-                for (let i = 1; i <= 4; i++) {
+                for (let i = 1; i <= 5; i++) {
                     const card = document.getElementById('missionCard' + i);
                     const lock = document.getElementById('lockIcon' + i);
                     if (!card) continue;
@@ -1025,7 +1162,11 @@
                 const resumeBtn = document.getElementById('resumeBtn');
                 if (maxReached > 1) {
                     resumeArea.classList.remove('hidden');
-                    document.getElementById('resumeText').innerText = 'Progres terakhir: Level ' + maxReached;
+                    if (maxReached > 5) {
+                        document.getElementById('resumeText').innerText = 'Semua misi selesai! Coba tingkatkan skormu.';
+                    } else {
+                        document.getElementById('resumeText').innerText = 'Progres terakhir: Level ' + maxReached;
+                    }
                     resumeBtn.classList.remove('hidden');
                     document.getElementById('startBtnText').innerText = 'Main dari Awal';
                 } else {
@@ -1033,6 +1174,7 @@
                     resumeBtn.classList.add('hidden');
                     document.getElementById('startBtnText').innerText = 'Mulai Misi';
                 }
+                this.renderSpeedButtons();
             }
 
             startRun(level = 1) {
@@ -1069,7 +1211,7 @@
                 this.state.hintUsed = false;
                 this.state.inputRaw = '';
                 this.state.counts = {};
-                DENOMS.forEach(d => this.state.counts[d] = 0);
+                ALL_DENOMS.forEach(d => this.state.counts[d] = 0);
                 this.state.totalValue = 0;
                 this.state.totalNotes = 0;
                 document.getElementById('efficiencyModal').classList.add('hidden');
@@ -1078,6 +1220,7 @@
                 this.updateHudLevel();
                 this.renderMission();
                 this.resetNotes();
+                document.getElementById('totalNotesLabel').innerText = level.unit === 'koin' ? 'Total Koin' : 'Total Lembar';
 
                 if (level.mode === 'notes') {
                     document.getElementById('denomPanel').classList.remove('hidden');
@@ -1095,7 +1238,7 @@
                 }
 
                 this.showGame();
-                this.startTimer(level.timer);
+                this.startTimer(this.effectiveTimer());
             }
 
             updateHudLevel() {
@@ -1124,11 +1267,13 @@
                 document.getElementById('missionTitle').innerText = level.title + ' — ' + level.customer;
                 document.getElementById('missionStory').innerText = level.story;
                 if (level.mode === 'input') {
-                    const totalLembar = level.parts.reduce((s, p) => s + p.n, 0);
-                    document.getElementById('missionTarget').innerText = totalLembar + ' LEMBAR • HITUNG TOTAL';
+                    const totalPieces = level.parts.reduce((s, p) => s + p.n, 0);
+                    const unit = level.unit === 'koin' ? 'KOIN' : 'LEMBAR';
+                    document.getElementById('missionTarget').innerText = totalPieces + ' ' + unit + ' • HITUNG TOTAL';
                 } else {
+                    const unit = level.unit === 'koin' ? 'KOIN' : 'LEMBAR';
                     let targetLabel = 'TARGET ' + this.fmt(level.target);
-                    if (level.exact) targetLabel += ' • TEPAT ' + level.exact + ' LEMBAR';
+                    if (level.exact) targetLabel += ' • TEPAT ' + level.exact + ' ' + unit;
                     document.getElementById('missionTarget').innerText = targetLabel;
                 }
                 const stock = document.getElementById('stockWarning');
@@ -1142,17 +1287,22 @@
             renderDenoms() {
                 const grid = document.getElementById('denomGrid');
                 grid.innerHTML = '';
-                const stockOut = (this.curLevel().stockOut || []);
-                DENOMS.forEach(d => {
+                const level = this.curLevel();
+                const stockOut = (level.stockOut || []);
+                const denoms = level.denoms || DENOMS;
+                const isCoin = d => d < 1000;
+                denoms.forEach(d => {
                     const card = document.createElement('div');
                     card.className = 'denom-card' + (stockOut.includes(d) ? ' out-of-stock' : '');
                     card.setAttribute('data-value', d);
                     const badgeColor = this.denomColor(d);
+                    const icon = isCoin(d) ? 'fa-coins' : 'fa-money-bill-wave';
+                    const unitLabel = isCoin(d) ? 'koin' : 'lembar';
                     card.innerHTML = `
                         <button class="denom-add" onclick="gameApp.addNote(${d})">
-                            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${badgeColor.bg} border ${badgeColor.border} flex items-center justify-center ${badgeColor.text} text-base sm:text-lg"><i class="fa-solid fa-money-bill-wave"></i></div>
+                            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl ${badgeColor.bg} border ${badgeColor.border} flex items-center justify-center ${badgeColor.text} text-base sm:text-lg"><i class="fa-solid ${icon}"></i></div>
                             <span class="text-xs sm:text-sm font-extrabold font-outfit text-white leading-none">Rp${Number(d).toLocaleString('id-ID')}</span>
-                            <span class="count-badge"><span class="count-num" data-value="${d}">0</span> lembar</span>
+                            <span class="count-badge"><span class="count-num" data-value="${d}">0</span> ${unitLabel}</span>
                         </button>
                         <button class="minus-btn" onclick="gameApp.removeNote(${d})" title="Kurangi 1">&minus;</button>
                     `;
@@ -1168,7 +1318,10 @@
                     10000: { bg: 'bg-purple-500/20', border: 'border-purple-500/40', text: 'text-purple-300' },
                     5000: { bg: 'bg-amber-500/20', border: 'border-amber-500/40', text: 'text-amber-300' },
                     2000: { bg: 'bg-slate-500/20', border: 'border-slate-400/40', text: 'text-slate-300' },
-                    1000: { bg: 'bg-cyan-500/20', border: 'border-cyan-500/40', text: 'text-cyan-300' }
+                    1000: { bg: 'bg-cyan-500/20', border: 'border-cyan-500/40', text: 'text-cyan-300' },
+                    500: { bg: 'bg-yellow-500/20', border: 'border-yellow-500/40', text: 'text-yellow-300' },
+                    200: { bg: 'bg-orange-500/20', border: 'border-orange-500/40', text: 'text-orange-300' },
+                    100: { bg: 'bg-fuchsia-500/20', border: 'border-fuchsia-500/40', text: 'text-fuchsia-300' }
                 };
                 return map[d] || map[1000];
             }
@@ -1186,7 +1339,8 @@
                 level.parts.forEach((p, i) => {
                     const chip = document.createElement('div');
                     chip.className = 'px-3 py-2 rounded-xl border ' + (colors[i % colors.length]) + ' font-bold text-sm sm:text-base text-center';
-                    chip.innerHTML = `<span class="block text-[10px] uppercase tracking-wider opacity-70 font-black">${p.n} Lembar</span>${p.n} &times; ${this.fmt(p.v)}`;
+                    const unit = level.unit === 'koin' ? 'Koin' : 'Lembar';
+                    chip.innerHTML = `<span class="block text-[10px] uppercase tracking-wider opacity-70 font-black">${p.n} ${unit}</span>${p.n} &times; ${this.fmt(p.v)}`;
                     wrap.appendChild(chip);
                 });
             }
@@ -1213,7 +1367,7 @@
             resetNotes() {
                 sound.playClick();
                 this.state.counts = {};
-                DENOMS.forEach(d => this.state.counts[d] = 0);
+                ALL_DENOMS.forEach(d => this.state.counts[d] = 0);
                 this.state.totalValue = 0;
                 this.state.totalNotes = 0;
                 this.updateTotals(false);
@@ -1285,6 +1439,7 @@
             startTimer(seconds) {
                 clearInterval(this.timerInterval);
                 const total = seconds * 1000;
+                this.state.timerSeconds = seconds;
                 this.state.timeLeftMs = total;
                 const bar = document.getElementById('timerBar');
                 bar.style.width = '100%';
@@ -1425,6 +1580,32 @@
                             1
                         );
                     }
+                } else if (this.state.level === 5) {
+                    if (level.exact) {
+                        if (notes === level.exact) {
+                            this.success(3);
+                        } else {
+                            sound.playEfficiency();
+                            const more = notes > level.exact ? 'lebih' : 'kurang';
+                            this.openEfficiency(
+                                'Nilai Pas, Tapi Jumlah Koin Salah!',
+                                this.fmt(total) + ' sudah pas, tapi nasabah meminta TEPAT ' + level.exact + ' koin. Saat ini kamu memakai ' + notes + ' koin (' + more + ' dari ' + level.exact + '). Coba lagi!',
+                                1
+                            );
+                        }
+                    } else {
+                        if (notes <= level.optimal) {
+                            this.success(3);
+                        } else {
+                            sound.playEfficiency();
+                            const continueStars = notes <= level.optimal + 1 ? 2 : 1;
+                            this.openEfficiency(
+                                'Nilai Pas, Tapi Koin Masih Banyak!',
+                                'Kamu sudah mencapai ' + this.fmt(total) + ', tapi masih memakai ' + notes + ' koin. Bisakah kamu mencapai nilai yang sama dengan koin lebih sedikit? (Petunjuk: ' + level.optimal + ' koin adalah yang paling hemat)',
+                                continueStars
+                            );
+                        }
+                    }
                 }
             }
 
@@ -1465,13 +1646,13 @@
                 this.state.stars += stars;
 
                 const effBonus = { 3: 50, 2: 25, 1: 0 }[stars];
-                const timeRatio = Math.max(0, this.state.timeLeftMs / (level.timer * 1000));
+                const timeRatio = Math.max(0, this.state.timeLeftMs / (this.state.timerSeconds * 1000));
                 const speedBonus = Math.round(50 * timeRatio / 5) * 5;
                 const gained = 100 + effBonus + speedBonus;
                 this.state.levelXp = gained;
                 this.state.xp += gained;
 
-                if (this.state.level < 4 && this.unlocked < this.state.level + 1) {
+                if (this.state.level < 5 && this.unlocked < this.state.level + 1) {
                     this.unlocked = this.state.level + 1;
                 }
                 this.saveProgress();
@@ -1479,7 +1660,7 @@
                 document.getElementById('hudXpText').innerText = this.state.xp.toLocaleString('id-ID');
                 this.updateHudStars();
 
-                if (this.state.level === 4) {
+                if (this.state.level === 5) {
                     sound.playFanfare();
                     this.triggerConfettiFull();
                     this.showFinal();
@@ -1520,7 +1701,7 @@
                 }
                 this.state.pendingNote = null;
 
-                if (this.state.level === 4) {
+                if (this.state.level === 5) {
                     document.getElementById('lcNextLabel').innerText = 'Lihat Hasil Akhir';
                 } else {
                     document.getElementById('lcNextLabel').innerText = 'Lanjut ke Level ' + (this.state.level + 1);
@@ -1532,7 +1713,7 @@
             nextLevel() {
                 sound.playClick();
                 document.getElementById('levelCompleteModal').classList.add('hidden');
-                if (this.state.level === 4) {
+                if (this.state.level === 5) {
                     this.showFinal();
                 } else {
                     this.enterLevel(this.state.level + 1);
@@ -1548,11 +1729,11 @@
                 document.getElementById('finalTitle').className = 'text-2xl sm:text-3xl font-black font-outfit mt-2 ' + titleInfo.color;
                 document.getElementById('finalIcon').innerText = titleInfo.icon;
                 document.getElementById('finalXpText').innerText = xp.toLocaleString('id-ID');
-                document.getElementById('finalStarsText').innerText = stars + '/12';
+                document.getElementById('finalStarsText').innerText = stars + '/15';
 
                 const perLevel = document.getElementById('finalPerLevel');
                 perLevel.innerHTML = '';
-                for (let i = 1; i <= 4; i++) {
+                for (let i = 1; i <= 5; i++) {
                     const s = this.state.levelStarsRecord[i] || 0;
                     const chip = document.createElement('div');
                     chip.className = 'px-2.5 py-1.5 rounded-xl border border-white/10 bg-white/5 text-center';
@@ -1567,6 +1748,39 @@
                 }
 
                 document.getElementById('finalModal').classList.remove('hidden');
+                this.saveLocalScore(xp, stars);
+                this.saveScore();
+            }
+
+            saveLocalScore(xp, stars) {
+                try {
+                    const history = JSON.parse(localStorage.getItem('atm_highscores') || '[]');
+                    history.push({
+                        score: xp,
+                        stars: stars,
+                        date: new Date().toLocaleDateString('id-ID')
+                    });
+                    history.sort((a, b) => b.score - a.score);
+                    localStorage.setItem('atm_highscores', JSON.stringify(history.slice(0, 10)));
+                } catch (e) {}
+            }
+
+            saveScore() {
+                if (typeof saveScoreToFirestore !== 'function') return;
+                let correct = 0;
+                for (let i = 1; i <= 5; i++) {
+                    if (this.state.levelStarsRecord[i] > 0) correct++;
+                }
+                saveScoreToFirestore({
+                    gameType: 'money',
+                    score: this.state.xp,
+                    accuracy: Math.round((this.state.stars / 15) * 100),
+                    maxCombo: 0,
+                    totalQuestions: 5,
+                    correctCount: correct,
+                    difficulty: 'Level 1-5',
+                    duration: 0
+                });
             }
 
             showFeedback(kind, title, detail) {
