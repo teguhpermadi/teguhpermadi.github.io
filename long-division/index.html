@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan Pembagian Bersusun</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts: Fredoka & Lexend -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Lexend', sans-serif;
+            background-color: #f0fdf4;
+        }
+        .font-heading {
+            font-family: 'Fredoka', cursive;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #86efac;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4ade80;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between selection:bg-emerald-200">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white border-b-2 border-emerald-100 shadow-sm sticky top-0 z-30">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-emerald-200">
+                    <i class="fa-solid fa-divide"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading font-bold text-xl text-emerald-700 leading-none">BagiBersusun</h1>
+                    <p class="text-xs text-slate-500 font-medium">Latihan Pembagian Interaktif</p>
+                </div>
+            </div>
+            
+            <div id="header-stats" class="hidden flex items-center gap-2 sm:gap-4 bg-emerald-50 px-3 sm:px-4 py-1.5 rounded-full border border-emerald-200">
+                <div class="flex items-center gap-1 sm:gap-1.5 text-amber-600 font-bold text-sm">
+                    <i class="fa-solid fa-star text-amber-500"></i>
+                    <span id="current-score">0</span>
+                </div>
+                <div class="h-4 w-px bg-emerald-200"></div>
+                <div class="flex items-center gap-1.5 text-emerald-700 font-bold text-sm">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span id="question-tracker">1/10</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-4xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- SETUP SCREEN (Pengaturan) -->
+        <section id="screen-setup" class="bg-white rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl shadow-emerald-900/5 max-w-2xl mx-auto">
+            <div class="text-center mb-6">
+                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Pengaturan Latihan</span>
+                <h2 class="font-heading text-2xl sm:text-3xl font-bold text-slate-800 mt-2">Siap Belajar Pembagian?</h2>
+                <p class="text-slate-500 text-sm mt-1">Atur latihan sesuai dengan tingkat kemampuanmu.</p>
+            </div>
+
+            <form id="form-setup" onsubmit="event.preventDefault(); startQuiz();" class="space-y-6">
+                
+                <!-- 1. Opsi Digit Pembagian -->
+                <div>
+                    <label class="block font-heading font-semibold text-slate-700 mb-2">
+                        <i class="fa-solid fa-layer-group text-emerald-500 mr-1.5"></i> Jumlah Digit yang Diujikan
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all text-center">
+                            <input type="radio" name="digit_option" value="2x1" class="peer hidden" checked>
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">2 Digit : 1 Digit</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">(Contoh: 72 : 9)</span>
+                        </label>
+                        
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all text-center">
+                            <input type="radio" name="digit_option" value="3x1" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">3 Digit : 1 Digit</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">(Contoh: 345 : 5)</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all text-center">
+                            <input type="radio" name="digit_option" value="4x1" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">4 Digit : 1 Digit</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">(Contoh: 1248 : 4)</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all text-center">
+                            <input type="radio" name="digit_option" value="3x2" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">3 Digit : 2 Digit</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">(Contoh: 176 : 22)</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all text-center">
+                            <input type="radio" name="digit_option" value="4x2" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">4 Digit : 2 Digit</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">(Contoh: 1420 : 25)</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all text-center">
+                            <input type="radio" name="digit_option" value="5x2" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">5 Digit : 2 Digit</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">(Contoh: 12345 : 67)</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all text-center sm:col-span-2 md:col-span-3">
+                            <input type="radio" name="digit_option" value="5x3" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">5 Digit : 3 Digit (Tingkat Tinggi)</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">(Contoh: 24680 : 123)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 2. Opsi Jenis Pembagian -->
+                <div>
+                    <label class="block font-heading font-semibold text-slate-700 mb-2">
+                        <i class="fa-solid fa-shapes text-emerald-500 mr-1.5"></i> Jenis Pembagian
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all">
+                            <input type="radio" name="type_option" value="standard" class="peer hidden" checked>
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">Pembagian Biasa</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">Hasil bulat tanpa sisa</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all">
+                            <input type="radio" name="type_option" value="remainder" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">Sisa Hasil Bagi</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">(Contoh: 74 : 5 = 14 sisa 4)</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all">
+                            <input type="radio" name="type_option" value="decimal" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">Pembagian Desimal</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">(Contoh: 90 : 6 = 15,0 / 75 : 6 = 12,5)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 3. Opsi Timer (Termasuk Tanpa Timer) -->
+                <div>
+                    <label class="block font-heading font-semibold text-slate-700 mb-2">
+                        <i class="fa-solid fa-stopwatch text-emerald-500 mr-1.5"></i> Mode Waktu (Timer)
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all">
+                            <input type="radio" name="timer_mode" value="none" class="peer hidden" checked>
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">
+                                <i class="fa-solid fa-infinity text-emerald-500 mr-1"></i> Tanpa Timer
+                            </span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">Santai & tanpa batasan waktu</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all">
+                            <input type="radio" name="timer_mode" value="per_question" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">Waktu Per Soal</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">Hitung mundur setiap soal</span>
+                        </label>
+
+                        <label class="relative flex flex-col p-3 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all">
+                            <input type="radio" name="timer_mode" value="total" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">Total Waktu</span>
+                            <span class="relative z-10 text-xs text-slate-400 mt-0.5">Waktu untuk semua soal</span>
+                        </label>
+                    </div>
+
+                    <!-- Sub Options Timer Duration -->
+                    <div id="timer-duration-box" class="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between hidden">
+                        <span class="text-xs font-semibold text-slate-600" id="timer-duration-label">Durasi Waktu Per Soal:</span>
+                        <select id="timer_duration" class="bg-white border border-slate-300 text-slate-700 text-xs rounded-xl px-3 py-1.5 font-bold focus:ring-2 focus:ring-emerald-400 focus:outline-none">
+                            <option value="15">15 Detik</option>
+                            <option value="30" selected>30 Detik</option>
+                            <option value="45">45 Detik</option>
+                            <option value="60">60 Detik</option>
+                            <option value="90">90 Detik</option>
+                            <option value="120">120 Detik (2 Menit)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 4. Jumlah Soal -->
+                <div>
+                    <label class="block font-heading font-semibold text-slate-700 mb-2">
+                        <i class="fa-solid fa-hashtag text-emerald-500 mr-1.5"></i> Jumlah Soal
+                    </label>
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="total_questions" min="5" max="20" step="5" value="10" 
+                               class="w-full accent-emerald-500 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                               oninput="document.getElementById('questions-val').innerText = this.value + ' Soal'">
+                        <span id="questions-val" class="font-bold text-sm bg-emerald-100 text-emerald-800 px-3 py-1 rounded-xl min-w-[80px] text-center">10 Soal</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-heading font-bold text-lg rounded-2xl shadow-lg shadow-emerald-500/30 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i> Mulai Latihan Sekarang
+                </button>
+            </form>
+        </section>
+
+
+        <!-- QUIZ SCREEN (Halaman Soal - Hanya 1 Soal Per Halaman) -->
+        <section id="screen-quiz" class="hidden max-w-2xl mx-auto space-y-4">
+            
+            <!-- Top Controls & Timer Bar -->
+            <div class="bg-white rounded-2xl p-3 sm:p-4 border border-emerald-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+                <div class="flex items-center gap-2 w-full justify-between sm:w-auto sm:justify-start">
+                    <div id="timer-badge" class="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold">
+                        <i class="fa-solid fa-clock text-slate-500" id="timer-icon"></i>
+                        <span id="timer-display">--:--</span>
+                    </div>
+                    <!-- Indikator Bonus Kecepatan -->
+                    <div id="speed-bonus-indicator" class="hidden items-center gap-1 bg-amber-100 text-amber-700 px-2.5 py-1 rounded-xl text-xs font-bold animate-pulse">
+                        <i class="fa-solid fa-bolt text-amber-500"></i> Bonus Kecepatan Aktif!
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 w-full justify-center sm:w-auto sm:justify-end">
+                    <!-- Tombol Scratchpad / Cakar-cakar -->
+                    <button onclick="toggleScratchpad()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-pen-to-square"></i> Coreta-Coret
+                    </button>
+
+                    <!-- Tombol Menyerah -->
+                    <button onclick="openSurrenderModal()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-flag"></i> Menyerah
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visual Progress Bar -->
+            <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div>
+            </div>
+
+            <!-- Scratchpad Canvas Container (Areal mencakar) -->
+            <div id="scratchpad-container" class="hidden bg-amber-50/90 border-2 border-dashed border-amber-300 rounded-2xl p-3 relative shadow-inner">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-amber-800"><i class="fa-solid fa-note-sticky mr-1"></i> Papan Coreta-Coret (Scratchpad)</span>
+                    <button onclick="clearScratchpad()" class="text-xs bg-white text-rose-500 hover:bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-lg font-semibold">
+                        <i class="fa-solid fa-eraser"></i> Bersihkan
+                    </button>
+                </div>
+                <canvas id="scratchpad-canvas" class="w-full h-40 bg-white rounded-xl border border-amber-200 cursor-crosshair touch-none"></canvas>
+            </div>
+
+            <!-- Card Soal Single Page -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl shadow-emerald-900/5 text-center relative overflow-hidden">
+                
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-4">Selesaikan Pembagian Berikut</span>
+
+                <!-- Format Pembagian (xxx : xx = ...) -->
+                <div class="inline-block bg-slate-50 border-2 border-slate-200 rounded-2xl px-6 sm:px-8 py-4 sm:py-6 my-2 text-right font-mono text-3xl sm:text-4xl font-bold tracking-widest text-slate-800 shadow-inner">
+                    <div id="num-dividend" class="leading-relaxed">870</div>
+                    <div class="border-b-4 border-slate-800 pb-1 flex items-center justify-end gap-3">
+                        <span class="font-sans text-2xl text-emerald-600 select-none">:</span>
+                        <span id="num-divisor">6</span>
+                    </div>
+                    <div class="pt-2 text-slate-400 font-sans text-2xl select-none">= ?</div>
+                </div>
+
+                <!-- Pilihan Ganda Options -->
+                <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-6">
+                    <!-- Dinamis Diisi via JavaScript -->
+                </div>
+
+                <!-- Feedback Message -->
+                <div id="feedback-box" class="hidden mt-4 p-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2"></div>
+            </div>
+
+            <!-- Bottom Action Navigation -->
+            <div class="flex justify-end">
+                <button id="btn-next-question" onclick="nextQuestion()" disabled class="px-6 py-3 bg-slate-300 text-slate-500 cursor-not-allowed font-heading font-bold rounded-2xl shadow transition-all flex items-center gap-2">
+                    Lanjut Soal Berikutnya <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- RESULT SCREEN (Halaman Hasil / Rangkuman) -->
+        <section id="screen-result" class="hidden max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl shadow-emerald-900/5 text-center">
+            <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-amber-500 text-4xl mb-3 shadow-inner">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            
+            <h2 class="font-heading text-3xl font-bold text-slate-800">Latihan Selesai!</h2>
+            <p class="text-slate-500 text-sm mt-1">Berikut adalah hasil pencapaian latihanmu:</p>
+
+            <!-- Score Stats Box -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6">
+                <div class="bg-emerald-50 border border-emerald-100 p-3.5 rounded-2xl text-center">
+                    <span class="text-xs text-emerald-600 font-semibold block">Total Skor</span>
+                    <span id="res-score" class="font-heading text-2xl font-bold text-emerald-700">0</span>
+                </div>
+                <div class="bg-blue-50 border border-blue-100 p-3.5 rounded-2xl text-center">
+                    <span class="text-xs text-blue-600 font-semibold block">Akurasi Jawaban</span>
+                    <span id="res-accuracy" class="font-heading text-2xl font-bold text-blue-700">0%</span>
+                </div>
+                <div class="bg-amber-50 border border-amber-100 p-3.5 rounded-2xl text-center">
+                    <span class="text-xs text-amber-600 font-semibold block">Bonus Kecepatan</span>
+                    <span id="res-bonus" class="font-heading text-2xl font-bold text-amber-700">+0</span>
+                </div>
+                <div class="bg-purple-50 border border-purple-100 p-3.5 rounded-2xl text-center">
+                    <span class="text-xs text-purple-600 font-semibold block">Total Waktu</span>
+                    <span id="res-time" class="font-heading text-2xl font-bold text-purple-700">0s</span>
+                </div>
+            </div>
+
+            <!-- Detail Jawaban List -->
+            <div class="text-left mb-6">
+                <h3 class="font-heading font-bold text-slate-700 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-emerald-500"></i> Ulasan Hasil Soal
+                </h3>
+                <div id="review-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                    <!-- Dynamic review items -->
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="restartQuiz()" class="flex-1 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-heading font-bold rounded-2xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Coba Lagi
+                </button>
+                <button onclick="backToSetup()" class="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-heading font-bold rounded-2xl transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> Ubah Pengaturan
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-emerald-100 py-3 text-center text-xs text-slate-400">
+        Latihan Pembagian Bersusun &copy; 2026 - Media Pembelajaran Matematika
+    </footer>
+
+    <!-- MODAL CONFIRMATION SURRENDER (Menyerah) -->
+    <div id="modal-surrender" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl space-y-4 animate-scaleUp">
+            <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center text-3xl mx-auto">
+                <i class="fa-solid fa-flag"></i>
+            </div>
+            <div>
+                <h3 class="font-heading font-bold text-xl text-slate-800">Yakin Ingin Menyerah?</h3>
+                <p class="text-slate-500 text-xs mt-1">Sesi latihan akan dihentikan dan skor yang diperoleh sejauh ini akan dihitung.</p>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeSurrenderModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm">
+                    Batal
+                </button>
+                <button onclick="confirmSurrender()" class="flex-1 py-2.5 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-sm shadow-md shadow-rose-200">
+                    Ya, Menyerah
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUDIO EFFECTS (Web Audio API Fallback) -->
+    <script>
+        // Audio Synthesizer sederhana agar tidak memerlukan file external
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3
+                osc.frequency.setValueAtTime(174.61, audioCtx.currentTime + 0.15); // F3
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.35);
+            } else if (type === 'bonus') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08); 
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+    </script>
+
+    <!-- MAIN APP LOGIC -->
+    <script>
+        // App State
+        let config = {
+            digitOption: '2x1',
+            typeOption: 'standard',
+            timerMode: 'none', // default 'none'
+            timerDuration: 30,
+            totalQuestions: 10
+        };
+
+        // Definisi tingkat digit pembagian: digit angka yang dibagi : digit pembagi
+        const optionDefs = {
+            '2x1': { divMin: 2, divMax: 9,  qMin: 2,  qMax: 99,  dividendDigits: 2 },
+            '3x1': { divMin: 2, divMax: 9,  qMin: 11, qMax: 999, dividendDigits: 3 },
+            '4x1': { divMin: 2, divMax: 9,  qMin: 111,qMax: 9999,dividendDigits: 4 },
+            '3x2': { divMin: 11, divMax: 99, qMin: 3,  qMax: 99,  dividendDigits: 3 },
+            '4x2': { divMin: 11, divMax: 99, qMin: 11, qMax: 999, dividendDigits: 4 },
+            '5x2': { divMin: 11, divMax: 99, qMin: 101,qMax: 9999,dividendDigits: 5 },
+            '5x3': { divMin: 101, divMax: 999,qMin: 11, qMax: 999, dividendDigits: 5 }
+        };
+
+        let currentQuestionIndex = 0;
+        let questions = [];
+        let userAnswers = [];
+        let score = 0;
+        let totalBonusScore = 0;
+        let totalTimeSpent = 0;
+
+        // Timer Variables
+        let timerInterval = null;
+        let timeRemaining = 0;
+        let questionStartTime = 0;
+
+        // Scratchpad Canvas Variables
+        let canvas, ctx;
+        let isDrawing = false;
+
+        // Init Form Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            initScratchpad();
+            
+            // Toggle Timer Sub Options Display
+            const timerRadios = document.querySelectorAll('input[name="timer_mode"]');
+            timerRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const durationBox = document.getElementById('timer-duration-box');
+                    const durationLabel = document.getElementById('timer-duration-label');
+                    if (e.target.value === 'none') {
+                        durationBox.classList.add('hidden');
+                    } else if (e.target.value === 'per_question') {
+                        durationBox.classList.remove('hidden');
+                        durationLabel.innerText = "Durasi Waktu Per Soal:";
+                    } else if (e.target.value === 'total') {
+                        durationBox.classList.remove('hidden');
+                        durationLabel.innerText = "Total Waktu Kuis (Semua Soal):";
+                    }
+                });
+            });
+        });
+
+        // Initialize Scratchpad
+        function initScratchpad() {
+            canvas = document.getElementById('scratchpad-canvas');
+            ctx = canvas.getContext('2d');
+
+            function resizeCanvas() {
+                canvas.width = canvas.parentElement.clientWidth - 24;
+                canvas.height = 160;
+                ctx.lineWidth = 2.5;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#334155';
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Event Listeners for Drawing
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            }
+
+            function startDraw(e) {
+                isDrawing = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                const pos = getPos(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
+
+            function stopDraw() {
+                isDrawing = false;
+            }
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDraw);
+            canvas.addEventListener('mouseleave', stopDraw);
+
+            canvas.addEventListener('touchstart', startDraw, {passive: true});
+            canvas.addEventListener('touchmove', draw, {passive: true});
+            canvas.addEventListener('touchend', stopDraw);
+        }
+
+        function toggleScratchpad() {
+            const container = document.getElementById('scratchpad-container');
+            container.classList.toggle('hidden');
+            if (!container.classList.contains('hidden')) {
+                setTimeout(initScratchpad, 50);
+            }
+        }
+
+        function clearScratchpad() {
+            if (ctx && canvas) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Generate Soal berdasarkan Pengaturan
+        function generateQuestions() {
+            questions = [];
+            for (let i = 0; i < config.totalQuestions; i++) {
+                questions.push(generateSingleQuestion());
+            }
+        }
+
+        function generateSingleQuestion() {
+            const def = optionDefs[config.digitOption] || optionDefs['2x1'];
+            let divisor, dividend, quotientNum;
+            let remainder = 0;
+            let decimals = 0;
+            let typeOption = config.typeOption;
+
+            if (typeOption === 'decimal') {
+                // Hasil bagi desimal: dividend = divisor * qScaled, hasil bagi = qScaled / scale
+                divisor = getRandomInt(def.divMin, def.divMax);
+                const minDividend = Math.pow(10, def.dividendDigits - 1);
+                const maxDividend = Math.pow(10, def.dividendDigits) - 1;
+                let qScaledMin = Math.ceil(minDividend / divisor);
+                const qScaledMax = Math.floor(maxDividend / divisor);
+                // Pilih skala desimal sesuai ukuran hasil bagi (pastikan hasil bagi minimal 1)
+                const scale = (qScaledMax >= 100 && Math.random() < 0.5) ? 100 : 10;
+                decimals = scale === 100 ? 2 : 1;
+                if (qScaledMax >= scale) {
+                    qScaledMin = Math.max(qScaledMin, scale);
+                }
+                const qScaled = getRandomInt(qScaledMin, qScaledMax);
+                dividend = divisor * qScaled;
+                quotientNum = qScaled / scale;
+            } else {
+                let guard = 0;
+                do {
+                    divisor = getRandomInt(def.divMin, def.divMax);
+                    quotientNum = getRandomInt(def.qMin, def.qMax);
+                    dividend = divisor * quotientNum;
+                    guard++;
+                } while (String(dividend).length !== def.dividendDigits && guard < 500);
+
+                if (typeOption === 'remainder') {
+                    remainder = getRandomInt(1, divisor - 1);
+                    dividend += remainder;
+                    while (String(dividend).length > def.dividendDigits && quotientNum > 1) {
+                        quotientNum--;
+                        dividend = divisor * quotientNum + remainder;
+                    }
+                }
+            }
+
+            // Format Jawaban Benar
+            let answer;
+            if (typeOption === 'remainder') {
+                answer = `${quotientNum} sisa ${remainder}`;
+            } else if (decimals > 0) {
+                answer = quotientNum.toFixed(decimals).replace('.', ',');
+            } else {
+                answer = String(quotientNum);
+            }
+
+            const options = generateDistractors({
+                quotientNum,
+                remainder,
+                divisor,
+                decimals,
+                typeOption
+            });
+
+            return {
+                dividend: dividend,
+                divisor: divisor,
+                answer: answer,
+                options: options,
+                decimals: decimals,
+                typeOption: typeOption
+            };
+        }
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Pilihan Jawaban Pengecoh Cerdas (Smart Distractors)
+        function generateDistractors({ quotientNum, remainder, divisor, decimals, typeOption }) {
+            let options = new Set();
+            const step = decimals > 0 ? Math.pow(10, -decimals) : 1;
+
+            function addOption(q, r) {
+                if (q < 1) return;
+                if (typeOption === 'remainder') {
+                    if (r < 1 || r >= divisor) return;
+                    options.add(`${q}|${r}`);
+                } else {
+                    options.add(decimals > 0 ? q.toFixed(decimals) : String(Math.round(q)));
+                }
+            }
+
+            // Jawaban benar
+            if (typeOption === 'remainder') {
+                options.add(`${quotientNum}|${remainder}`);
+            } else {
+                addOption(quotientNum, 0);
+            }
+
+            // Pola kesalahan umum pembagian
+            if (typeOption === 'remainder') {
+                const q = quotientNum;
+                const r = remainder;
+                addOption(q, r - 1);
+                addOption(q, r + 1);
+                addOption(q + 1, r);
+                addOption(q - 1, r);
+                addOption(q, 0);
+                addOption(q + 1, r - 1);
+                addOption(q - 1, r + 1);
+            } else {
+                [1, -1, 10, -10, 100, -100].forEach(d => {
+                    const q = parseFloat((quotientNum + step * d).toFixed(decimals));
+                    addOption(q, 0);
+                });
+            }
+
+            // Jika belum ada 4 pilihan unik, isi secara acak
+            let guard = 0;
+            while (options.size < 4 && guard < 200) {
+                guard++;
+                if (typeOption === 'remainder') {
+                    const q = quotientNum + getRandomInt(1, 4) * (Math.random() < 0.5 ? 1 : -1);
+                    const r = getRandomInt(1, divisor - 1);
+                    addOption(q, r);
+                } else {
+                    const d = getRandomInt(1, 9) * step * (Math.random() < 0.5 ? 1 : -1);
+                    const q = parseFloat((quotientNum + d).toFixed(decimals));
+                    addOption(q, 0);
+                }
+            }
+
+            // Konversi ke format tampilan & acak urutan
+            let arr = Array.from(options).map(v => {
+                if (typeOption === 'remainder') {
+                    const parts = v.split('|');
+                    return `${parts[0]} sisa ${parts[1]}`;
+                }
+                return decimals > 0 ? v.replace('.', ',') : v;
+            });
+
+            return arr.sort(() => Math.random() - 0.5);
+        }
+
+        // Start Quiz
+        function startQuiz() {
+            // Ambil Pengaturan
+            const digitEl = document.querySelector('input[name="digit_option"]:checked');
+            const typeEl = document.querySelector('input[name="type_option"]:checked');
+            const timerModeEl = document.querySelector('input[name="timer_mode"]:checked');
+            
+            config.digitOption = digitEl ? digitEl.value : '2x1';
+            config.typeOption = typeEl ? typeEl.value : 'standard';
+            config.timerMode = timerModeEl ? timerModeEl.value : 'none';
+            config.timerDuration = parseInt(document.getElementById('timer_duration').value);
+            config.totalQuestions = parseInt(document.getElementById('total_questions').value);
+
+            currentQuestionIndex = 0;
+            score = 0;
+            totalBonusScore = 0;
+            totalTimeSpent = 0;
+            userAnswers = [];
+
+            generateQuestions();
+
+            // Navigasi Tampilan Screen
+            document.getElementById('screen-setup').classList.add('hidden');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+            document.getElementById('header-stats').classList.remove('hidden');
+
+            updateHeaderStats();
+
+            if (config.timerMode === 'total') {
+                timeRemaining = config.timerDuration * config.totalQuestions;
+                startGlobalTimer();
+            }
+
+            loadQuestion();
+        }
+
+        // Load Single Question Page
+        function loadQuestion() {
+            clearScratchpad();
+            const q = questions[currentQuestionIndex];
+            
+            // Set Soal Pembagian (xxx : xx = ...)
+            document.getElementById('num-dividend').innerText = q.dividend;
+            document.getElementById('num-divisor').innerText = q.divisor;
+
+            // Render Options
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 border-2 border-slate-200 text-slate-700 font-bold py-3.5 px-4 rounded-2xl text-xl transition-all shadow-sm flex items-center justify-center active:scale-95";
+                btn.innerText = opt;
+                btn.onclick = () => selectAnswer(btn, opt);
+                container.appendChild(btn);
+            });
+
+            // Reset States
+            document.getElementById('feedback-box').className = 'hidden';
+            const btnNext = document.getElementById('btn-next-question');
+            btnNext.disabled = true;
+            btnNext.className = "px-6 py-3 bg-slate-200 text-slate-400 font-heading font-bold rounded-2xl cursor-not-allowed transition-all flex items-center gap-2";
+
+            updateHeaderStats();
+            questionStartTime = Date.now();
+
+            // Handle Per Question Timer Mode
+            if (config.timerMode === 'per_question') {
+                timeRemaining = config.timerDuration;
+                startPerQuestionTimer();
+            } else if (config.timerMode === 'none') {
+                document.getElementById('timer-display').innerText = 'Tanpa Timer';
+                document.getElementById('speed-bonus-indicator').style.display = 'none';
+            }
+        }
+
+        // Timer Logic
+        function startPerQuestionTimer() {
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                // Cek Bonus Kecepatan (Jawab dalam 1/3 pertama durasi)
+                if (timeRemaining > (config.timerDuration * 0.6)) {
+                    document.getElementById('speed-bonus-indicator').style.display = 'flex';
+                } else {
+                    document.getElementById('speed-bonus-indicator').style.display = 'none';
+                }
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    autoSubmitTimeout();
+                }
+            }, 1000);
+        }
+
+        function startGlobalTimer() {
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const min = Math.floor(timeRemaining / 60);
+            const sec = timeRemaining % 60;
+            const formatted = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+            document.getElementById('timer-display').innerText = formatted;
+            
+            const badge = document.getElementById('timer-badge');
+            if (timeRemaining <= 5 && config.timerMode !== 'none') {
+                badge.className = "flex items-center gap-1.5 bg-rose-100 text-rose-700 px-3 py-1.5 rounded-xl text-xs font-bold animate-bounce";
+            } else {
+                badge.className = "flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold";
+            }
+        }
+
+        function autoSubmitTimeout() {
+            playSound('wrong');
+            const q = questions[currentQuestionIndex];
+            userAnswers.push({
+                question: `${q.dividend} : ${q.divisor}`,
+                userAns: 'Waktu Habis',
+                correctAns: q.answer,
+                isCorrect: false,
+                bonus: 0
+            });
+
+            showFeedback(false, `Waktu habis! Jawaban benar: ${q.answer}`);
+            disableAllOptions();
+            enableNextButton();
+        }
+
+        // Select Answer
+        function selectAnswer(selectedBtn, selectedVal) {
+            if (config.timerMode === 'per_question') {
+                clearInterval(timerInterval);
+            }
+
+            const q = questions[currentQuestionIndex];
+            const timeTaken = Math.round((Date.now() - questionStartTime) / 1000);
+            totalTimeSpent += timeTaken;
+
+            const isCorrect = selectedVal === q.answer;
+            let bonus = 0;
+
+            // Kalkulasi Bonus Score Kecepatan
+            if (isCorrect) {
+                score += 100; // Base score
+                if (config.timerMode === 'per_question' && timeRemaining > (config.timerDuration * 0.6)) {
+                    bonus = 50; // Bonus cepat
+                    totalBonusScore += bonus;
+                    playSound('bonus');
+                } else {
+                    playSound('correct');
+                }
+                selectedBtn.className = "bg-emerald-500 text-white font-bold py-3.5 px-4 rounded-2xl text-xl shadow-md border-2 border-emerald-600 animate-pulse";
+                showFeedback(true, bonus > 0 ? `Benar! +100 poin & Bonus Cepat +${bonus}!` : `Jawaban Benar! +100 poin`);
+            } else {
+                playSound('wrong');
+                selectedBtn.className = "bg-rose-500 text-white font-bold py-3.5 px-4 rounded-2xl text-xl shadow-md border-2 border-rose-600";
+                showFeedback(false, `Kurang Tepat! Jawaban benar adalah ${q.answer}`);
+                
+                // Highlight button jawaban yang benar
+                highlightCorrectOption(q.answer);
+            }
+
+            userAnswers.push({
+                question: `${q.dividend} : ${q.divisor}`,
+                userAns: selectedVal,
+                correctAns: q.answer,
+                isCorrect: isCorrect,
+                bonus: bonus
+            });
+
+            disableAllOptions();
+            enableNextButton();
+            updateHeaderStats();
+        }
+
+        function highlightCorrectOption(correctAns) {
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(btn => {
+                if (btn.innerText == correctAns) {
+                    btn.className = "bg-emerald-100 text-emerald-800 border-2 border-emerald-400 font-bold py-3.5 px-4 rounded-2xl text-xl";
+                }
+            });
+        }
+
+        function disableAllOptions() {
+            const btns = document.querySelectorAll('.option-btn');
+            btns.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('cursor-not-allowed', 'opacity-80');
+            });
+        }
+
+        function showFeedback(isCorrect, msg) {
+            const box = document.getElementById('feedback-box');
+            box.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800');
+            if (isCorrect) {
+                box.classList.add('bg-emerald-100', 'text-emerald-800');
+                box.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i> ${msg}`;
+            } else {
+                box.classList.add('bg-rose-100', 'text-rose-800');
+                box.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 text-lg"></i> ${msg}`;
+            }
+        }
+
+        function enableNextButton() {
+            const btnNext = document.getElementById('btn-next-question');
+            btnNext.disabled = false;
+            btnNext.className = "px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-heading font-bold rounded-2xl shadow-lg shadow-emerald-500/30 active:scale-95 transition-all flex items-center gap-2";
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < config.totalQuestions) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function updateHeaderStats() {
+            document.getElementById('current-score').innerText = score + totalBonusScore;
+            document.getElementById('question-tracker').innerText = `${currentQuestionIndex + 1}/${config.totalQuestions}`;
+            
+            // Progress Bar
+            const pct = ((currentQuestionIndex) / config.totalQuestions) * 100;
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+        }
+
+        // Surrender Modal Controls
+        function openSurrenderModal() {
+            document.getElementById('modal-surrender').classList.remove('hidden');
+        }
+
+        function closeSurrenderModal() {
+            document.getElementById('modal-surrender').classList.add('hidden');
+        }
+
+        function confirmSurrender() {
+            closeSurrenderModal();
+            finishQuiz();
+        }
+
+        // Finish Quiz & Show Results
+        function finishQuiz() {
+            clearInterval(timerInterval);
+
+            // Hide Screens
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('header-stats').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+
+            const totalScoreCalc = score + totalBonusScore;
+            const correctCount = userAnswers.filter(a => a.isCorrect).length;
+            const accuracy = Math.round((correctCount / config.totalQuestions) * 100);
+
+            document.getElementById('res-score').innerText = totalScoreCalc;
+            document.getElementById('res-accuracy').innerText = `${accuracy}%`;
+            document.getElementById('res-bonus').innerText = `+${totalBonusScore}`;
+            document.getElementById('res-time').innerText = `${totalTimeSpent}s`;
+
+            // Render Review Items
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = '';
+
+            userAnswers.forEach((ans, idx) => {
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-xl border flex items-center justify-between text-xs sm:text-sm font-medium ${
+                    ans.isCorrect ? 'bg-emerald-50/50 border-emerald-200 text-emerald-900' : 'bg-rose-50/50 border-rose-200 text-rose-900'
+                }`;
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center font-bold ${
+                            ans.isCorrect ? 'bg-emerald-200 text-emerald-800' : 'bg-rose-200 text-rose-800'
+                        }">${idx + 1}</span>
+                        <span>${ans.question}</span>
+                    </div>
+                    <div class="text-right">
+                        <div>Jawabanmu: <strong class="${ans.isCorrect ? 'text-emerald-700' : 'text-rose-700'}">${ans.userAns}</strong></div>
+                        ${!ans.isCorrect ? `<div class="text-[11px] text-slate-500">Benar: <strong>${ans.correctAns}</strong></div>` : ''}
+                    </div>
+                `;
+                reviewList.appendChild(item);
+            });
+
+            // Selebrasi Confetti jika akurasi > 70%
+            if (accuracy >= 70 && typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function restartQuiz() {
+            startQuiz();
+        }
+
+        function backToSetup() {
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-setup').classList.remove('hidden');
+            document.getElementById('header-stats').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
