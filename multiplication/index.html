@@ -487,6 +487,55 @@
 
     </main>
 
+    <!-- TEST START CONFIRMATION MODAL -->
+    <div id="confirmModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onclick="app.cancelStartTest()"></div>
+        <div class="relative bg-slate-800 border border-slate-600 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl space-y-4">
+            <div class="text-center">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-500 flex items-center justify-center text-white text-2xl shadow-lg shadow-pink-500/30">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h3 class="text-xl font-extrabold text-white mt-3">Siap Mengerjakan Soal?</h3>
+                <p class="text-slate-300 text-sm mt-1">Berikut rincian soal ujianmu:</p>
+            </div>
+
+            <div class="bg-slate-900/70 rounded-2xl p-4 border border-slate-700 space-y-2 text-sm">
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-hashtag text-pink-400 mt-0.5"></i>
+                    <div>
+                        <div class="font-bold text-white">Total Soal</div>
+                        <div id="confirmTotal" class="text-slate-300">-</div>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-list-ol text-pink-400 mt-0.5"></i>
+                    <div>
+                        <div class="font-bold text-white">Tabel Utama</div>
+                        <div id="confirmMain" class="text-slate-300">-</div>
+                    </div>
+                </div>
+                <div id="confirmBonusRow" class="hidden flex items-start gap-3">
+                    <i class="fas fa-star text-amber-400 mt-0.5"></i>
+                    <div>
+                        <div class="font-bold text-amber-300">Soal Bonus</div>
+                        <div id="confirmBonus" class="text-slate-300">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-400 text-center">Soal akan disusun otomatis dan diacak. Selamat mengerjakan! 🍀</p>
+
+            <div class="flex gap-3 pt-1">
+                <button onclick="app.cancelStartTest()" class="flex-1 py-3 rounded-2xl bg-slate-700 hover:bg-slate-600 font-bold text-slate-200 transition active:scale-95">
+                    Batal
+                </button>
+                <button onclick="app.confirmStartTest()" class="flex-1 py-3 rounded-2xl bg-pink-600 hover:bg-pink-500 font-bold text-white shadow-lg shadow-pink-600/30 transition active:scale-95">
+                    <i class="fas fa-play text-sm mr-1"></i> Mulai
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="relative z-10 py-4 text-center text-xs text-slate-500 border-t border-slate-800">
         <p>© 2026 Master Perkalian • Belajar Matematika Jadi Makin Seru!</p>
@@ -564,8 +613,8 @@
 
         class MultiplicationApp {
             constructor() {
-                // Configuration state
-                this.selectedTables = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]); // multi-select tables
+                // Configuration state (start with nothing selected so the student picks a table)
+                this.selectedTables = new Set(); // multi-select tables
                 this.mode = 'flashcard'; // 'flashcard' or 'test'
                 
                 // Test Settings
@@ -694,7 +743,13 @@
                 // Update Table Badge Text
                 const badge = document.getElementById('selectedTableBadge');
                 const nums = Array.from(this.selectedTables).sort((a, b) => a - b);
-                badge.innerText = nums.length === 10 ? 'Semua (1 - 10)' : `Perkalian ${nums.join(', ')}`;
+                if (nums.length === 0) {
+                    badge.innerText = 'Belum dipilih';
+                } else if (nums.length === 10) {
+                    badge.innerText = 'Semua (1 - 10)';
+                } else {
+                    badge.innerText = `Perkalian ${nums.join(', ')}`;
+                }
 
                 // Update Mode Cards UI
                 const fcCard = document.getElementById('cardModeFlashcard');
@@ -748,13 +803,68 @@
             // Launch selected mode
             startSelectedMode() {
                 soundFX.click();
+                // Fall back to all tables if the student hasn't picked any yet
+                if (this.selectedTables.size === 0) {
+                    this.selectedTables = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+                    this.updateUISelection();
+                }
                 if (this.mode === 'flashcard') {
                     this.initFlashcards();
                     this.switchView('flashcard');
                 } else {
-                    this.initTest();
-                    this.switchView('test');
+                    this.showTestConfirm();
                 }
+            }
+
+            // Show a confirmation dialog describing how the test questions are composed
+            showTestConfirm() {
+                const tables = Array.from(this.selectedTables).sort((a, b) => a - b);
+                const isSingle = tables.length === 1;
+                const singleTable = isSingle ? tables[0] : null;
+
+                let total = this.questionCount;
+                let mainLabel;
+                let bonusText = null;
+
+                if (isSingle) {
+                    mainLabel = `Perkalian ${singleTable} saja (${this.questionCount} soal)`;
+                    // Bonus from lower tables (2 .. singleTable-1)
+                    if (singleTable > 2) {
+                        const lowerTables = [];
+                        for (let t = 2; t < singleTable; t++) lowerTables.push(t);
+                        bonusText = `10 soal tambahan acak dari Perkalian ${lowerTables.join(', ')}`;
+                        total = this.questionCount + 10;
+                    }
+                } else if (tables.length === 10) {
+                    mainLabel = `Semua tabel (1 - 10) — ${Math.min(this.questionCount, 100)} soal`;
+                } else {
+                    mainLabel = `Perkalian ${tables.join(', ')} — ${Math.min(this.questionCount, tables.length * 10)} soal`;
+                }
+
+                document.getElementById('confirmTotal').innerText = `${total} soal`;
+                document.getElementById('confirmMain').innerText = mainLabel;
+
+                const bonusRow = document.getElementById('confirmBonusRow');
+                if (bonusText) {
+                    bonusRow.classList.remove('hidden');
+                    document.getElementById('confirmBonus').innerText = bonusText;
+                } else {
+                    bonusRow.classList.add('hidden');
+                }
+
+                document.getElementById('confirmModal').classList.remove('hidden');
+            }
+
+            cancelStartTest() {
+                soundFX.click();
+                document.getElementById('confirmModal').classList.add('hidden');
+            }
+
+            confirmStartTest() {
+                soundFX.click();
+                document.getElementById('confirmModal').classList.add('hidden');
+                this.initTest();
+                this.switchView('test');
             }
 
             switchView(viewName) {
