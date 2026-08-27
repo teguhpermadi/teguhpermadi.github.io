@@ -565,7 +565,7 @@
         class MultiplicationApp {
             constructor() {
                 // Configuration state
-                this.selectedTable = 'mixed'; // '1' - '10' or 'mixed'
+                this.selectedTables = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]); // multi-select tables
                 this.mode = 'flashcard'; // 'flashcard' or 'test'
                 
                 // Test Settings
@@ -633,10 +633,19 @@
                 }
             }
 
-            // Select Multiplication Table (1-10 or Mixed)
+            // Toggle select multiplication tables (1-10, can select multiple) or pick all via 'mixed'
             selectTable(table) {
                 soundFX.click();
-                this.selectedTable = table;
+                if (table === 'mixed') {
+                    this.selectedTables = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+                } else {
+                    const num = parseInt(table);
+                    if (this.selectedTables.has(num)) {
+                        if (this.selectedTables.size > 1) this.selectedTables.delete(num);
+                    } else {
+                        this.selectedTables.add(num);
+                    }
+                }
                 this.updateUISelection();
             }
 
@@ -669,16 +678,23 @@
                 // Update Table Buttons
                 document.querySelectorAll('.num-select-btn').forEach(btn => {
                     const t = btn.getAttribute('data-table');
-                    if (t === this.selectedTable) {
-                        btn.className = "num-select-btn py-3 rounded-2xl border-2 border-indigo-500 bg-indigo-600/30 font-extrabold text-lg text-white shadow-lg shadow-indigo-500/20 active:scale-95 flex flex-col items-center justify-center";
+                    if (t === 'mixed') {
+                        const isAll = this.selectedTables.size === 10;
+                        btn.className = "num-select-btn col-span-2 py-3 rounded-2xl flex items-center justify-center gap-2 text-lg active:scale-95 transition-all" + (isAll
+                            ? " border-2 border-indigo-500 bg-indigo-600/30 font-extrabold text-white shadow-lg shadow-indigo-500/20"
+                            : " border border-slate-700 bg-slate-800 hover:border-indigo-500/50 font-bold text-indigo-300");
                     } else {
-                        btn.className = "num-select-btn py-3 rounded-2xl border border-slate-700 bg-slate-800 hover:border-indigo-500/50 font-bold text-lg text-slate-300 transition-all active:scale-95 flex flex-col items-center justify-center";
+                        const isSel = this.selectedTables.has(parseInt(t));
+                        btn.className = "num-select-btn py-3 rounded-2xl flex flex-col items-center justify-center text-lg active:scale-95 transition-all" + (isSel
+                            ? " border-2 border-indigo-500 bg-indigo-600/30 font-extrabold text-white shadow-lg shadow-indigo-500/20"
+                            : " border border-slate-700 bg-slate-800 hover:border-indigo-500/50 font-bold text-slate-300");
                     }
                 });
 
                 // Update Table Badge Text
                 const badge = document.getElementById('selectedTableBadge');
-                badge.innerText = this.selectedTable === 'mixed' ? 'Semua (1 - 10)' : `Perkalian ${this.selectedTable}`;
+                const nums = Array.from(this.selectedTables).sort((a, b) => a - b);
+                badge.innerText = nums.length === 10 ? 'Semua (1 - 10)' : `Perkalian ${nums.join(', ')}`;
 
                 // Update Mode Cards UI
                 const fcCard = document.getElementById('cardModeFlashcard');
@@ -763,9 +779,7 @@
             // --- FLASHCARD LOGIC ---
             initFlashcards() {
                 this.flashcards = [];
-                const tables = this.selectedTable === 'mixed' 
-                    ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] 
-                    : [parseInt(this.selectedTable)];
+                const tables = Array.from(this.selectedTables).sort((a, b) => a - b);
 
                 tables.forEach(num1 => {
                     for (let num2 = 1; num2 <= 10; num2++) {
@@ -845,21 +859,52 @@
                 this.correctCount = 0;
                 this.wrongAnswers = [];
 
-                // Generate Question Bank
-                const pool = [];
-                const tables = this.selectedTable === 'mixed' 
-                    ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] 
-                    : [parseInt(this.selectedTable)];
+                // Determine selected tables (1 - 10, can be multiple or "mixed")
+                const tables = Array.from(this.selectedTables).sort((a, b) => a - b);
+                const isSingle = tables.length === 1;
+                const singleTable = isSingle ? tables[0] : null;
 
-                tables.forEach(num1 => {
-                    for (let num2 = 1; num2 <= 10; num2++) {
-                        pool.push({ a: num1, b: num2, ans: num1 * num2 });
+                if (isSingle) {
+                    // Single table: fill the requested count using that table
+                    // (multiplier 1-10 chosen randomly, repeats allowed so 20/30
+                    // soal of one table are possible).
+                    this.testQuestions = [];
+                    for (let i = 0; i < this.questionCount; i++) {
+                        const num2 = Math.floor(Math.random() * 10) + 1;
+                        this.testQuestions.push({ a: singleTable, b: num2, ans: singleTable * num2 });
                     }
-                });
+                } else {
+                    // Multiple tables: build a shuffled pool of unique combos and pick the count
+                    const pool = [];
+                    tables.forEach(num1 => {
+                        for (let num2 = 1; num2 <= 10; num2++) {
+                            pool.push({ a: num1, b: num2, ans: num1 * num2 });
+                        }
+                    });
+                    pool.sort(() => Math.random() - 0.5);
+                    this.testQuestions = pool.slice(0, Math.min(this.questionCount, pool.length));
+                }
 
-                // Shuffle pool and select total questions
-                pool.sort(() => Math.random() - 0.5);
-                this.testQuestions = pool.slice(0, Math.min(this.questionCount, pool.length));
+                // BONUS: when a single "higher" table is selected, add 10 random
+                // questions from the lower tables (2 .. singleTable-1) to reinforce
+                // earlier material.
+                if (isSingle && singleTable > 2) {
+                    const lowerTables = [];
+                    for (let t = 2; t < singleTable; t++) lowerTables.push(t);
+
+                    const bonusPool = [];
+                    lowerTables.forEach(num1 => {
+                        for (let num2 = 1; num2 <= 10; num2++) {
+                            bonusPool.push({ a: num1, b: num2, ans: num1 * num2 });
+                        }
+                    });
+
+                    bonusPool.sort(() => Math.random() - 0.5);
+                    this.testQuestions = this.testQuestions.concat(bonusPool.slice(0, 10));
+                }
+
+                // Final shuffle so bonus questions are mixed evenly throughout
+                this.testQuestions.sort(() => Math.random() - 0.5);
 
                 // Set Input Mode View (MCQ vs Numpad)
                 if (this.inputType === 'mcq') {
