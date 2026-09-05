@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <title>Operasi Pecahan - Latihan Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css"
+        integrity="sha384-2dNi/m6JtSiviznrOIZ5fTiZ5As0In2QwkuXSgoqcQtCNplvJAbt+jveeN+8en73" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.js"
+        integrity="sha384-TTF8eEsEKInX2meLzP5V1z/npGYIElXYGksx93f0qBZHu6IL3PdzVB8objytx+TR" crossorigin="anonymous"></script>
+    <style>
+        :root { color-scheme: dark; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Fredoka', 'Outfit', sans-serif; }
+        .math-display .katex { font-size: clamp(2rem, 7vw, 4.5rem); }
+        .answer-input::-webkit-inner-spin-button, .answer-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .answer-input { -moz-appearance: textfield; }
+        .option-card:has(input:checked) { border-color: #22d3ee; background: rgba(8, 145, 178, .16); box-shadow: 0 0 0 2px rgba(34, 211, 238, .15); }
+        .option-card:has(input:checked) .option-icon { background: #0891b2; color: white; }
+        .progress-fill { transition: width .35s ease; }
+        .question-card { position: relative; isolation: isolate; overflow: hidden; --timer-progress: 0%; }
+        .question-card.timer-active { border-color: transparent; }
+        .question-card.timer-active::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+            padding: 3px;
+            border-radius: 1.5rem;
+            background: conic-gradient(from -90deg, var(--timer-color, #22d3ee) 0 var(--timer-progress), transparent var(--timer-progress) 100%);
+        }
+        .question-card.timer-active::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            z-index: -1;
+            border-radius: 1.4rem;
+            background: rgba(15, 23, 42, .96);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .question-card.timer-active::before { transition: none; }
+        }
+        @media (max-width: 480px) { .katex { font-size: 1.05em; } }
+    </style>
+</head>
+
+<body class="min-h-screen overflow-x-hidden bg-slate-950 text-slate-100">
+    <div class="pointer-events-none fixed inset-0 overflow-hidden opacity-30">
+        <div class="absolute -left-28 -top-28 h-80 w-80 rounded-full bg-cyan-600 blur-3xl"></div>
+        <div class="absolute -bottom-40 -right-20 h-96 w-96 rounded-full bg-violet-700 blur-3xl"></div>
+    </div>
+
+    <header class="relative z-10 border-b border-white/10 bg-slate-950/75 px-4 py-3 backdrop-blur-md sm:px-8">
+        <div class="mx-auto flex max-w-5xl items-center justify-between gap-3">
+            <a href="../index.html" class="flex items-center gap-3" aria-label="Kembali ke beranda">
+                <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 text-xl font-bold shadow-lg shadow-cyan-500/20">½</span>
+                <span>
+                    <strong class="block bg-gradient-to-r from-cyan-300 to-violet-300 bg-clip-text text-lg text-transparent sm:text-2xl">Operasi Pecahan</strong>
+                    <small class="hidden text-slate-400 sm:block">Latihan cepat, tepat, dan menyenangkan</small>
+                </span>
+            </a>
+            <a href="../index.html" class="rounded-xl border border-slate-700 px-3 py-2 text-sm text-slate-300 transition hover:border-cyan-400 hover:text-cyan-300">Beranda</a>
+        </div>
+    </header>
+
+    <main class="relative z-10 mx-auto w-full max-w-5xl px-4 py-6 sm:py-10">
+        <section id="setupView" class="mx-auto max-w-3xl">
+            <div class="mb-7 text-center">
+                <span class="rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-cyan-300">Latihan Interaktif</span>
+                <h1 class="mt-4 text-3xl font-bold sm:text-5xl">Jago Operasi Pecahan</h1>
+                <p class="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base">Pilih pengaturan latihanmu. Pecahan akan ditampilkan rapi dengan KaTeX dan setiap jawaban dihitung secara eksak.</p>
+            </div>
+            <form id="setupForm" class="space-y-5 rounded-3xl border border-white/10 bg-slate-900/80 p-4 shadow-2xl shadow-black/20 sm:p-7">
+                <div>
+                    <label class="mb-3 block text-sm font-semibold text-slate-300">Jenis pasangan pecahan</label>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <label class="option-card flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-700 bg-slate-800/60 p-4 transition hover:border-cyan-500">
+                            <input class="sr-only" type="radio" name="pairType" value="fraction-fraction" checked>
+                            <span class="option-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-700 text-xl text-cyan-300">½</span>
+                            <span><strong class="block">Biasa &amp; biasa</strong><small class="text-xs text-slate-400">Pecahan biasa dengan pecahan biasa</small></span>
+                        </label>
+                        <label class="option-card flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-700 bg-slate-800/60 p-4 transition hover:border-cyan-500">
+                            <input class="sr-only" type="radio" name="pairType" value="fraction-mixed">
+                            <span class="option-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-700 text-xl text-cyan-300">1½</span>
+                            <span><strong class="block">Biasa &amp; campuran</strong><small class="text-xs text-slate-400">Termasuk urutan sebaliknya</small></span>
+                        </label>
+                        <label class="option-card flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-700 bg-slate-800/60 p-4 transition hover:border-cyan-500">
+                            <input class="sr-only" type="radio" name="pairType" value="fraction-natural">
+                            <span class="option-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-700 text-xl text-cyan-300">3</span>
+                            <span><strong class="block">Biasa &amp; bilangan asli</strong><small class="text-xs text-slate-400">Termasuk urutan sebaliknya</small></span>
+                        </label>
+                        <label class="option-card flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-700 bg-slate-800/60 p-4 transition hover:border-cyan-500">
+                            <input class="sr-only" type="radio" name="pairType" value="mixed-mixed">
+                            <span class="option-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-700 text-xl text-cyan-300">2¼</span>
+                            <span><strong class="block">Campuran &amp; campuran</strong><small class="text-xs text-slate-400">Dua pecahan campuran</small></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <div>
+                        <label for="level" class="mb-2 block text-sm font-semibold text-slate-300">Level</label>
+                        <select id="level" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm outline-none focus:border-cyan-400">
+                            <option value="addition">Penjumlahan</option>
+                            <option value="subtraction">Pengurangan</option>
+                            <option value="multiplication">Perkalian</option>
+                            <option value="division">Pembagian</option>
+                            <option value="mixed-1">Mudah — campuran 1 operasi</option>
+                            <option value="mixed-2">Sedang — campuran 2 operasi</option>
+                            <option value="mixed-3">Sulit — campuran 3 operasi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="questionCount" class="mb-2 block text-sm font-semibold text-slate-300">Paket soal</label>
+                        <select id="questionCount" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm outline-none focus:border-cyan-400">
+                            <option value="5">5 soal</option><option value="10">10 soal</option><option value="15">15 soal</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label for="timer" class="mb-2 block text-sm font-semibold text-slate-300">Timer per soal</label>
+                    <select id="timer" class="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm outline-none focus:border-cyan-400">
+                        <option value="0">Tanpa timer</option><option value="30">30 detik</option><option value="60">1 menit</option><option value="90">1,5 menit</option>
+                    </select>
+                </div>
+                <button class="w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-3.5 text-base font-bold text-white shadow-lg shadow-cyan-700/20 transition hover:from-cyan-400 hover:to-blue-500 active:scale-[.99]" type="submit">Mulai Latihan <span aria-hidden="true">→</span></button>
+            </form>
+        </section>
+
+        <section id="quizView" class="mx-auto hidden max-w-3xl">
+            <div class="mb-5 flex items-center justify-between gap-3">
+                <div><p id="questionLabel" class="text-sm font-semibold text-cyan-300"></p><div class="mt-2 h-2 w-36 overflow-hidden rounded-full bg-slate-800 sm:w-64"><div id="progressBar" class="progress-fill h-full rounded-full bg-cyan-400"></div></div></div>
+                <div id="timerBox" class="rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-right"><small class="block text-xs text-slate-400">Waktu</small><strong id="timerLabel" class="text-lg text-cyan-300">∞</strong></div>
+            </div>
+            <div id="questionCard" class="question-card rounded-3xl border border-white/10 bg-slate-900/85 p-5 shadow-2xl sm:p-10">
+                <div id="problem" class="math-display min-h-[120px] overflow-x-auto py-7 text-center"></div>
+                <p class="mb-4 text-center text-sm text-slate-400">Pilih jawaban yang paling tepat. Distraktor dibuat dari kesalahan umum saat menghitung pecahan.</p>
+                <form id="answerForm" class="mx-auto grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2"></form>
+                <p id="feedback" class="mt-4 min-h-6 text-center text-sm font-semibold" aria-live="polite"></p>
+            </div>
+            <div class="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm"><span>Skor sementara: <strong id="scoreLabel" class="text-cyan-300">0</strong></span><span id="streakLabel" class="text-slate-400">Streak: 0</span></div>
+        </section>
+
+        <section id="resultView" class="mx-auto hidden max-w-xl text-center">
+            <div class="rounded-3xl border border-white/10 bg-slate-900/85 p-6 shadow-2xl sm:p-10">
+                <div class="mb-4 text-5xl">🎉</div><p class="text-sm font-semibold uppercase tracking-widest text-cyan-300">Latihan selesai</p>
+                <h2 class="mt-2 text-3xl font-bold">Hasil Latihanmu</h2>
+                <div class="my-7 grid grid-cols-2 gap-3 text-left sm:grid-cols-4"><div class="rounded-2xl bg-slate-800 p-3"><small class="text-slate-400">Skor</small><strong id="resultScore" class="mt-1 block text-2xl text-cyan-300">0</strong></div><div class="rounded-2xl bg-slate-800 p-3"><small class="text-slate-400">Benar</small><strong id="resultCorrect" class="mt-1 block text-2xl text-emerald-300">0</strong></div><div class="rounded-2xl bg-slate-800 p-3"><small class="text-slate-400">Akurasi</small><strong id="resultAccuracy" class="mt-1 block text-2xl text-violet-300">0%</strong></div><div class="rounded-2xl bg-slate-800 p-3"><small class="text-slate-400">Waktu</small><strong id="resultTime" class="mt-1 block text-2xl text-amber-300">0 dtk</strong></div></div>
+                <button id="retryButton" class="w-full rounded-xl bg-cyan-500 px-5 py-3 font-bold text-slate-950 transition hover:bg-cyan-300">Coba Lagi</button><button id="newSettingsButton" class="mt-3 w-full rounded-xl border border-slate-700 px-5 py-3 font-semibold text-slate-300 transition hover:border-cyan-400 hover:text-cyan-300">Ubah Pengaturan</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const state = { settings: {}, questions: [], current: 0, score: 0, correct: 0, streak: 0, secondsLeft: 0, timerId: null, timerAnimationId: null, timerDeadline: 0, startedAt: 0, questionStartedAt: 0, locked: false };
+        const $ = (id) => document.getElementById(id);
+        const random = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a || 1; };
+        const reduce = (n, d) => { if (d < 0) { n = -n; d = -d; } const g = gcd(n, d); return { n: n / g, d: d / g }; };
+        const add = (a, b) => reduce(a.n * b.d + b.n * a.d, a.d * b.d);
+        const subtract = (a, b) => reduce(a.n * b.d - b.n * a.d, a.d * b.d);
+        const multiply = (a, b) => reduce(a.n * b.n, a.d * b.d);
+        const divide = (a, b) => reduce(a.n * b.d, a.d * b.n);
+        const equal = (a, b) => a.n === b.n && a.d === b.d;
+        const whole = (value) => ({ n: value, d: 1 });
+        const fraction = (type) => {
+            if (type === 'natural') return whole(random(2, 9));
+            if (type === 'mixed') { const denominator = random(2, 9); return reduce(random(1, 4) * denominator + random(1, denominator - 1), denominator); }
+            return reduce(random(1, 8), random(2, 9));
+        };
+        const latex = (value, mixed = false) => {
+            const sign = value.n < 0 ? '-' : ''; const n = Math.abs(value.n);
+            if (mixed && n >= value.d && value.d !== 1) { const w = Math.floor(n / value.d); const remainder = n % value.d; return sign + (remainder ? `${w}\\frac{${remainder}}{${value.d}}` : `${w}`); }
+            return value.d === 1 ? `${value.n}` : `${sign}\\frac{${n}}{${value.d}}`;
+        };
+        const generateQuestion = () => {
+            const type = state.settings.pairType; const types = type === 'fraction-fraction' ? ['fraction', 'fraction'] : type === 'fraction-mixed' ? (Math.random() > .5 ? ['fraction', 'mixed'] : ['mixed', 'fraction']) : type === 'fraction-natural' ? (Math.random() > .5 ? ['fraction', 'natural'] : ['natural', 'fraction']) : ['mixed', 'mixed'];
+            const fixedOperators = { addition: '+', subtraction: '-', multiplication: '\\times', division: '\\div' };
+            const isMixed = state.settings.level.startsWith('mixed-');
+            const count = isMixed ? Number(state.settings.level.split('-')[1]) : 1; const values = []; const operators = [];
+            for (let i = 0; i < count + 1; i++) values.push(fraction(types[i % 2]));
+            for (let i = 0; i < count; i++) operators.push(isMixed ? ['+', '-', '\\times', '\\div'][random(0, 3)] : fixedOperators[state.settings.level]);
+            let answer = values[0]; let expression = latex(values[0], types[0] === 'mixed');
+            for (let i = 0; i < count; i++) {
+                let right = values[i + 1];
+                if (operators[i] === '\\div' && right.n === 0) right = whole(1);
+                if (operators[i] === '-' && answer.n * right.d <= right.n * answer.d) operators[i] = '+';
+                if (operators[i] === '+') answer = add(answer, right); else if (operators[i] === '-') answer = subtract(answer, right); else if (operators[i] === '\\times') answer = multiply(answer, right); else answer = divide(answer, right);
+                expression += ` ${operators[i]} ${latex(right, types[(i + 1) % 2] === 'mixed')}`;
+            }
+            return { expression: `\\displaystyle ${expression} = \\; ?`, answer, choices: createChoices(answer) };
+        };
+        const createChoices = (answer) => {
+            const candidates = [
+                answer,
+                reduce(answer.n + answer.d, answer.d),
+                reduce(answer.n, answer.d + 1),
+                reduce(answer.d, answer.n || 1),
+                reduce(answer.n * 2, answer.d)
+            ];
+            const choices = [];
+            candidates.forEach((candidate) => {
+                if (!choices.some((choice) => equal(choice, candidate))) choices.push(candidate);
+            });
+            while (choices.length < 4) {
+                const candidate = reduce(random(1, 18), random(1, 12));
+                if (!choices.some((choice) => equal(choice, candidate))) choices.push(candidate);
+            }
+            return choices.sort(() => Math.random() - 0.5).slice(0, 4);
+        };
+        const renderProblem = () => {
+            const question = state.questions[state.current]; $('problem').innerHTML = katex.renderToString(question.expression, { displayMode: true, throwOnError: false });
+            $('questionLabel').textContent = `Soal ${state.current + 1} dari ${state.settings.count}`; $('progressBar').style.width = `${((state.current + 1) / state.settings.count) * 100}%`;
+            $('feedback').textContent = ''; state.locked = false;
+            $('answerForm').innerHTML = question.choices.map((choice, index) => `<button type="submit" class="choice-button flex min-h-16 items-center justify-center rounded-2xl border border-slate-700 bg-slate-800 px-4 py-3 text-lg font-bold text-slate-100 transition hover:border-cyan-400 hover:bg-cyan-950/50 active:scale-[.98]" data-choice-index="${index}" aria-label="Pilihan ${index + 1}">${katex.renderToString(latex(choice, true), { throwOnError: false })}</button>`).join('');
+            startQuestionTimer();
+        };
+        const updateTimerAnimation = () => {
+            const limit = Number(state.settings.timer);
+            const remainingRatio = limit ? Math.max(0, (state.timerDeadline - Date.now()) / (limit * 1000)) : 0;
+            $('questionCard').classList.toggle('timer-warning', limit > 0 && remainingRatio <= .5 && remainingRatio > .2);
+            $('questionCard').classList.toggle('timer-danger', limit > 0 && remainingRatio <= .2);
+            $('questionCard').style.setProperty('--timer-color', remainingRatio <= .2 ? '#fb7185' : remainingRatio <= .5 ? '#fbbf24' : '#22d3ee');
+            $('questionCard').style.setProperty('--timer-progress', `${Math.max(0, remainingRatio * 100)}%`);
+        };
+        const animateTimerBorder = () => {
+            updateTimerAnimation();
+            if (state.timerDeadline > Date.now() && !state.locked) {
+                state.timerAnimationId = requestAnimationFrame(animateTimerBorder);
+            }
+        };
+        const startQuestionTimer = () => {
+            clearInterval(state.timerId);
+            cancelAnimationFrame(state.timerAnimationId);
+            state.questionStartedAt = Date.now();
+            state.secondsLeft = Number(state.settings.timer);
+            const hasTimer = state.secondsLeft > 0;
+            state.timerDeadline = hasTimer ? Date.now() + state.secondsLeft * 1000 : 0;
+            $('timerLabel').textContent = hasTimer ? formatTime(state.secondsLeft) : '∞';
+            $('timerBox').classList.remove('border-rose-500', 'text-rose-300');
+            $('questionCard').classList.toggle('timer-active', hasTimer);
+            $('questionCard').classList.remove('timer-warning', 'timer-danger');
+            updateTimerAnimation();
+            if (hasTimer) state.timerAnimationId = requestAnimationFrame(animateTimerBorder);
+            if (hasTimer) state.timerId = setInterval(() => {
+                state.secondsLeft--;
+                $('timerLabel').textContent = formatTime(state.secondsLeft);
+                if (state.secondsLeft <= 0) { clearInterval(state.timerId); submitAnswer(null, true); }
+            }, 1000);
+        };
+        const formatTime = (seconds) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+        const showView = (id) => ['setupView', 'quizView', 'resultView'].forEach((view) => $(view).classList.toggle('hidden', view !== id));
+        const submitAnswer = (choiceIndex = null, timedOut = false) => {
+            if (state.locked) return; state.locked = true; clearInterval(state.timerId); cancelAnimationFrame(state.timerAnimationId); $('questionCard').classList.remove('timer-active', 'timer-warning', 'timer-danger'); const selected = choiceIndex === null ? null : state.questions[state.current].choices[choiceIndex]; const isCorrect = !timedOut && selected && equal(selected, state.questions[state.current].answer);
+            const elapsed = Math.max(0, (Date.now() - state.questionStartedAt) / 1000); const correctAnswer = katex.renderToString(latex(state.questions[state.current].answer, true), { throwOnError: false }); if (isCorrect) { state.correct++; state.streak++; state.score += 100 + (state.settings.timer ? state.secondsLeft * 2 : Math.max(0, Math.floor(30 - elapsed))); $('feedback').innerHTML = `Benar! +${100 + (state.settings.timer ? state.secondsLeft * 2 : Math.max(0, Math.floor(30 - elapsed)))} poin`; $('feedback').className = 'mt-4 min-h-6 text-center text-sm font-semibold text-emerald-300'; } else { state.streak = 0; $('feedback').innerHTML = timedOut ? `Waktu habis. Jawaban: ${correctAnswer}` : `Belum tepat. Jawaban: ${correctAnswer}`; $('feedback').className = 'mt-4 min-h-6 text-center text-sm font-semibold text-rose-300'; }
+            $('scoreLabel').textContent = state.score; $('streakLabel').textContent = `Streak: ${state.streak}`; document.querySelectorAll('.choice-button').forEach((button) => { button.disabled = true; button.classList.add('opacity-50'); }); setTimeout(() => { if (state.current + 1 < state.questions.length) { state.current++; renderProblem(); } else finishQuiz(); }, 1100);
+        };
+        const finishQuiz = () => { clearInterval(state.timerId); showView('resultView'); $('resultScore').textContent = state.score; $('resultCorrect').textContent = `${state.correct}/${state.settings.count}`; $('resultAccuracy').textContent = `${Math.round((state.correct / state.settings.count) * 100)}%`; $('resultTime').textContent = `${Math.round((Date.now() - state.startedAt) / 1000)} dtk`; };
+        $('setupForm').addEventListener('submit', (event) => { event.preventDefault(); state.settings = { pairType: document.querySelector('input[name="pairType"]:checked').value, level: $('level').value, count: Number($('questionCount').value), timer: Number($('timer').value) }; state.questions = Array.from({ length: state.settings.count }, generateQuestion); state.current = 0; state.score = 0; state.correct = 0; state.streak = 0; state.startedAt = Date.now(); $('scoreLabel').textContent = '0'; showView('quizView'); renderProblem(); });
+        $('answerForm').addEventListener('submit', (event) => { event.preventDefault(); const button = event.submitter; submitAnswer(button ? Number(button.dataset.choiceIndex) : null); });
+        $('retryButton').addEventListener('click', () => { $('setupForm').requestSubmit(); });
+        $('newSettingsButton').addEventListener('click', () => showView('setupView'));
+    </script>
+</body>
+
+</html>
