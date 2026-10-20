@@ -37,6 +37,31 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #4ade80;
         }
+        @keyframes operand-pulse {
+            0%, 100% {
+                background-color: #fef3c7;
+                box-shadow: 0 0 0 2px rgb(245 158 11 / 35%);
+                transform: scale(1);
+            }
+            50% {
+                background-color: #fde68a;
+                box-shadow: 0 0 0 4px rgb(245 158 11 / 15%);
+                transform: scale(1.08);
+            }
+        }
+        .operand-pulse {
+            position: relative;
+            z-index: 1;
+            border-radius: 0.25rem;
+            animation: operand-pulse 0.9s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .operand-pulse {
+                animation: none;
+                background-color: #fde68a;
+                box-shadow: 0 0 0 2px rgb(245 158 11 / 35%);
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen text-slate-800 flex flex-col justify-between selection:bg-emerald-200">
@@ -321,12 +346,26 @@
                             <div id="division-work-display" class="space-y-2 mb-4"></div>
                             <div id="division-step-counter" class="text-xs font-bold text-emerald-800 mb-2"></div>
                             <div id="division-step-name" class="inline-flex text-sm font-bold text-emerald-800 bg-white border border-emerald-100 px-3 py-1 rounded-lg mb-3"></div>
-                            <p id="division-step-instruction" class="text-sm font-semibold text-slate-700 mb-3"></p>
+                            <p id="division-step-instruction" class="text-sm font-semibold text-slate-700 mb-3" aria-live="polite"></p>
                             <form onsubmit="event.preventDefault(); checkDivisionStep();" class="flex flex-col gap-2">
                                 <label for="division-step-answer" class="sr-only">Jawaban langkah porogapit</label>
-                                <input id="division-step-answer" type="number" min="0" step="1" inputmode="numeric" required
-                                       class="min-w-0 w-full bg-white border-2 border-emerald-200 focus:border-emerald-500 focus:outline-none rounded-xl px-3 py-2 text-lg font-bold text-slate-800"
-                                       placeholder="Ketik jawaban langkah ini">
+                                <input id="division-step-answer" type="text" inputmode="none" readonly autocomplete="off" required aria-describedby="division-step-instruction"
+                                       class="min-w-0 w-full bg-white border-2 border-emerald-200 rounded-xl px-3 py-2 text-xl font-bold text-slate-800 text-center"
+                                       placeholder="Pilih angka di bawah">
+                                <div id="division-virtual-keyboard" class="grid grid-cols-3 gap-2" aria-label="Keyboard angka">
+                                    <button type="button" onclick="pressDivisionKey('1')" class="h-11 bg-white border border-emerald-200 hover:bg-emerald-100 rounded-xl text-lg font-bold text-slate-800" aria-label="Angka 1">1</button>
+                                    <button type="button" onclick="pressDivisionKey('2')" class="h-11 bg-white border border-emerald-200 hover:bg-emerald-100 rounded-xl text-lg font-bold text-slate-800" aria-label="Angka 2">2</button>
+                                    <button type="button" onclick="pressDivisionKey('3')" class="h-11 bg-white border border-emerald-200 hover:bg-emerald-100 rounded-xl text-lg font-bold text-slate-800" aria-label="Angka 3">3</button>
+                                    <button type="button" onclick="pressDivisionKey('4')" class="h-11 bg-white border border-emerald-200 hover:bg-emerald-100 rounded-xl text-lg font-bold text-slate-800" aria-label="Angka 4">4</button>
+                                    <button type="button" onclick="pressDivisionKey('5')" class="h-11 bg-white border border-emerald-200 hover:bg-emerald-100 rounded-xl text-lg font-bold text-slate-800" aria-label="Angka 5">5</button>
+                                    <button type="button" onclick="pressDivisionKey('6')" class="h-11 bg-white border border-emerald-200 hover:bg-emerald-100 rounded-xl text-lg font-bold text-slate-800" aria-label="Angka 6">6</button>
+                                    <button type="button" onclick="pressDivisionKey('7')" class="h-11 bg-white border border-emerald-200 hover:bg-emerald-100 rounded-xl text-lg font-bold text-slate-800" aria-label="Angka 7">7</button>
+                                    <button type="button" onclick="pressDivisionKey('8')" class="h-11 bg-white border border-emerald-200 hover:bg-emerald-100 rounded-xl text-lg font-bold text-slate-800" aria-label="Angka 8">8</button>
+                                    <button type="button" onclick="pressDivisionKey('9')" class="h-11 bg-white border border-emerald-200 hover:bg-emerald-100 rounded-xl text-lg font-bold text-slate-800" aria-label="Angka 9">9</button>
+                                    <button type="button" onclick="pressDivisionKey('clear')" class="h-11 bg-rose-50 border border-rose-200 hover:bg-rose-100 rounded-xl text-sm font-bold text-rose-700" aria-label="Hapus semua">Hapus</button>
+                                    <button type="button" onclick="pressDivisionKey('0')" class="h-11 bg-white border border-emerald-200 hover:bg-emerald-100 rounded-xl text-lg font-bold text-slate-800" aria-label="Angka 0">0</button>
+                                    <button type="button" onclick="pressDivisionKey('backspace')" class="h-11 bg-amber-50 border border-amber-200 hover:bg-amber-100 rounded-xl text-lg font-bold text-amber-800" aria-label="Hapus satu angka"><i class="fa-solid fa-delete-left"></i></button>
+                                </div>
                                 <button id="division-step-submit" type="submit" class="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-colors">
                                     Periksa Langkah
                                 </button>
@@ -610,7 +649,9 @@
                     const onRule = options.ruleStart !== undefined &&
                         index >= options.ruleStart && index <= endIndex;
                     const active = options.active && index === endIndex;
-                    return `<span class="flex h-8 items-center justify-center ${index === 0 ? 'border-l-2 border-slate-800' : ''} ${onRule ? 'border-b-2 border-slate-800' : ''} ${active ? 'text-emerald-700 bg-emerald-100 rounded font-bold' : ''}">${character}</span>`;
+                    const operand = options.highlightRange &&
+                        index >= options.highlightRange[0] && index <= options.highlightRange[1];
+                    return `<span class="flex h-8 items-center justify-center ${index === 0 ? 'border-l-2 border-slate-800' : ''} ${onRule ? 'border-b-2 border-slate-800' : ''} ${active ? 'text-emerald-700 bg-emerald-100 rounded font-bold' : ''} ${operand ? 'operand-pulse' : ''}">${character}</span>`;
                 }).join('');
 
                 return `
@@ -626,22 +667,37 @@
                 );
                 const isActive = divisionIndex === currentStep;
                 const isComplete = divisionIndex < currentStep;
+                const multiplicationIndex = actions.findIndex(action =>
+                    action.columnIndex === index && action.type === 'Kali'
+                );
+                const isMultiplicationOperand = multiplicationIndex === currentStep;
                 const style = isActive
                     ? 'text-emerald-800 bg-emerald-100 rounded'
                     : isComplete
                         ? 'text-slate-800'
                         : 'text-slate-300';
-                return `<span class="text-center min-w-8 px-1 ${style}">${isComplete ? column.quotientDigit : isActive ? '?' : '·'}</span>`;
+                return `<span class="text-center min-w-8 px-1 ${style} ${isMultiplicationOperand ? 'operand-pulse' : ''}">${isComplete ? column.quotientDigit : isActive ? '?' : '·'}</span>`;
             }).join('');
 
+            const divisorIsActive = currentAction &&
+                (currentAction.type === 'Bagi' || currentAction.type === 'Kali');
+            const initialPartialIsActive = currentAction &&
+                currentAction.columnIndex === 0 &&
+                (currentAction.type === 'Bagi' || currentAction.type === 'Kurang');
             let board = `
                 <div class="w-fit mx-auto">
                     <div class="grid items-end font-mono text-2xl font-bold text-slate-800" style="grid-template-columns:${gridColumns}">
                         <span></span>${quotientDigits}<span></span>
                     </div>
                     <div class="grid items-center font-mono text-2xl font-bold text-slate-800" style="grid-template-columns:${gridColumns}">
-                        <span class="flex h-9 items-center justify-end pr-1">${question.divisor})</span>
-                        ${columns.map((column, index) => `<span class="flex h-9 items-center justify-center border-t-2 border-slate-800 ${index === 0 ? 'border-l-2 rounded-tl-md' : ''}">${column.digit}</span>`).join('')}
+                        <span class="flex h-9 items-center justify-end pr-1"><span class="${divisorIsActive ? 'operand-pulse px-1' : ''}">${question.divisor}</span>)</span>
+                        ${columns.map((column, index) => {
+                            const isBroughtDownOperand = currentAction &&
+                                currentAction.type === 'Turun' &&
+                                currentAction.columnIndex + 1 === index;
+                            const isInitialOperand = index === 0 && initialPartialIsActive;
+                            return `<span class="flex h-9 items-center justify-center border-t-2 border-slate-800 ${index === 0 ? 'border-l-2 rounded-tl-md' : ''} ${isInitialOperand || isBroughtDownOperand ? 'operand-pulse' : ''}">${column.digit}</span>`;
+                        }).join('')}
                         <span></span>
                     </div>
             `;
@@ -665,6 +721,11 @@
                         index,
                         {
                             active: productIsActive,
+                            highlightRange: currentAction &&
+                                currentAction.type === 'Kurang' &&
+                                currentAction.columnIndex === index
+                                ? [index - String(column.product).length + 1, index]
+                                : null,
                             minus: !productIsActive,
                             ruleStart: partialStart
                         }
@@ -679,12 +740,26 @@
                         const partial = bringDownIsActive
                             ? `${column.remainder}?`
                             : String(column.remainder * 10 + column.nextDigit);
-                        board += renderBoardRow(partial, index + 1, { active: bringDownIsActive });
+                        const partialStartIndex = index + 1 - String(column.remainder * 10 + column.nextDigit).length + 1;
+                        const partialIsActive = currentAction &&
+                            currentAction.columnIndex === index + 1 &&
+                            (currentAction.type === 'Bagi' || currentAction.type === 'Kurang');
+                        board += renderBoardRow(partial, index + 1, {
+                            active: bringDownIsActive,
+                            highlightRange: bringDownIsActive
+                                ? [index, index + 1]
+                                : partialIsActive
+                                    ? [partialStartIndex, index + 1]
+                                    : null
+                        });
                     } else {
                         board += renderBoardRow(
                             subtractionIsActive ? '?' : column.remainder,
                             index,
-                            { active: subtractionIsActive }
+                            {
+                                active: subtractionIsActive,
+                                highlightRange: subtractionIsActive ? [partialStart, index] : null
+                            }
                         );
                     }
                 }
@@ -722,6 +797,7 @@
             const counter = document.getElementById('division-step-counter');
             const stepName = document.getElementById('division-step-name');
             const instruction = document.getElementById('division-step-instruction');
+            const keyboard = document.getElementById('division-virtual-keyboard');
             const isComplete = currentStep >= actions.length;
 
             if (isComplete) {
@@ -730,6 +806,7 @@
                 instruction.innerText = `Hasil pembagian: ${questions[currentQuestionIndex].answer}. Sekarang pilih jawaban di bawah.`;
                 input.classList.add('hidden');
                 submitButton.classList.add('hidden');
+                keyboard.classList.add('hidden');
             } else {
                 const action = actions[currentStep];
                 const column = columns[action.columnIndex];
@@ -738,15 +815,16 @@
                 input.value = '';
                 input.classList.remove('hidden');
                 submitButton.classList.remove('hidden');
+                keyboard.classList.remove('hidden');
 
                 if (action.type === 'Bagi') {
-                    instruction.innerText = `Bagi ${column.partial} dengan ${questions[currentQuestionIndex].divisor}. Berapa angka hasil bagi pada langkah ini?`;
+                    instruction.innerHTML = `Bagi <span class="operand-pulse inline-block px-1">${column.partial}</span> dengan <span class="operand-pulse inline-block px-1">${question.divisor}</span>. Berapa angka hasil bagi pada langkah ini?`;
                 } else if (action.type === 'Kali') {
-                    instruction.innerText = `Kalikan angka hasil bagi ${column.quotientDigit} dengan ${questions[currentQuestionIndex].divisor}. Berapa hasilnya?`;
+                    instruction.innerHTML = `Kalikan <span class="operand-pulse inline-block px-1">${column.quotientDigit}</span> dengan <span class="operand-pulse inline-block px-1">${question.divisor}</span>. Berapa hasilnya?`;
                 } else if (action.type === 'Kurang') {
-                    instruction.innerText = `Kurangkan ${column.partial} dengan hasil perkalian sebelumnya. Berapa sisanya?`;
+                    instruction.innerHTML = `Kurangkan <span class="operand-pulse inline-block px-1">${column.partial}</span> dengan <span class="operand-pulse inline-block px-1">${column.product}</span>. Berapa sisanya?`;
                 } else {
-                    instruction.innerText = `Turunkan angka ${column.nextDigit} ke samping sisa ${column.remainder}. Angka berapa yang kamu turunkan?`;
+                    instruction.innerHTML = `Turunkan <span class="operand-pulse inline-block px-1">${column.nextDigit}</span> ke samping sisa <span class="operand-pulse inline-block px-1">${column.remainder}</span>. Angka berapa yang kamu turunkan?`;
                 }
             }
 
@@ -760,13 +838,29 @@
             }
         }
 
+        function pressDivisionKey(key) {
+            const input = document.getElementById('division-step-answer');
+            if (!input || input.classList.contains('hidden')) return;
+
+            if (key === 'clear') {
+                input.value = '';
+            } else if (key === 'backspace') {
+                input.value = input.value.slice(0, -1);
+            } else if (/^\d$/.test(key) && input.value.length < 3) {
+                input.value += key;
+            }
+
+            divisionPractice.feedback = '';
+            document.getElementById('division-step-feedback').className =
+                'hidden mt-3 p-2 rounded-lg text-sm font-semibold';
+        }
+
         function checkDivisionStep() {
             if (!divisionPractice || divisionPractice.currentStep >= divisionPractice.actions.length) return;
 
             const input = document.getElementById('division-step-answer');
             const rawAnswer = input.value.trim();
             if (!/^\d+$/.test(rawAnswer)) {
-                input.focus();
                 return;
             }
 
@@ -775,7 +869,6 @@
                 divisionPractice.feedback = 'Belum tepat. Coba periksa kembali langkahmu.';
                 divisionPractice.feedbackIsCorrect = false;
                 renderDivisionPractice();
-                document.getElementById('division-step-answer').focus();
                 return;
             }
 
