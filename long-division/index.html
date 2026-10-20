@@ -281,9 +281,8 @@
                 </div>
 
                 <div class="flex items-center gap-2 w-full justify-center sm:w-auto sm:justify-end">
-                    <!-- Tombol Scratchpad / Cakar-cakar -->
                     <button onclick="toggleScratchpad()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all">
-                        <i class="fa-solid fa-pen-to-square"></i> Coreta-Coret
+                        <i class="fa-solid fa-divide"></i> Porogapit
                     </button>
 
                     <!-- Tombol Menyerah -->
@@ -298,15 +297,44 @@
                 <div id="progress-bar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div>
             </div>
 
-            <!-- Scratchpad Canvas Container (Areal mencakar) -->
-            <div id="scratchpad-container" class="hidden bg-amber-50/90 border-2 border-dashed border-amber-300 rounded-2xl p-3 relative shadow-inner">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-amber-800"><i class="fa-solid fa-note-sticky mr-1"></i> Papan Coreta-Coret (Scratchpad)</span>
-                    <button onclick="clearScratchpad()" class="text-xs bg-white text-rose-500 hover:bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-lg font-semibold">
-                        <i class="fa-solid fa-eraser"></i> Bersihkan
-                    </button>
+            <!-- Guided Long Division Practice -->
+            <div id="scratchpad-container" class="hidden">
+                <div id="long-division-practice" class="bg-white border border-amber-200 rounded-xl p-3 sm:p-4 mb-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <div>
+                            <h3 class="font-heading font-bold text-slate-800">Latihan Porogapit</h3>
+                            <p class="text-xs text-slate-500">Kerjakan susunan di kiri dengan panduan langkah di kanan.</p>
+                        </div>
+                        <button type="button" onclick="resetDivisionPractice()" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3 py-2 rounded-xl font-bold">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> Ulangi
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 min-w-0">
+                            <h4 class="text-xs uppercase tracking-wider font-bold text-slate-500 mb-3">Susunan Porogapit</h4>
+                            <div class="overflow-x-auto">
+                                <div id="division-layout-display" class="min-w-[16rem] max-w-sm mx-auto"></div>
+                            </div>
+                        </div>
+                        <div class="bg-emerald-50/70 border border-emerald-100 rounded-xl p-3 sm:p-4">
+                            <h4 class="text-xs uppercase tracking-wider font-bold text-emerald-700 mb-3">Langkah Pengerjaan</h4>
+                            <div id="division-work-display" class="space-y-2 mb-4"></div>
+                            <div id="division-step-counter" class="text-xs font-bold text-emerald-800 mb-2"></div>
+                            <div id="division-step-name" class="inline-flex text-sm font-bold text-emerald-800 bg-white border border-emerald-100 px-3 py-1 rounded-lg mb-3"></div>
+                            <p id="division-step-instruction" class="text-sm font-semibold text-slate-700 mb-3"></p>
+                            <form onsubmit="event.preventDefault(); checkDivisionStep();" class="flex flex-col gap-2">
+                                <label for="division-step-answer" class="sr-only">Jawaban langkah porogapit</label>
+                                <input id="division-step-answer" type="number" min="0" step="1" inputmode="numeric" required
+                                       class="min-w-0 w-full bg-white border-2 border-emerald-200 focus:border-emerald-500 focus:outline-none rounded-xl px-3 py-2 text-lg font-bold text-slate-800"
+                                       placeholder="Ketik jawaban langkah ini">
+                                <button id="division-step-submit" type="submit" class="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-colors">
+                                    Periksa Langkah
+                                </button>
+                            </form>
+                            <div id="division-step-feedback" role="status" aria-live="polite" class="hidden mt-3 p-2 rounded-lg text-sm font-semibold"></div>
+                        </div>
+                    </div>
                 </div>
-                <canvas id="scratchpad-canvas" class="w-full h-40 bg-white rounded-xl border border-amber-200 cursor-crosshair touch-none"></canvas>
             </div>
 
             <!-- Card Soal Single Page -->
@@ -491,14 +519,10 @@
         let timeRemaining = 0;
         let questionStartTime = 0;
 
-        // Scratchpad Canvas Variables
-        let canvas, ctx;
-        let isDrawing = false;
+        let divisionPractice = null;
 
         // Init Form Listeners
         document.addEventListener('DOMContentLoaded', () => {
-            initScratchpad();
-            
             // Toggle Timer Sub Options Display
             const timerRadios = document.querySelectorAll('input[name="timer_mode"]');
             timerRadios.forEach(radio => {
@@ -518,72 +542,249 @@
             });
         });
 
-        // Initialize Scratchpad
-        function initScratchpad() {
-            canvas = document.getElementById('scratchpad-canvas');
-            ctx = canvas.getContext('2d');
-
-            function resizeCanvas() {
-                canvas.width = canvas.parentElement.clientWidth - 24;
-                canvas.height = 160;
-                ctx.lineWidth = 2.5;
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = '#334155';
-            }
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-
-            // Event Listeners for Drawing
-            function getPos(e) {
-                const rect = canvas.getBoundingClientRect();
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                return {
-                    x: clientX - rect.left,
-                    y: clientY - rect.top
-                };
-            }
-
-            function startDraw(e) {
-                isDrawing = true;
-                const pos = getPos(e);
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-            }
-
-            function draw(e) {
-                if (!isDrawing) return;
-                const pos = getPos(e);
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-            }
-
-            function stopDraw() {
-                isDrawing = false;
-            }
-
-            canvas.addEventListener('mousedown', startDraw);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDraw);
-            canvas.addEventListener('mouseleave', stopDraw);
-
-            canvas.addEventListener('touchstart', startDraw, {passive: true});
-            canvas.addEventListener('touchmove', draw, {passive: true});
-            canvas.addEventListener('touchend', stopDraw);
-        }
-
         function toggleScratchpad() {
             const container = document.getElementById('scratchpad-container');
             container.classList.toggle('hidden');
-            if (!container.classList.contains('hidden')) {
-                setTimeout(initScratchpad, 50);
+        }
+
+        function resetDivisionPractice() {
+            const q = questions[currentQuestionIndex];
+            if (!q) return;
+
+            const digits = String(q.dividend);
+            let remainder = 0;
+            const columns = [];
+            const actions = [];
+
+            for (let index = 0; index < digits.length; index++) {
+                const digit = Number(digits[index]);
+                const partial = remainder * 10 + digit;
+                const quotientDigit = Math.floor(partial / q.divisor);
+                const product = quotientDigit * q.divisor;
+                remainder = partial - product;
+                const column = {
+                    digit,
+                    partial,
+                    quotientDigit,
+                    product,
+                    remainder,
+                    nextDigit: index + 1 < digits.length ? Number(digits[index + 1]) : null
+                };
+                columns.push(column);
+                actions.push({ columnIndex: index, type: 'Bagi', expected: quotientDigit });
+                actions.push({ columnIndex: index, type: 'Kali', expected: product });
+                actions.push({ columnIndex: index, type: 'Kurang', expected: remainder });
+                if (column.nextDigit !== null) {
+                    actions.push({ columnIndex: index, type: 'Turun', expected: column.nextDigit });
+                }
+            }
+
+            divisionPractice = {
+                columns,
+                actions,
+                currentStep: 0,
+                feedback: '',
+                feedbackIsCorrect: false
+            };
+            renderDivisionPractice();
+        }
+
+        function renderDivisionPractice() {
+            if (!divisionPractice) return;
+
+            const { columns, actions, currentStep } = divisionPractice;
+            const question = questions[currentQuestionIndex];
+            const currentAction = actions[currentStep];
+            const activeColumnIndex = currentAction ? currentAction.columnIndex : columns.length - 1;
+            const columnCount = columns.length;
+            const gridColumns = `3.25rem repeat(${columnCount}, minmax(1.75rem, 2rem)) 1rem`;
+
+            function renderBoardRow(text = '', endIndex = columnCount - 1, options = {}) {
+                const characters = String(text).split('');
+                const startIndex = Math.max(0, endIndex - characters.length + 1);
+                const digitCells = columns.map((column, index) => {
+                    const characterIndex = index - startIndex;
+                    const character = characterIndex >= 0 && characterIndex < characters.length
+                        ? characters[characterIndex]
+                        : '';
+                    const onRule = options.ruleStart !== undefined &&
+                        index >= options.ruleStart && index <= endIndex;
+                    const active = options.active && index === endIndex;
+                    return `<span class="flex h-8 items-center justify-center ${index === 0 ? 'border-l-2 border-slate-800' : ''} ${onRule ? 'border-b-2 border-slate-800' : ''} ${active ? 'text-emerald-700 bg-emerald-100 rounded font-bold' : ''}">${character}</span>`;
+                }).join('');
+
+                return `
+                    <div class="grid font-mono text-xl font-bold text-slate-800" style="grid-template-columns:${gridColumns}">
+                        <span></span>${digitCells}<span class="flex h-8 items-center justify-center text-slate-500">${options.minus ? '−' : ''}</span>
+                    </div>
+                `;
+            }
+
+            const quotientDigits = columns.map((column, index) => {
+                const divisionIndex = actions.findIndex(action =>
+                    action.columnIndex === index && action.type === 'Bagi'
+                );
+                const isActive = divisionIndex === currentStep;
+                const isComplete = divisionIndex < currentStep;
+                const style = isActive
+                    ? 'text-emerald-800 bg-emerald-100 rounded'
+                    : isComplete
+                        ? 'text-slate-800'
+                        : 'text-slate-300';
+                return `<span class="text-center min-w-8 px-1 ${style}">${isComplete ? column.quotientDigit : isActive ? '?' : '·'}</span>`;
+            }).join('');
+
+            let board = `
+                <div class="w-fit mx-auto">
+                    <div class="grid items-end font-mono text-2xl font-bold text-slate-800" style="grid-template-columns:${gridColumns}">
+                        <span></span>${quotientDigits}<span></span>
+                    </div>
+                    <div class="grid items-center font-mono text-2xl font-bold text-slate-800" style="grid-template-columns:${gridColumns}">
+                        <span class="flex h-9 items-center justify-end pr-1">${question.divisor})</span>
+                        ${columns.map((column, index) => `<span class="flex h-9 items-center justify-center border-t-2 border-slate-800 ${index === 0 ? 'border-l-2 rounded-tl-md' : ''}">${column.digit}</span>`).join('')}
+                        <span></span>
+                    </div>
+            `;
+
+            columns.forEach((column, index) => {
+                const productIndex = actions.findIndex(action =>
+                    action.columnIndex === index && action.type === 'Kali'
+                );
+                const subtractionIndex = actions.findIndex(action =>
+                    action.columnIndex === index && action.type === 'Kurang'
+                );
+                const bringDownIndex = actions.findIndex(action =>
+                    action.columnIndex === index && action.type === 'Turun'
+                );
+                const partialStart = index - String(column.partial).length + 1;
+
+                if (currentStep >= productIndex) {
+                    const productIsActive = currentStep === productIndex;
+                    board += renderBoardRow(
+                        productIsActive ? '?' : column.product,
+                        index,
+                        {
+                            active: productIsActive,
+                            minus: !productIsActive,
+                            ruleStart: partialStart
+                        }
+                    );
+                }
+
+                if (currentStep >= subtractionIndex) {
+                    const subtractionIsActive = currentStep === subtractionIndex;
+                    const hasNextDigit = column.nextDigit !== null;
+                    const bringDownIsActive = hasNextDigit && currentStep === bringDownIndex;
+                    if (hasNextDigit && currentStep >= bringDownIndex) {
+                        const partial = bringDownIsActive
+                            ? `${column.remainder}?`
+                            : String(column.remainder * 10 + column.nextDigit);
+                        board += renderBoardRow(partial, index + 1, { active: bringDownIsActive });
+                    } else {
+                        board += renderBoardRow(
+                            subtractionIsActive ? '?' : column.remainder,
+                            index,
+                            { active: subtractionIsActive }
+                        );
+                    }
+                }
+            });
+
+            board += '</div>';
+            document.getElementById('division-layout-display').innerHTML = board;
+
+            const workDisplay = document.getElementById('division-work-display');
+            workDisplay.innerHTML = ['Bagi', 'Kali', 'Kurang', 'Turun'].map(type => {
+                const actionIndex = actions.findIndex(action =>
+                    action.columnIndex === activeColumnIndex && action.type === type
+                );
+                const isComplete = actionIndex >= 0 && actionIndex < currentStep;
+                const isActive = actionIndex === currentStep;
+                const isUnavailable = actionIndex < 0;
+                const style = isActive
+                    ? 'border-emerald-400 bg-white text-emerald-800 shadow-sm'
+                    : isComplete
+                        ? 'border-emerald-200 bg-emerald-100 text-emerald-800'
+                        : 'border-slate-200 bg-white/60 text-slate-400';
+                const icon = isComplete ? 'fa-circle-check' : isUnavailable ? 'fa-minus' : 'fa-circle';
+                return `
+                    <div class="flex items-center gap-2 border rounded-lg px-3 py-2 ${style}">
+                        <i class="fa-solid ${icon} text-xs"></i>
+                        <span class="text-sm font-bold">${type}</span>
+                        ${isActive ? '<span class="ml-auto text-[10px] uppercase tracking-wide font-bold">Sekarang</span>' : ''}
+                    </div>
+                `;
+            }).join('');
+
+            const input = document.getElementById('division-step-answer');
+            const submitButton = document.getElementById('division-step-submit');
+            const feedback = document.getElementById('division-step-feedback');
+            const counter = document.getElementById('division-step-counter');
+            const stepName = document.getElementById('division-step-name');
+            const instruction = document.getElementById('division-step-instruction');
+            const isComplete = currentStep >= actions.length;
+
+            if (isComplete) {
+                counter.innerText = 'Porogapit selesai!';
+                stepName.innerText = 'Selesai';
+                instruction.innerText = `Hasil pembagian: ${questions[currentQuestionIndex].answer}. Sekarang pilih jawaban di bawah.`;
+                input.classList.add('hidden');
+                submitButton.classList.add('hidden');
+            } else {
+                const action = actions[currentStep];
+                const column = columns[action.columnIndex];
+                counter.innerText = `Langkah ${currentStep + 1} dari ${actions.length}`;
+                stepName.innerText = action.type;
+                input.value = '';
+                input.classList.remove('hidden');
+                submitButton.classList.remove('hidden');
+
+                if (action.type === 'Bagi') {
+                    instruction.innerText = `Bagi ${column.partial} dengan ${questions[currentQuestionIndex].divisor}. Berapa angka hasil bagi pada langkah ini?`;
+                } else if (action.type === 'Kali') {
+                    instruction.innerText = `Kalikan angka hasil bagi ${column.quotientDigit} dengan ${questions[currentQuestionIndex].divisor}. Berapa hasilnya?`;
+                } else if (action.type === 'Kurang') {
+                    instruction.innerText = `Kurangkan ${column.partial} dengan hasil perkalian sebelumnya. Berapa sisanya?`;
+                } else {
+                    instruction.innerText = `Turunkan angka ${column.nextDigit} ke samping sisa ${column.remainder}. Angka berapa yang kamu turunkan?`;
+                }
+            }
+
+            if (divisionPractice.feedback) {
+                feedback.innerText = divisionPractice.feedback;
+                feedback.className = divisionPractice.feedbackIsCorrect
+                    ? 'mt-3 p-2 rounded-lg text-sm font-semibold bg-emerald-100 text-emerald-800'
+                    : 'mt-3 p-2 rounded-lg text-sm font-semibold bg-rose-100 text-rose-800';
+            } else {
+                feedback.className = 'hidden mt-3 p-2 rounded-lg text-sm font-semibold';
             }
         }
 
-        function clearScratchpad() {
-            if (ctx && canvas) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function checkDivisionStep() {
+            if (!divisionPractice || divisionPractice.currentStep >= divisionPractice.actions.length) return;
+
+            const input = document.getElementById('division-step-answer');
+            const rawAnswer = input.value.trim();
+            if (!/^\d+$/.test(rawAnswer)) {
+                input.focus();
+                return;
             }
+
+            const action = divisionPractice.actions[divisionPractice.currentStep];
+            if (Number(rawAnswer) !== action.expected) {
+                divisionPractice.feedback = 'Belum tepat. Coba periksa kembali langkahmu.';
+                divisionPractice.feedbackIsCorrect = false;
+                renderDivisionPractice();
+                document.getElementById('division-step-answer').focus();
+                return;
+            }
+
+            divisionPractice.currentStep++;
+            divisionPractice.feedbackIsCorrect = true;
+            divisionPractice.feedback = divisionPractice.currentStep >= divisionPractice.actions.length
+                ? 'Hebat! Semua langkah porogapit selesai.'
+                : 'Benar! Lanjutkan ke langkah berikutnya.';
+            renderDivisionPractice();
         }
 
         // Generate Soal berdasarkan Pengaturan
@@ -796,8 +997,8 @@
 
         // Load Single Question Page
         function loadQuestion() {
-            clearScratchpad();
             const q = questions[currentQuestionIndex];
+            resetDivisionPractice();
             
             // Set Soal Pembagian (xxx : xx = ...)
             document.getElementById('quiz-level-title').innerText =
