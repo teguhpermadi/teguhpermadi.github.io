@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Game Tembak Meteor Perkalian</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="game-container">
+  <div id="hud">
+    <div id="hud-left">
+      <span id="score-display">Skor: 0</span>
+    </div>
+    <div id="hud-center">
+      <span id="question-display">4 × 5 = ?</span>
+    </div>
+    <div id="hud-right">
+      <span id="lives-display">❤️❤️❤️❤️❤️</span>
+      <span id="streak-display">Streak: 0</span>
+    </div>
+  </div>
+  <div id="stage-display">Tahap 1</div>
+  <div id="timer-display">30</div>
+  <svg id="game-svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+      <filter id="glow-strong">
+        <feGaussianBlur stdDeviation="6" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <g id="meteors-group"></g>
+    <g id="shots-group"></g>
+    <g id="explosions-group"></g>
+    <g id="particles-group"></g>
+    <g id="ship-group"></g>
+  </svg>
+  <div id="touch-controls">
+    <div id="joystick-area">
+      <div id="joystick-knob"></div>
+    </div>
+    <button id="btn-shoot">Tembak</button>
+  </div>
+  <div id="overlay" class="hidden">
+    <div id="overlay-content">
+      <h2 id="overlay-title">Game Perkalian</h2>
+      <p id="overlay-text">Tekan Mulai untuk bermain</p>
+      <button id="btn-start">Mulai</button>
+    </div>
+  </div>
+</div>
+<script src="js/questions.js"></script>
+<script src="js/ship.js"></script>
+<script src="js/meteor.js"></script>
+<script src="js/shot.js"></script>
+<script src="js/explosion.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

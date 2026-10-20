@@ -81,8 +81,41 @@
 
             <form id="form-setup" onsubmit="event.preventDefault(); startQuiz();" class="space-y-6">
                 
-                <!-- 1. Opsi Digit Pembagian -->
+                <!-- Pilihan Level Pembagian -->
                 <div>
+                    <label class="block font-heading font-semibold text-slate-700 mb-2">
+                        <i class="fa-solid fa-layer-group text-emerald-500 mr-1.5"></i> Pilih Level Pembagian Bersusun
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <label class="relative flex flex-col p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all">
+                            <input type="radio" name="level_option" value="1" class="peer hidden" checked>
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">Level 1: Puluhan Tanpa Sisa</span>
+                            <span class="relative z-10 text-xs text-slate-500 mt-1">Angka puluhan habis dibagi pada setiap tahap, tanpa sisa di tengah.</span>
+                        </label>
+                        <label class="relative flex flex-col p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all">
+                            <input type="radio" name="level_option" value="2" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">Level 2: Puluhan dengan Sisa di Angka Pertama</span>
+                            <span class="relative z-10 text-xs text-slate-500 mt-1">Sisa puluhan ditemani angka satuan di sebelah kanan untuk latihan “turun”.</span>
+                        </label>
+                        <label class="relative flex flex-col p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all">
+                            <input type="radio" name="level_option" value="3" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">Level 3: Ratusan Sederhana</span>
+                            <span class="relative z-10 text-xs text-slate-500 mt-1">Perpanjang siklus Bagi → Kali → Kurang → Turun pada ratusan tanpa sisa di tengah.</span>
+                        </label>
+                        <label class="relative flex flex-col p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-400 transition-all">
+                            <input type="radio" name="level_option" value="4" class="peer hidden">
+                            <span class="peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700 absolute inset-0 rounded-2xl border-2 border-transparent transition-all"></span>
+                            <span class="relative z-10 font-bold text-sm text-slate-700 peer-checked:text-emerald-700">Level 4: Ratusan dengan Sisa</span>
+                            <span class="relative z-10 text-xs text-slate-500 mt-1">Pemantapan siklus lengkap secara mandiri, termasuk menentukan sisa akhir.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 1. Opsi Digit Pembagian -->
+                <div class="hidden">
                     <label class="block font-heading font-semibold text-slate-700 mb-2">
                         <i class="fa-solid fa-layer-group text-emerald-500 mr-1.5"></i> Jumlah Digit yang Diujikan
                     </label>
@@ -139,7 +172,7 @@
                 </div>
 
                 <!-- 2. Opsi Jenis Pembagian -->
-                <div>
+                <div class="hidden">
                     <label class="block font-heading font-semibold text-slate-700 mb-2">
                         <i class="fa-solid fa-shapes text-emerald-500 mr-1.5"></i> Jenis Pembagian
                     </label>
@@ -279,6 +312,7 @@
             <!-- Card Soal Single Page -->
             <div class="bg-white rounded-3xl p-6 sm:p-8 border-2 border-emerald-100 shadow-xl shadow-emerald-900/5 text-center relative overflow-hidden">
                 
+                <span id="quiz-level-title" class="text-xs font-bold text-emerald-600 uppercase tracking-widest block mb-2"></span>
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-4">Selesaikan Pembagian Berikut</span>
 
                 <!-- Format Pembagian (xxx : xx = ...) -->
@@ -433,22 +467,16 @@
     <script>
         // App State
         let config = {
-            digitOption: '2x1',
-            typeOption: 'standard',
+            level: 1,
             timerMode: 'none', // default 'none'
             timerDuration: 30,
             totalQuestions: 10
         };
-
-        // Definisi tingkat digit pembagian: digit angka yang dibagi : digit pembagi
-        const optionDefs = {
-            '2x1': { divMin: 2, divMax: 9,  qMin: 2,  qMax: 99,  dividendDigits: 2 },
-            '3x1': { divMin: 2, divMax: 9,  qMin: 11, qMax: 999, dividendDigits: 3 },
-            '4x1': { divMin: 2, divMax: 9,  qMin: 111,qMax: 9999,dividendDigits: 4 },
-            '3x2': { divMin: 11, divMax: 99, qMin: 3,  qMax: 99,  dividendDigits: 3 },
-            '4x2': { divMin: 11, divMax: 99, qMin: 11, qMax: 999, dividendDigits: 4 },
-            '5x2': { divMin: 11, divMax: 99, qMin: 101,qMax: 9999,dividendDigits: 5 },
-            '5x3': { divMin: 101, divMax: 999,qMin: 11, qMax: 999, dividendDigits: 5 }
+        const levelNames = {
+            1: 'Puluhan Tanpa Sisa',
+            2: 'Puluhan dengan Sisa di Angka Pertama',
+            3: 'Ratusan Sederhana',
+            4: 'Ratusan dengan Sisa'
         };
 
         let currentQuestionIndex = 0;
@@ -561,62 +589,57 @@
         // Generate Soal berdasarkan Pengaturan
         function generateQuestions() {
             questions = [];
+            const usedQuestions = new Set();
             for (let i = 0; i < config.totalQuestions; i++) {
-                questions.push(generateSingleQuestion());
+                questions.push(generateSingleQuestion(usedQuestions));
             }
         }
 
-        function generateSingleQuestion() {
-            const def = optionDefs[config.digitOption] || optionDefs['2x1'];
-            let divisor, dividend, quotientNum;
-            let remainder = 0;
-            let decimals = 0;
-            let typeOption = config.typeOption;
+        function generateSingleQuestion(usedQuestions = new Set()) {
+            const digits = config.level <= 2 ? 2 : 3;
+            const minDividend = Math.pow(10, digits - 1);
+            const maxDividend = Math.pow(10, digits) - 1;
+            const candidates = [];
 
-            if (typeOption === 'decimal') {
-                // Hasil bagi desimal: dividend = divisor * qScaled, hasil bagi = qScaled / scale
-                divisor = getRandomInt(def.divMin, def.divMax);
-                const minDividend = Math.pow(10, def.dividendDigits - 1);
-                const maxDividend = Math.pow(10, def.dividendDigits) - 1;
-                let qScaledMin = Math.ceil(minDividend / divisor);
-                const qScaledMax = Math.floor(maxDividend / divisor);
-                // Pilih skala desimal sesuai ukuran hasil bagi (pastikan hasil bagi minimal 1)
-                const scale = (qScaledMax >= 100 && Math.random() < 0.5) ? 100 : 10;
-                decimals = scale === 100 ? 2 : 1;
-                if (qScaledMax >= scale) {
-                    qScaledMin = Math.max(qScaledMin, scale);
-                }
-                const qScaled = getRandomInt(qScaledMin, qScaledMax);
-                dividend = divisor * qScaled;
-                quotientNum = qScaled / scale;
-            } else {
-                let guard = 0;
-                do {
-                    divisor = getRandomInt(def.divMin, def.divMax);
-                    quotientNum = getRandomInt(def.qMin, def.qMax);
-                    dividend = divisor * quotientNum;
-                    guard++;
-                } while (String(dividend).length !== def.dividendDigits && guard < 500);
+            for (let divisor = 2; divisor <= 9; divisor++) {
+                for (let dividend = minDividend; dividend <= maxDividend; dividend++) {
+                    const steps = getLongDivisionSteps(dividend, divisor);
+                    if (steps.quotient < Math.pow(10, digits - 1)) continue;
 
-                if (typeOption === 'remainder') {
-                    remainder = getRandomInt(1, divisor - 1);
-                    dividend += remainder;
-                    while (String(dividend).length > def.dividendDigits && quotientNum > 1) {
-                        quotientNum--;
-                        dividend = divisor * quotientNum + remainder;
+                    const hasIntermediateRemainder = steps.remainders
+                        .slice(0, -1)
+                        .some(value => value > 0);
+                    const hasNoRemainders = steps.remainders.every(value => value === 0);
+                    const matchesLevel =
+                        (config.level === 1 && hasNoRemainders) ||
+                        (config.level === 2 && steps.remainders[0] > 0 && steps.remainder === 0) ||
+                        (config.level === 3 && hasNoRemainders) ||
+                        (config.level === 4 && hasIntermediateRemainder && steps.remainder > 0);
+
+                    const questionKey = `${dividend}:${divisor}`;
+                    if (matchesLevel && !usedQuestions.has(questionKey)) {
+                        candidates.push({
+                            dividend,
+                            divisor,
+                            quotientNum: steps.quotient,
+                            remainder: steps.remainder
+                        });
                     }
                 }
             }
 
-            // Format Jawaban Benar
-            let answer;
-            if (typeOption === 'remainder') {
-                answer = `${quotientNum} sisa ${remainder}`;
-            } else if (decimals > 0) {
-                answer = quotientNum.toFixed(decimals).replace('.', ',');
-            } else {
-                answer = String(quotientNum);
+            if (candidates.length === 0) {
+                throw new Error(`Soal unik untuk level ${config.level} tidak cukup untuk paket ini.`);
             }
+
+            const { dividend, divisor, quotientNum, remainder } =
+                candidates[getRandomInt(0, candidates.length - 1)];
+            usedQuestions.add(`${dividend}:${divisor}`);
+            const typeOption = config.level === 4 ? 'remainder' : 'standard';
+            const decimals = 0;
+            const answer = typeOption === 'remainder'
+                ? `${quotientNum} sisa ${remainder}`
+                : String(quotientNum);
 
             const options = generateDistractors({
                 quotientNum,
@@ -633,6 +656,25 @@
                 options: options,
                 decimals: decimals,
                 typeOption: typeOption
+            };
+        }
+
+        function getLongDivisionSteps(dividend, divisor) {
+            let remainder = 0;
+            let quotient = '';
+            const remainders = [];
+
+            for (const digit of String(dividend)) {
+                const current = remainder * 10 + Number(digit);
+                quotient += Math.floor(current / divisor);
+                remainder = current % divisor;
+                remainders.push(remainder);
+            }
+
+            return {
+                quotient: Number(quotient),
+                remainder,
+                remainders
             };
         }
 
@@ -695,27 +737,35 @@
                 }
             }
 
-            // Konversi ke format tampilan & acak urutan
-            let arr = Array.from(options).map(v => {
+            // Selalu sertakan jawaban benar dan pilih tiga pengecoh.
+            const correctOption = typeOption === 'remainder'
+                ? `${quotientNum} sisa ${remainder}`
+                : decimals > 0
+                    ? quotientNum.toFixed(decimals).replace('.', ',')
+                    : String(Math.round(quotientNum));
+            const arr = Array.from(options)
+                .filter(value => value !== (typeOption === 'remainder'
+                    ? `${quotientNum}|${remainder}`
+                    : decimals > 0 ? quotientNum.toFixed(decimals) : String(Math.round(quotientNum)))
+                )
+                .map(v => {
                 if (typeOption === 'remainder') {
                     const parts = v.split('|');
                     return `${parts[0]} sisa ${parts[1]}`;
                 }
                 return decimals > 0 ? v.replace('.', ',') : v;
-            });
+            }).sort(() => Math.random() - 0.5);
 
-            return arr.sort(() => Math.random() - 0.5);
+            return [correctOption, ...arr.slice(0, 3)].sort(() => Math.random() - 0.5);
         }
 
         // Start Quiz
         function startQuiz() {
             // Ambil Pengaturan
-            const digitEl = document.querySelector('input[name="digit_option"]:checked');
-            const typeEl = document.querySelector('input[name="type_option"]:checked');
+            const levelEl = document.querySelector('input[name="level_option"]:checked');
             const timerModeEl = document.querySelector('input[name="timer_mode"]:checked');
             
-            config.digitOption = digitEl ? digitEl.value : '2x1';
-            config.typeOption = typeEl ? typeEl.value : 'standard';
+            config.level = levelEl ? Number(levelEl.value) : 1;
             config.timerMode = timerModeEl ? timerModeEl.value : 'none';
             config.timerDuration = parseInt(document.getElementById('timer_duration').value);
             config.totalQuestions = parseInt(document.getElementById('total_questions').value);
@@ -750,6 +800,8 @@
             const q = questions[currentQuestionIndex];
             
             // Set Soal Pembagian (xxx : xx = ...)
+            document.getElementById('quiz-level-title').innerText =
+                `Level ${config.level}: ${levelNames[config.level]}`;
             document.getElementById('num-dividend').innerText = q.dividend;
             document.getElementById('num-divisor').innerText = q.divisor;
 
