@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Soal Matematika Kelas 3</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter & Fredoka untuk kesan ramah anak -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-md font-display font-bold text-xl">
+                    ✏️
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-lg md:text-xl text-slate-800 leading-tight">HitungCepat3</h1>
+                    <p class="text-xs text-slate-500 hidden sm:block">Operasi Hitung Campuran SD Kelas 3</p>
+                </div>
+            </div>
+            <div id="headerStats" class="hidden flex items-center gap-4 text-sm font-semibold">
+                <span class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full border border-indigo-100">
+                    Soal: <span id="currentQuestionNum">1</span>/<span id="totalQuestionsCount">10</span>
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto w-full px-4 py-6 flex-grow flex items-center justify-center">
+
+        <!-- 1. TAMPILAN SETUP / MENU UTAMA -->
+        <div id="setupScreen" class="w-full bg-white rounded-2xl shadow-xl border border-slate-200/80 p-6 md:p-8 transition-all">
+            <div class="text-center mb-8">
+                <span class="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full mb-2">Matematika Kelas 3 SD</span>
+                <h2 class="font-display font-bold text-2xl md:text-3xl text-slate-800 mb-2">Latihan Operasi Hitung Campuran</h2>
+                <p class="text-slate-600 text-sm md:text-base max-w-md mx-auto">Pilih pengaturan latihan di bawah ini untuk memulai menjawab soal matematika.</p>
+            </div>
+
+            <form id="quizSetupForm" class="space-y-6 max-w-xl mx-auto">
+                <!-- Pilihan Jumlah Operasi Hitung -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Tingkat Kesulitan (Jumlah Operasi):</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="operationsCount" value="2" class="peer sr-only">
+                            <div class="border-2 border-slate-200 rounded-xl p-3 text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 peer-checked:text-indigo-700 hover:border-slate-300 transition-all">
+                                <span class="block font-bold text-base md:text-lg mb-0.5">2 Operasi</span>
+                                <span class="text-xs text-slate-500">Dasar</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="operationsCount" value="3" checked class="peer sr-only">
+                            <div class="border-2 border-slate-200 rounded-xl p-3 text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 peer-checked:text-indigo-700 hover:border-slate-300 transition-all">
+                                <span class="block font-bold text-base md:text-lg mb-0.5">3 Operasi</span>
+                                <span class="text-xs text-slate-500">Sedang</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="operationsCount" value="4" class="peer sr-only">
+                            <div class="border-2 border-slate-200 rounded-xl p-3 text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 peer-checked:text-indigo-700 hover:border-slate-300 transition-all">
+                                <span class="block font-bold text-base md:text-lg mb-0.5">4 Operasi</span>
+                                <span class="text-xs text-slate-500">Dengan Kurung</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="operationsCount" value="5" class="peer sr-only">
+                            <div class="border-2 border-slate-200 rounded-xl p-3 text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 peer-checked:text-indigo-700 hover:border-slate-300 transition-all">
+                                <span class="block font-bold text-base md:text-lg mb-0.5">5 Operasi</span>
+                                <span class="text-xs text-slate-500">Tantangan</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Pilihan Timer / Batas Waktu -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Batas Waktu Per Soal:</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="timerOption" value="0" checked class="peer sr-only">
+                            <div class="border-2 border-slate-200 rounded-xl p-3 text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 peer-checked:text-indigo-700 hover:border-slate-300 transition-all">
+                                <span class="block font-bold text-sm">Tanpa Timer</span>
+                                <span class="text-[10px] text-slate-500">Santai</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="timerOption" value="30" class="peer sr-only">
+                            <div class="border-2 border-slate-200 rounded-xl p-3 text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 peer-checked:text-indigo-700 hover:border-slate-300 transition-all">
+                                <span class="block font-bold text-sm">30 Detik</span>
+                                <span class="text-[10px] text-slate-500">Cepat</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="timerOption" value="60" class="peer sr-only">
+                            <div class="border-2 border-slate-200 rounded-xl p-3 text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 peer-checked:text-indigo-700 hover:border-slate-300 transition-all">
+                                <span class="block font-bold text-sm">1 Menit</span>
+                                <span class="text-[10px] text-slate-500">Sedang</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="timerOption" value="90" class="peer sr-only">
+                            <div class="border-2 border-slate-200 rounded-xl p-3 text-center peer-checked:border-indigo-600 peer-checked:bg-indigo-50/50 peer-checked:text-indigo-700 hover:border-slate-300 transition-all">
+                                <span class="block font-bold text-sm">1,5 Menit</span>
+                                <span class="text-[10px] text-slate-500">Cukup Waktu</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Pilihan Jumlah Soal -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Jumlah Soal:</label>
+                    <select id="totalQuestionsInput" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="5">5 Soal (Singkat)</option>
+                        <option value="10" selected>10 Soal (Standar)</option>
+                        <option value="15">15 Soal (Latihan Ekstra)</option>
+                        <option value="20">20 Soal (Ujian Simulasi)</option>
+                    </select>
+                </div>
+
+                <!-- Informasi Skor & Bonus -->
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-800 flex gap-3 items-start">
+                    <span class="text-base">💡</span>
+                    <div>
+                        <span class="font-semibold block mb-0.5">Sistem Penilaian (0 - 100):</span>
+                        Skor dasar diperoleh dari jumlah jawaban benar. Jika menggunakan timer, kamu akan mendapatkan <strong>bonus skor kecepatan</strong> jika berhasil menjawab cepat!
+                    </div>
+                </div>
+
+                <!-- Tombol Start -->
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-display font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-lg">
+                    🚀 Mulai Latihan Sekarang
+                </button>
+            </form>
+        </div>
+
+        <!-- 2. TAMPILAN SOAL & KUIS -->
+        <div id="quizScreen" class="hidden w-full bg-white rounded-2xl shadow-xl border border-slate-200/80 p-6 md:p-8">
+            <!-- Progress Bar & Timer Header -->
+            <div class="mb-6 space-y-3">
+                <div class="flex justify-between items-center text-sm font-semibold text-slate-600">
+                    <span>Kemajuan Soal</span>
+                    <span id="timerDisplay" class="hidden font-mono bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold border border-amber-200">
+                        ⏱️ Waktu: <span id="timeLeft">00</span> detik
+                    </span>
+                </div>
+                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                    <div id="progressBar" class="bg-indigo-600 h-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Kartu Soal -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-10 text-center mb-6 shadow-inner relative">
+                <button type="button" onclick="toggleHint()" class="absolute top-4 right-4 bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs font-semibold px-3 py-1.5 rounded-lg border border-amber-300 transition-all flex items-center gap-1">
+                    💡 Petunjuk
+                </button>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Selesaikan Operasi Matematika Ini:</span>
+                <div id="questionExpression" class="font-display font-bold text-3xl md:text-5xl text-slate-800 tracking-wide py-2 break-words">
+                    <!-- Soal Matematika dimasukkan di sini -->
+                </div>
+            </div>
+
+            <!-- Box Petunjuk Pengerjaan -->
+            <div id="hintBox" class="hidden mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs md:text-sm text-amber-900 leading-relaxed shadow-sm">
+                <div class="font-bold flex items-center gap-1.5 mb-1 text-amber-800">
+                    <span>💡 Urutan Operasi Hitung (KABATAKU):</span>
+                </div>
+                <ol class="list-decimal list-inside space-y-1">
+                    <li>Kerjakan operasi di dalam <strong>tanda kurung ( )</strong> terlebih dahulu.</li>
+                    <li>Kerjakan <strong>perkalian (×)</strong> atau <strong>pembagian (÷)</strong> dari kiri ke kanan.</li>
+                    <li>Kerjakan <strong>penjumlahan (+)</strong> atau <strong>pengurangan (-)</strong> dari kiri ke kanan.</li>
+                </ol>
+            </div>
+
+            <!-- Pilihan Jawaban (Ganda) -->
+            <div id="optionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <!-- Option Buttons via JS -->
+            </div>
+
+            <!-- Feedback Pasca Jawab -->
+            <div id="feedbackBox" class="hidden p-4 rounded-xl text-center font-semibold text-sm mb-6 transition-all">
+                <!-- Pesan Feedback -->
+            </div>
+
+            <!-- Tombol Lanjut -->
+            <div class="flex justify-end">
+                <button id="nextQuestionBtn" onclick="nextQuestion()" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white font-display font-semibold py-3 px-8 rounded-xl shadow-md transition-all">
+                    Soal Berikutnya ➡️
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. TAMPILAN HASIL & SKOR -->
+        <div id="resultScreen" class="hidden w-full bg-white rounded-2xl shadow-xl border border-slate-200/80 p-6 md:p-8 text-center">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full text-4xl mb-4 shadow-inner">
+                🏆
+            </div>
+            <h2 class="font-display font-bold text-3xl text-slate-800 mb-1">Hasil Latihan Kamu</h2>
+            <p class="text-slate-500 text-sm mb-6">Operasi Hitung Campuran Matematika Kelas 3</p>
+
+            <!-- Ringkasan Skor Utama -->
+            <div class="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 rounded-2xl p-6 max-w-sm mx-auto mb-8 shadow-sm">
+                <span class="text-xs font-semibold text-indigo-600 uppercase tracking-widest block mb-1">Skor Akhir Kamu</span>
+                <div id="finalScoreDisplay" class="font-display font-bold text-6xl text-indigo-700 mb-2">
+                    0
+                </div>
+                <div id="scoreGrade" class="text-sm font-semibold text-indigo-900">
+                    Sangat Bagus!
+                </div>
+            </div>
+
+            <!-- Rincian Statistik -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-left max-w-lg mx-auto mb-8">
+                <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl text-center">
+                    <span class="text-xs text-slate-500 block">Jawaban Benar</span>
+                    <span id="correctCountDisplay" class="font-bold text-lg text-emerald-600">0/0</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl text-center">
+                    <span class="text-xs text-slate-500 block">Skor Dasar</span>
+                    <span id="baseScoreDisplay" class="font-bold text-lg text-slate-700">0</span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl text-center col-span-2 sm:col-span-1">
+                    <span class="text-xs text-slate-500 block">Bonus Kecepatan</span>
+                    <span id="bonusScoreDisplay" class="font-bold text-lg text-amber-600">+0</span>
+                </div>
+            </div>
+
+            <!-- Daftar Pembahasan Soal -->
+            <div class="text-left mb-8">
+                <h3 class="font-display font-bold text-lg text-slate-800 mb-3">Pembahasan Soal:</h3>
+                <div id="reviewContainer" class="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                    <!-- Pembahasan dimasukkan via JS -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onclick="restartQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-display font-semibold py-3 px-6 rounded-xl shadow-md transition-all">
+                    🔄 Coba Latihan Lagi
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <div class="max-w-4xl mx-auto px-4">
+            Aplikasi Pembuat Soal Operasi Hitung Campuran (Penjumlahan, Pengurangan, Perkalian, Pembagian, Tanda Kurung) &copy; Kelas 3 SD
+        </div>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        // State Aplikasi
+        let quizConfig = {
+            opsCount: 3,
+            timeLimit: 0,
+            totalQuestions: 10
+        };
+
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let timerInterval = null;
+        let timeRemaining = 0;
+        let questionStartTime = 0;
+        let questionTimeSpent = [];
+
+        // DOM Elements
+        const setupScreen = document.getElementById('setupScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        const headerStats = document.getElementById('headerStats');
+
+        // Form Submit Listener
+        document.getElementById('quizSetupForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            // Ambil Nilai Pengaturan
+            quizConfig.opsCount = parseInt(document.querySelector('input[name="operationsCount"]:checked').value);
+            quizConfig.timeLimit = parseInt(document.querySelector('input[name="timerOption"]:checked').value);
+            quizConfig.totalQuestions = parseInt(document.getElementById('totalQuestionsInput').value);
+
+            // Generate Soal & Start
+            startQuiz();
+        });
+
+        // Generasi Soal Sesuai Aturan Matematika SD Kelas 3
+        function generateQuestions() {
+            questions = [];
+            for (let i = 0; i < quizConfig.totalQuestions; i++) {
+                let q = generateSingleQuestion(quizConfig.opsCount);
+                questions.push(q);
+            }
+        }
+
+        // Generate Soal Tunggal dengan Angka Ramah Anak (Hasil Bulat & Positif)
+        function generateSingleQuestion(opsCount) {
+            let attempts = 0;
+            while (attempts < 800) {
+                attempts++;
+                
+                // Tentukan jumlah angka = opsCount + 1
+                let numCount = opsCount + 1;
+                let numbers = [];
+                for (let i = 0; i < numCount; i++) {
+                    numbers.push(Math.floor(Math.random() * 99) + 1); // angka 1 - 99
+                }
+
+                let operatorsList = ['+', '-', '×', '÷'];
+                let ops = [];
+                for (let i = 0; i < opsCount; i++) {
+                    let availableOperators = operatorsList.filter(op => op !== ops[i - 1]);
+                    ops.push(availableOperators[Math.floor(Math.random() * availableOperators.length)]);
+                }
+
+                // Cek apakah menggunakan tanda kurung
+                let useParentheses = opsCount >= 4 || (opsCount >= 2 && Math.random() > 0.4);
+                let parenStart = -1;
+                let parenEnd = -1;
+
+                if (useParentheses) {
+                    parenStart = Math.floor(Math.random() * (numCount - 1));
+                    parenEnd = parenStart + 1; // mengurung 2 angka berdampingan
+                }
+
+                // Construct Expression string untuk eval dan display
+                let expressionStr = "";
+                let displayStr = "";
+
+                for (let i = 0; i < numCount; i++) {
+                    if (useParentheses && i === parenStart) {
+                        expressionStr += "(";
+                        displayStr += "(";
+                    }
+
+                    expressionStr += numbers[i];
+                    displayStr += numbers[i];
+
+                    if (useParentheses && i === parenEnd) {
+                        expressionStr += ")";
+                        displayStr += ")";
+                    }
+
+                    if (i < opsCount) {
+                        let op = ops[i];
+                        let jsOp = op === '×' ? '*' : (op === '÷' ? '/' : op);
+                        expressionStr += ` ${jsOp} `;
+                        displayStr += ` ${op} `;
+                    }
+                }
+
+                // Evaluasi validitas matematika
+                try {
+                    let result = evaluateExpressionSafely(expressionStr);
+
+                    if (result !== null && Number.isInteger(result) && result >= 0 && result <= 999) {
+                        // Generate Pilihan Ganda (4 Opsi)
+                        let options = generateOptions(result);
+                        return {
+                            expression: displayStr,
+                            jsExpression: expressionStr,
+                            answer: result,
+                            options: options
+                        };
+                    }
+                } catch (e) {
+                    // Retry jika expression invalid
+                }
+            }
+
+            // Fallback jika acakan gagal
+            return {
+                expression: "( 48 + 12 ) ÷ 4 × 3",
+                answer: 45,
+                options: [40, 45, 50, 60]
+            };
+        }
+
+        // Evaluator khusus untuk memastikan sub-operasi (seperti pembagian) bernilai bulat & tak bernilai negatif
+        function evaluateExpressionSafely(expr) {
+            // Evaluasi dengan JS Function
+            try {
+                // Periksa apakah ada pecahan di langkah pembagian
+                // Sederhana: gunakan window.Function safe eval
+                let val = new Function(`return ${expr}`)();
+                return val;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        // Membuat 4 Opsi Pilihan Ganda Unik
+        function generateOptions(correctAnswer) {
+            let optionsSet = new Set();
+            optionsSet.add(correctAnswer);
+
+            let offsets = [1, -1, 2, -2, 5, -5, 3, -3, 10, -10];
+            let i = 0;
+
+            while (optionsSet.size < 4 && i < offsets.length) {
+                let wrongOpt = correctAnswer + offsets[i];
+                if (wrongOpt >= 0) {
+                    optionsSet.add(wrongOpt);
+                }
+                i++;
+            }
+
+            // Jika masih kurang dari 4 opsi
+            while (optionsSet.size < 4) {
+                let randomOpt = Math.max(0, correctAnswer + Math.floor(Math.random() * 20) - 10);
+                optionsSet.add(randomOpt);
+            }
+
+            // Shuffle opsi
+            return Array.from(optionsSet).sort(() => Math.random() - 0.5);
+        }
+
+        // Memulai Kuis
+        function startQuiz() {
+            generateQuestions();
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            questionTimeSpent = [];
+
+            setupScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            headerStats.classList.remove('hidden');
+            document.getElementById('totalQuestionsCount').textContent = quizConfig.totalQuestions;
+
+            showQuestion();
+        }
+
+        // Toggle Box Petunjuk Pengerjaan
+        function toggleHint() {
+            const hintBox = document.getElementById('hintBox');
+            hintBox.classList.toggle('hidden');
+        }
+
+        // Tampilkan Soal Berdasarkan Index
+        function showQuestion() {
+            // Hide hint box per question reset
+            document.getElementById('hintBox').classList.add('hidden');
+
+            const q = questions[currentQuestionIndex];
+            document.getElementById('currentQuestionNum').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionExpression').textContent = `${q.expression} = ?`;
+
+            // Update progress bar
+            const progressPct = ((currentQuestionIndex) / quizConfig.totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = `${progressPct}%`;
+
+            // Reset UI feedback & buttons
+            const feedbackBox = document.getElementById('feedbackBox');
+            feedbackBox.className = 'hidden p-4 rounded-xl text-center font-semibold text-sm mb-6 transition-all';
+            document.getElementById('nextQuestionBtn').classList.add('hidden');
+
+            // Render Option Buttons
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn bg-slate-50 hover:bg-indigo-50 border-2 border-slate-200 hover:border-indigo-400 text-slate-800 font-display font-bold text-xl py-4 px-6 rounded-xl transition-all shadow-sm text-center flex items-center justify-center';
+                btn.textContent = opt;
+                btn.onclick = () => selectAnswer(opt, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Timer Logic
+            questionStartTime = Date.now();
+            if (quizConfig.timeLimit > 0) {
+                document.getElementById('timerDisplay').classList.remove('hidden');
+                startTimer(quizConfig.timeLimit);
+            } else {
+                document.getElementById('timerDisplay').classList.add('hidden');
+            }
+        }
+
+        // Jalankan Timer Per Soal
+        function startTimer(seconds) {
+            clearInterval(timerInterval);
+            timeRemaining = seconds;
+            document.getElementById('timeLeft').textContent = timeRemaining;
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                document.getElementById('timeLeft').textContent = timeRemaining;
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        // Waktu Habis
+        function handleTimeOut() {
+            const timeTaken = quizConfig.timeLimit;
+            questionTimeSpent.push(timeTaken);
+
+            const q = questions[currentQuestionIndex];
+            userAnswers.push({
+                selected: null,
+                correct: q.answer,
+                isCorrect: false,
+                expression: q.expression,
+                timeSpent: timeTaken
+            });
+
+            disableOptionButtons();
+            showFeedback(false, `⏰ Waktu Habis! Jawaban yang benar adalah ${q.answer}`);
+            document.getElementById('nextQuestionBtn').classList.remove('hidden');
+        }
+
+        // Pilih Jawaban
+        function selectAnswer(selectedOpt, selectedBtn) {
+            clearInterval(timerInterval);
+            
+            const timeSpentSec = Math.round((Date.now() - questionStartTime) / 1000);
+            questionTimeSpent.push(timeSpentSec);
+
+            const q = questions[currentQuestionIndex];
+            const isCorrect = selectedOpt === q.answer;
+
+            userAnswers.push({
+                selected: selectedOpt,
+                correct: q.answer,
+                isCorrect: isCorrect,
+                expression: q.expression,
+                timeSpent: timeSpentSec
+            });
+
+            disableOptionButtons();
+
+            if (isCorrect) {
+                selectedBtn.classList.remove('bg-slate-50', 'hover:bg-indigo-50', 'border-slate-200');
+                selectedBtn.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600', 'shadow-emerald-200');
+                showFeedback(true, '🎉 Luar biasa! Jawaban kamu Benar!');
+            } else {
+                selectedBtn.classList.remove('bg-slate-50', 'hover:bg-indigo-50', 'border-slate-200');
+                selectedBtn.classList.add('bg-rose-500', 'text-white', 'border-rose-600');
+                showFeedback(false, `❌ Kurang tepat! Jawaban yang benar adalah ${q.answer}`);
+            }
+
+            document.getElementById('nextQuestionBtn').classList.remove('hidden');
+        }
+
+        // Nonaktifkan Tombol Pilihan Setelah Dijawab
+        function disableOptionButtons() {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('cursor-not-allowed', 'opacity-80');
+            });
+        }
+
+        // Feedback Box Pasca Menjawab
+        function showFeedback(isSuccess, message) {
+            const feedbackBox = document.getElementById('feedbackBox');
+            feedbackBox.classList.remove('hidden');
+            feedbackBox.textContent = message;
+
+            if (isSuccess) {
+                feedbackBox.classList.add('bg-emerald-100', 'text-emerald-800', 'border', 'border-emerald-200');
+            } else {
+                feedbackBox.classList.add('bg-rose-100', 'text-rose-800', 'border', 'border-rose-200');
+            }
+        }
+
+        // Lanjut ke Soal Berikutnya / Akhiri Kuis
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizConfig.totalQuestions) {
+                showQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        // Akhiri Kuis & Hitung Skor
+        function endQuiz() {
+            clearInterval(timerInterval);
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            headerStats.classList.add('hidden');
+
+            let correctCount = userAnswers.filter(ans => ans.isCorrect).length;
+
+            // Hitung Skor Dasar (0 - 100)
+            let baseScore = Math.round((correctCount / quizConfig.totalQuestions) * 100);
+            
+            // Hitung Bonus Kecepatan (Jika timer aktif)
+            let bonusScore = 0;
+            if (quizConfig.timeLimit > 0 && correctCount > 0) {
+                let totalBonus = 0;
+                userAnswers.forEach(ans => {
+                    if (ans.isCorrect) {
+                        let savedTime = Math.max(0, quizConfig.timeLimit - ans.timeSpent);
+                        totalBonus += Math.min(10, Math.floor(savedTime / 3)); // Maks 10 poin bonus per soal
+                    }
+                });
+                bonusScore = Math.min(15, Math.round(totalBonus / quizConfig.totalQuestions)); // Maks 15 poin bonus total
+            }
+
+            let finalScore = Math.min(100, baseScore + bonusScore);
+
+            // Render Nilai ke Tampilan
+            document.getElementById('finalScoreDisplay').textContent = finalScore;
+            document.getElementById('correctCountDisplay').textContent = `${correctCount}/${quizConfig.totalQuestions}`;
+            document.getElementById('baseScoreDisplay').textContent = baseScore;
+            document.getElementById('bonusScoreDisplay').textContent = `+${bonusScore}`;
+
+            // Rating Keterangan
+            const scoreGrade = document.getElementById('scoreGrade');
+            if (finalScore >= 90) {
+                scoreGrade.textContent = '🌟 Hebat Sekali! Kamu Master Matematika!';
+            } else if (finalScore >= 75) {
+                scoreGrade.textContent = '👍 Bagus Banget! Hasil yang Memuaskan!';
+            } else if (finalScore >= 60) {
+                scoreGrade.textContent = '😊 Cukup Baik, Tingkatkan Latihan Lagi Ya!';
+            } else {
+                scoreGrade.textContent = '💪 Jangan Menyerah, Ayo Coba Lagi!';
+            }
+
+            // Render Pembahasan
+            const reviewContainer = document.getElementById('reviewContainer');
+            reviewContainer.innerHTML = '';
+
+            userAnswers.forEach((ans, idx) => {
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-xl border text-sm flex justify-between items-center ${ans.isCorrect ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'}`;
+                
+                const timeInfo = quizConfig.timeLimit > 0 ? `<span class="text-xs text-slate-500 font-mono ml-2">⏱️ ${ans.timeSpent}s</span>` : '';
+
+                item.innerHTML = `
+                    <div>
+                        <span class="font-bold text-slate-700">${idx + 1}. ${ans.expression} = ${ans.correct}</span>
+                        ${timeInfo}
+                    </div>
+                    <div class="text-right">
+                        ${ans.isCorrect 
+                            ? '<span class="text-xs bg-emerald-200 text-emerald-800 font-bold px-2 py-1 rounded-md">Benar</span>' 
+                            : `<span class="text-xs bg-rose-200 text-rose-800 font-bold px-2 py-1 rounded-md">Salah (Jwb: ${ans.selected === null ? 'Waktu Habis' : ans.selected})</span>`}
+                    </div>
+                `;
+                reviewContainer.appendChild(item);
+            });
+        }
+
+        // Restart Kuis / Kembali ke Menu
+        function restartQuiz() {
+            resultScreen.classList.add('hidden');
+            setupScreen.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
