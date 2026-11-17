@@ -348,6 +348,9 @@
                 let ops = [];
                 for (let i = 0; i < opsCount; i++) {
                     let availableOperators = operatorsList.filter(op => op !== ops[i - 1]);
+                    if (i === opsCount - 1 && !ops.some(op => op === '×' || op === '÷')) {
+                        availableOperators = availableOperators.filter(op => op === '×' || op === '÷');
+                    }
                     ops.push(availableOperators[Math.floor(Math.random() * availableOperators.length)]);
                 }
 
@@ -387,22 +390,17 @@
                     }
                 }
 
-                // Evaluasi validitas matematika
-                try {
-                    let result = evaluateExpressionSafely(expressionStr);
-
-                    if (result !== null && Number.isInteger(result) && result >= 0 && result <= 999) {
-                        // Generate Pilihan Ganda (4 Opsi)
-                        let options = generateOptions(result);
-                        return {
-                            expression: displayStr,
-                            jsExpression: expressionStr,
-                            answer: result,
-                            options: options
-                        };
-                    }
-                } catch (e) {
-                    // Retry jika expression invalid
+                // Pastikan jawaban bulat positif dan hasil operasi dalam batas yang ditentukan.
+                let result = evaluateExpressionSafely(expressionStr);
+                if (result !== null && Number.isInteger(result) && result > 0) {
+                    // Generate Pilihan Ganda (4 Opsi)
+                    let options = generateOptions(result);
+                    return {
+                        expression: displayStr,
+                        jsExpression: expressionStr,
+                        answer: result,
+                        options: options
+                    };
                 }
             }
 
@@ -414,15 +412,70 @@
             };
         }
 
-        // Evaluator khusus untuk memastikan sub-operasi (seperti pembagian) bernilai bulat & tak bernilai negatif
+        // Evaluator dengan prioritas operasi dan validasi hasil setiap perkalian/pembagian.
         function evaluateExpressionSafely(expr) {
-            // Evaluasi dengan JS Function
+            const tokens = expr.match(/\d+|[()+\-*/]/g);
+            if (!tokens || tokens.join('') !== expr.replace(/\s+/g, '')) {
+                return null;
+            }
+
+            let tokenIndex = 0;
+
+            function parseExpression() {
+                let value = parseTerm();
+                while (tokens[tokenIndex] === '+' || tokens[tokenIndex] === '-') {
+                    const operator = tokens[tokenIndex++];
+                    const right = parseTerm();
+                    value = operator === '+' ? value + right : value - right;
+                }
+                return value;
+            }
+
+            function parseTerm() {
+                let value = parseFactor();
+                while (tokens[tokenIndex] === '*' || tokens[tokenIndex] === '/') {
+                    const operator = tokens[tokenIndex++];
+                    const right = parseFactor();
+
+                    if (operator === '*') {
+                        value *= right;
+                        if (Math.abs(value) >= 10000) {
+                            throw new Error('Hasil perkalian di luar batas');
+                        }
+                    } else {
+                        if (right === 0 || value % right !== 0) {
+                            throw new Error('Pembagian tidak menghasilkan bilangan bulat');
+                        }
+                        value /= right;
+                        if (Math.abs(value) >= 1000) {
+                            throw new Error('Hasil pembagian di luar batas');
+                        }
+                    }
+                }
+                return value;
+            }
+
+            function parseFactor() {
+                if (tokens[tokenIndex] === '(') {
+                    tokenIndex++;
+                    const value = parseExpression();
+                    if (tokens[tokenIndex++] !== ')') {
+                        throw new Error('Tanda kurung tidak berpasangan');
+                    }
+                    return value;
+                }
+
+                const token = tokens[tokenIndex++];
+                if (!/^\d+$/.test(token || '')) {
+                    throw new Error('Angka tidak valid');
+                }
+                return Number(token);
+            }
+
             try {
-                // Periksa apakah ada pecahan di langkah pembagian
-                // Sederhana: gunakan window.Function safe eval
-                let val = new Function(`return ${expr}`)();
-                return val;
-            } catch (err) {
+                const result = parseExpression();
+                return tokenIndex === tokens.length ? result : null;
+            } catch (error) {
                 return null;
             }
         }
